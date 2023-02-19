@@ -59,7 +59,8 @@ class C1Table extends Component {
             const ok = await this._parent().deleteRow(id, this.rowsKey);
             if (ok) {
                 tr.remove();
-                this._ref('count').innerHTML = this._ref('count').innerHTML - 1;
+                this.rows = this.rows.filter((item) => item.id != id); // remove row
+                this._ref('count').innerHTML = this.rows.length;
             }
         });
 
@@ -140,9 +141,13 @@ class C1Table extends Component {
         return rowsHtmls;
     }
 
-    reload() {
-        emptyElement(this);
-        this._init();
+    async reload() {
+        emptyElement(this.tableBody);
+        const parent = this._parent();
+        this.rows = await parent.getRows(this.rowsKey);
+        const rowsHtmlsJoin = this._generateRows().join('');
+        this.tableBody.innerHTML = rowsHtmlsJoin;
+        this._ref('count').innerHTML = this.rows.length;
     }
 
     addRow(row) {
@@ -154,7 +159,7 @@ class C1Table extends Component {
         const parser = new DOMParser();
         const htmlDoc = parser.parseFromString('<table>' + rowTemplate(mappedRow) + '</table>', 'text/html');
         this.tableBody.insertBefore(htmlDoc.body.querySelector('tr'), this.tableBody.firstElementChild);
-        this._ref('count').innerHTML = parseInt(this._ref('count').innerHTML) + 1;
+        this._ref('count').innerHTML = this.rows.length;
     }
 }
 

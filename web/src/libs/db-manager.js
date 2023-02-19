@@ -196,10 +196,19 @@ class DBManager {
         return result;
     }
 
-    async getScore(psId, race) {
+    async getAllCategories(race) {
+        const runners = await this.getAllRunner(race);
+        const categories = runners.map((item) => item.category);
+        return [...new Set(categories)];
+    }
+
+    async getScore(psId, race, category) {
         const ps = await this.db.ps.get(parseInt(psId));
         if (!ps) return [];
-        let runners = await this.db.runner.where('race').equals(parseInt(race)).toArray();
+
+        let runners = [];
+        if (!category) runners = await this.db.runner.where({ race: parseInt(race) }).toArray();
+        else runners = await this.db.runner.where({ race: parseInt(race), category }).toArray();
         if (!runners) return [];
 
         // sort runners by ps direction

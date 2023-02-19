@@ -20,9 +20,15 @@ class M4Score extends Component {
         const selectedPage = getStoreManager().get('selectedPage');
         this.psId = selectedPage.destination.substring(3);
 
+        this.category = null;
+
+        const data = {
+            categories: await this.dbManager.getAllCategories(this.raceId),
+        };
+
         // parse html
         const parser = new DOMParser();
-        const htmlDoc = parser.parseFromString(template({}), 'text/html');
+        const htmlDoc = parser.parseFromString(template(data), 'text/html');
         this.appendChild(htmlDoc.body.firstElementChild);
 
         //get table
@@ -36,10 +42,20 @@ class M4Score extends Component {
             },
             'download'
         );
+
+        this._addListener(
+            'change',
+            (event) => {
+                event.preventDefault();
+                this.category = event.target.value;
+                this.table.reload();
+            },
+            'selectCategory'
+        );
     }
 
     async getRows() {
-        return await this.dbManager.getScore(this.psId, this.raceId);
+        return await this.dbManager.getScore(this.psId, this.raceId, this.category);
     }
 
     async _download() {

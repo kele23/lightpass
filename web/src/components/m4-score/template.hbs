@@ -10,8 +10,26 @@
         ></c1-table>
     </div>
     <div class="w-full lg:w-1/3">
-         <div class="bg-white rounded-lg shadow sm:max-w-md sm:w-full sm:mx-auto sm:overflow-hidden">
+        <div class="bg-white rounded-lg shadow sm:max-w-md sm:w-full sm:mx-auto sm:overflow-hidden">
+
             <div class="px-4 py-8 sm:px-10">
+                <div class="w-full space-y-6">
+                    <div class="w-full">
+                        <select
+                            class="font-semibold w-full block px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                            ref="selectCategory"
+                        >
+                            <option value="">
+                                Tutte le Categorie
+                            </option>
+                            {{#each categories}}
+                                <option value="{{this}}">
+                                    {{this}}
+                                </option>
+                            {{/each}}
+                        </select>
+                    </div>
+                </div>
                 <div class="mt-6">
                     <div class="w-full space-y-6">
                         <div class="w-full">

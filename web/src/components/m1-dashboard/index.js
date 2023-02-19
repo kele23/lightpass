@@ -92,7 +92,7 @@ class M1Dashboard extends Component {
         }
         if (type == 'take') {
             await this.dbManager.deleteTake({ id });
-            this.timeTable.reload();
+            await this.timeTable.reload();
             return true;
         }
     }
@@ -159,8 +159,8 @@ class M1Dashboard extends Component {
         this._flickBg(this.assignTime, 'bg-green-300');
         this.assignTime.reset();
 
-        this.takeTable.reload();
-        this.timeTable.reload();
+        await this.takeTable.reload();
+        await this.timeTable.reload();
     }
 
     _flickBg(element, bg) {
@@ -173,7 +173,7 @@ class M1Dashboard extends Component {
     }
 
     async _selectPs(psId) {
-        if (psId == 'all') {
+        if (!psId) {
             this._emit('selectedPS', null);
         } else {
             const ps = await this.dbManager.getPS(psId);

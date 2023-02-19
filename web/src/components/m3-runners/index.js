@@ -63,7 +63,7 @@ class M3Runners extends Component {
     async _createRunner(form) {
         const data = { ...formToJSON(form), race: this.raceId };
         await this.dbManager.createOrUpdateRunner(data);
-        this.table.reload();
+        await this.table.reload();
         form.reset();
     }
 
@@ -91,7 +91,7 @@ class M3Runners extends Component {
             await this.dbManager.createOrUpdateRunner({ ...row, id: null, race: this.raceId });
         }
 
-        this.table.reload();
+        await this.table.reload();
         form.reset();
     }
 

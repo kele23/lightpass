@@ -64,7 +64,7 @@ class M2Race extends Component {
         const json = formToJSON(form);
         const data = { ...json, start: new Date(json.start).getTime(), race: this.raceId };
         await this.dbManager.createOrUpdatePS(data);
-        this.table.reload();
+        await this.table.reload();
         form.reset();
 
         this._emit('psChange', true);
@@ -99,7 +99,7 @@ class M2Race extends Component {
             });
         }
 
-        this.table.reload();
+        await this.table.reload();
         form.reset();
     }
 
