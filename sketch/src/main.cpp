@@ -3,6 +3,7 @@
 #include "ESPAsyncWebServer.h"
 #include "SPIFFS.h"
 #include <AsyncElegantOTA.h>
+#include <ESPmDNS.h>
 
 const char *ssid = "LightpassV2";
 const char *password = "anatra12";
@@ -71,7 +72,7 @@ void setup()
 
     // begin input
     pinMode(inter.PIN, INPUT_PULLUP);
-    attachInterrupt(inter.PIN, isr, FALLING);
+    attachInterrupt(inter.PIN, isr, RISING);
 
     // begin data storage
     if (!SPIFFS.begin(true))
@@ -81,6 +82,12 @@ void setup()
 
     // start wifi
     WiFi.softAP(ssid, password);
+
+    // lightpass mDNS
+    if (!MDNS.begin("lightpass"))
+    {
+        return;
+    }
 
     // print ip
     Serial.println(WiFi.softAPIP());
@@ -96,7 +103,7 @@ void loop()
 
     if (inter.rised)
     {
-        Serial.printf("Falled at %lu\n", inter.time);
+        Serial.printf("Rised at %lu\n", inter.time);
 
         char mystr[40];
         sprintf(mystr, "%lu", inter.time);

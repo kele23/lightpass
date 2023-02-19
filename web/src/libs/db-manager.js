@@ -54,6 +54,10 @@ class DBManager {
         await this.db.ps.bulkDelete(ids);
     }
 
+    async getPS(id) {
+        return await this.db.ps.get(parseInt(id));
+    }
+
     async getPSBy({ name, race }) {
         return await this.db.ps.get({ name, race: parseInt(race) });
     }
@@ -114,8 +118,9 @@ class DBManager {
         return await this.db.take.get({ ps: parseInt(ps), runner: parseInt(runner), race: parseInt(race) });
     }
 
-    async getAllTake(race) {
-        return await this.db.take.where('race').equals(parseInt(race)).toArray();
+    async getAllTake(race, ps) {
+        if (!ps || ps == 'all') return await this.db.take.where('race').equals(parseInt(race)).toArray();
+        return await this.db.take.where({ race: parseInt(race), ps: parseInt(ps) }).toArray();
     }
 
     async createTake({ time, ps, runner, race }) {
@@ -169,8 +174,8 @@ class DBManager {
         return result;
     }
 
-    async getAllTakeJoin(race) {
-        const takes = await this.getAllTake(race);
+    async getAllTakeJoin(race, ps) {
+        const takes = await this.getAllTake(race, ps);
         const result = await Promise.all(
             takes.map(async (take) => {
                 const time = await this.db.time.get(take.time);

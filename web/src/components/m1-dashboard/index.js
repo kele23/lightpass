@@ -20,6 +20,11 @@ class M1Dashboard extends Component {
             },
             document.body
         );
+
+        this._addStoreListener('selectedPS', (path, data) => {
+            this.ps = data;
+            this.takeTable?.reload();
+        });
     }
 
     async _init() {
@@ -27,15 +32,25 @@ class M1Dashboard extends Component {
         const selectedRace = getStoreManager().get('selectedRace');
         this.raceId = selectedRace.race;
 
+        const selectedPS = getStoreManager().get('selectedPS');
+        this.ps = selectedPS;
+
         // parse html
+        let pss = await this.dbManager.getAllPS(this.raceId);
+        pss = pss.map((item) => (item.id == this.ps?.id ? { ...item, selected: true } : item));
+        const data = {
+            pss,
+        };
+
         const parser = new DOMParser();
-        const htmlDoc = parser.parseFromString(template({}), 'text/html');
+        const htmlDoc = parser.parseFromString(template(data), 'text/html');
         this.appendChild(htmlDoc.body.firstElementChild);
 
         //get table
         this.timeTable = this._ref('timeTable');
         this.takeTable = this._ref('takeTable');
         this.assignTime = this._ref('assignTime');
+        this.selectPs = this._ref('selectPs');
 
         this._addListener(
             'submit',
@@ -45,11 +60,20 @@ class M1Dashboard extends Component {
             },
             this.assignTime
         );
+
+        this._addListener(
+            'change',
+            (event) => {
+                event.preventDefault();
+                this._selectPs(this.selectPs.value);
+            },
+            this.selectPs
+        );
     }
 
     async getRows(type) {
         if (type == 'take') {
-            return await this.dbManager.getAllTakeJoin(this.raceId);
+            return await this.dbManager.getAllTakeJoin(this.raceId, this.ps?.id);
         }
         if (type == 'time') {
             return await this.dbManager.getAllTimeJoin(this.raceId, true);
@@ -97,21 +121,20 @@ class M1Dashboard extends Component {
         // compile form
         const formData = {
             ...time,
+            psName: this.ps?.name,
             timeStr: dateToStr(new Date(time.time), true),
         };
         jsonToForm(this.assignTime, formData);
 
         // focus
-        setTimeout(() => {
-            this.assignTime.classList.remove('bg-blue-300');
-        }, 1000);
-        this.assignTime.classList.add('bg-blue-300');
+        this._flickBg(this.assignTime, 'bg-blue-300');
         this.assignTime.querySelector('[name=runnerNum]').focus();
     }
 
     async _assignTime(json) {
         if (!json.id) {
             console.warn('Cannot assign time without a Time ID');
+            this._flickBg(this.assignTime, 'bg-red-300');
             return;
         }
 
@@ -120,33 +143,42 @@ class M1Dashboard extends Component {
 
         if (!ps || !runner) {
             console.warn('Cannot find PS or Runner');
-            setTimeout(() => {
-                this.assignTime.classList.remove('bg-red-300');
-            }, 1000);
-            this.assignTime.classList.add('bg-red-300');
+            this._flickBg(this.assignTime, 'bg-red-300');
             return;
         }
 
         const take = await this.dbManager.getTakeBy({ ps: ps.id, runner: runner.id, race: this.raceId });
         if (take) {
             console.warn('Take already exists for this PS and Runner');
-            setTimeout(() => {
-                this.assignTime.classList.remove('bg-red-300');
-            }, 1000);
-            this.assignTime.classList.add('bg-red-300');
+            this._flickBg(this.assignTime, 'bg-red-300');
             return;
         }
 
         await this.dbManager.createTake({ time: json.id, ps: ps.id, runner: runner.id, race: this.raceId });
 
-        setTimeout(() => {
-            this.assignTime.classList.remove('bg-green-300');
-        }, 1000);
-        this.assignTime.classList.add('bg-green-300');
+        this._flickBg(this.assignTime, 'bg-green-300');
         this.assignTime.reset();
 
         this.takeTable.reload();
         this.timeTable.reload();
+    }
+
+    _flickBg(element, bg) {
+        setTimeout(() => {
+            element.classList.remove(bg);
+            element.classList.add('bg-white');
+        }, 300);
+        element.classList.add(bg);
+        element.classList.remove('bg-white');
+    }
+
+    async _selectPs(psId) {
+        if (psId == 'all') {
+            this._emit('selectedPS', null);
+        } else {
+            const ps = await this.dbManager.getPS(psId);
+            this._emit('selectedPS', ps);
+        }
     }
 }
 

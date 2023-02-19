@@ -28,6 +28,7 @@ module.exports = {
     plugins: [
         ////////////// PAGES
         new HtmlWebpackPlugin({
+            favicon: './src/assets/favicon.ico',
             filename: 'index.html',
             template: path.resolve(src, 'pages', 'index.html'),
         }),
