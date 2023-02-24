@@ -24,6 +24,13 @@ class M1Dashboard extends Component {
         this._addStoreListener('selectedPS', (path, data) => {
             this.ps = data;
             this.takeTable?.reload();
+            this.scoreTable?.reload();
+
+            if (data) {
+                this.scoreTableDiv?.classList.remove('hidden');
+            } else {
+                this.scoreTableDiv?.classList.add('hidden');
+            }
         });
     }
 
@@ -40,6 +47,7 @@ class M1Dashboard extends Component {
         pss = pss.map((item) => (item.id == this.ps?.id ? { ...item, selected: true } : item));
         const data = {
             pss,
+            selectedPs: this.ps ? true : false,
         };
 
         const parser = new DOMParser();
@@ -49,6 +57,8 @@ class M1Dashboard extends Component {
         //get table
         this.timeTable = this._ref('timeTable');
         this.takeTable = this._ref('takeTable');
+        this.scoreTable = this._ref('scoreTable');
+        this.scoreTableDiv = this._ref('scoreTableDiv');
         this.assignTime = this._ref('assignTime');
         this.selectPs = this._ref('selectPs');
 
@@ -73,10 +83,14 @@ class M1Dashboard extends Component {
 
     async getRows(type) {
         if (type == 'take') {
-            return await this.dbManager.getAllTakeJoin(this.raceId, this.ps?.id);
+            return await this.dbManager.getAllTakeJoinWithoutScore(this.raceId, this.ps?.id);
         }
         if (type == 'time') {
             return await this.dbManager.getAllTimeJoin(this.raceId, true);
+        }
+        if (type == 'score') {
+            if (!this.ps?.id) return [];
+            return await this.dbManager.getAllTakeJoinWithScore(this.raceId, this.ps.id);
         }
     }
 
@@ -90,10 +104,12 @@ class M1Dashboard extends Component {
             await this.dbManager.deleteTime({ id });
             return true;
         }
-        if (type == 'take') {
+        if ((type == 'take' || type == 'score') && id) {
             await this.dbManager.deleteTake({ id });
             await this.timeTable.reload();
-            return true;
+            await this.takeTable.reload();
+            await this.scoreTable.reload();
+            return false;
         }
     }
 
@@ -159,8 +175,12 @@ class M1Dashboard extends Component {
         this._flickBg(this.assignTime, 'bg-green-300');
         this.assignTime.reset();
 
+        // remove focus
+        document.activeElement.blur();
+
         await this.takeTable.reload();
         await this.timeTable.reload();
+        await this.scoreTable.reload();
     }
 
     _flickBg(element, bg) {

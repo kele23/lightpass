@@ -24,7 +24,6 @@ class L1App extends Component {
 
     _addListeners() {
         this._addStoreListener('selectedRace', (path, value) => {
-            emptyElement(this.content);
             if (value.race) this.content.innerHTML = '<l2-main></l2-main>';
             else this.content.innerHTML = '<m0-racer></m0-racer>';
         });

@@ -1,7 +1,7 @@
 import Component from '../../libs/component';
 import template from './template.hbs';
 import { getDBManager } from '../../libs/db-manager';
-import { emptyElement } from '../../libs/utils';
+import { dateToStr, emptyElement } from '../../libs/utils';
 import { getStoreManager } from '../../libs/store-manager';
 
 class L2Main extends Component {
@@ -13,11 +13,14 @@ class L2Main extends Component {
 
         this._addStoreListeners();
         this._init();
+
+        setInterval(() => {
+            if (this.currentTime) this.currentTime.innerHTML = dateToStr(new Date());
+        }, 1000);
     }
 
     _addStoreListeners() {
         this._addStoreListener('selectedPage', (path, data) => {
-            emptyElement(this.dashboardContent);
             const location = this._getLocation(data);
             this.dashboardContent.innerHTML = location.content;
             this.dashboardTitle.innerHTML = location.title;
@@ -42,6 +45,7 @@ class L2Main extends Component {
         this.nav = this._ref('nav');
         this.dashboardContent = this._ref('dashboardContent');
         this.dashboardTitle = this._ref('dashboardTitle');
+        this.currentTime = this._ref('currentTime');
 
         this._addListener(
             'click',

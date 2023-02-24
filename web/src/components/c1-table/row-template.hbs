@@ -2,7 +2,19 @@
     {{#each data}}
         <td class="px-5 py-3 text-sm bg-white border-b border-gray-200">
             <p class="text-gray-900 whitespace-no-wrap">
-                {{this}}
+                {{#equals key "status"}}
+                    {{#equals data "next"}}
+                        <span title="In arrivo" class="inline-block rounded-full bg-blue-500 border border-black h-3 w-3 border-opacity-60"></span>
+                    {{/equals}}
+                    {{#equals data "ok"}}
+                        <span title="Assegnato" class="inline-block rounded-full bg-green-500 border border-black h-3 w-3 border-opacity-60"></span>
+                    {{/equals}}
+                    {{#equals data "missing"}}
+                        <span title="Mancante" class="inline-block rounded-full bg-yellow-500 border border-black h-3 w-3 border-opacity-60"></span>
+                    {{/equals}}
+                {{else}}
+                    {{data}}
+                {{/equals}}
             </p>
         </td>
     {{/each}}

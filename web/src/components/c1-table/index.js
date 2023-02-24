@@ -1,6 +1,6 @@
 import Component from '../../libs/component';
 import { getDBManager } from '../../libs/db-manager';
-import { dateToStr, dateToDiffTimeStr, emptyElement } from '../../libs/utils';
+import { dateToStr, dateToDiffTimeStr, emptyElement, dateToTime } from '../../libs/utils';
 import template from './template.hbs';
 import rowTemplate from './row-template.hbs';
 import { formToJSON } from '../../libs/form-to-json';
@@ -19,6 +19,7 @@ class C1Table extends Component {
         const labels = this.getAttribute('labels').split(',');
         const filterKey = this.getAttribute('filterKey');
         const title = this.getAttribute('title');
+        const hideCount = this.getAttribute('hideCount');
 
         // global props
         this.rowsKey = this.getAttribute('rowsKey');
@@ -38,6 +39,7 @@ class C1Table extends Component {
             rowsHtmls,
             filterKey,
             title,
+            hideCount,
             actionDisabled: this.actionDisabled,
         };
 
@@ -60,7 +62,7 @@ class C1Table extends Component {
             if (ok) {
                 tr.remove();
                 this.rows = this.rows.filter((item) => item.id != id); // remove row
-                this._ref('count').innerHTML = this.rows.length;
+                if (this._ref('count')) this._ref('count').innerHTML = this.rows.length;
             }
         });
 
@@ -76,7 +78,6 @@ class C1Table extends Component {
             (event) => {
                 event.preventDefault();
                 this.currentFilter = formToJSON(event.target);
-                emptyElement(this.tableBody);
                 const rowsHtmlsJoin = this._generateRows().join('');
                 this.tableBody.innerHTML = rowsHtmlsJoin;
             },
@@ -87,10 +88,13 @@ class C1Table extends Component {
     _rowMap(item) {
         const res = { id: item.id, data: [], editEnabled: this.editEnabled, actionDisabled: this.actionDisabled };
         for (const key of this.keys) {
-            if (key == 'start') res.data.push(dateToStr(item[key]));
-            else if (key == 'time' || key == 'end' || key == 'assignedTime') res.data.push(dateToStr(item[key], true));
-            else if (key == 'diff') res.data.push(dateToDiffTimeStr(item[key], true));
-            else res.data.push(item[key]);
+            let data = item[key];
+
+            if (key == 'start') data = dateToStr(item[key]);
+            else if (key == 'time' || key == 'end' || key == 'assignedTime') data = dateToTime(item[key], true);
+            else if (key == 'diff') data = dateToDiffTimeStr(item[key], true);
+
+            res.data.push({ key, data });
         }
         return res;
     }
@@ -142,12 +146,11 @@ class C1Table extends Component {
     }
 
     async reload() {
-        emptyElement(this.tableBody);
         const parent = this._parent();
         this.rows = await parent.getRows(this.rowsKey);
         const rowsHtmlsJoin = this._generateRows().join('');
         this.tableBody.innerHTML = rowsHtmlsJoin;
-        this._ref('count').innerHTML = this.rows.length;
+        if (this._ref('count')) this._ref('count').innerHTML = this.rows.length;
     }
 
     addRow(row) {
@@ -159,7 +162,7 @@ class C1Table extends Component {
         const parser = new DOMParser();
         const htmlDoc = parser.parseFromString('<table>' + rowTemplate(mappedRow) + '</table>', 'text/html');
         this.tableBody.insertBefore(htmlDoc.body.querySelector('tr'), this.tableBody.firstElementChild);
-        this._ref('count').innerHTML = this.rows.length;
+        if (this._ref('count')) this._ref('count').innerHTML = this.rows.length;
     }
 }
 

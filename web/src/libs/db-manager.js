@@ -174,8 +174,8 @@ class DBManager {
         return result;
     }
 
-    async getAllTakeJoin(race, ps) {
-        const takes = await this.getAllTake(race, ps);
+    async getAllTakeJoinWithoutScore(race, psId) {
+        const takes = await this.getAllTake(race, psId);
         const result = await Promise.all(
             takes.map(async (take) => {
                 const time = await this.db.time.get(take.time);
@@ -189,11 +189,46 @@ class DBManager {
                     assigned: runner.number,
                     assignedName: runner.name,
                     assignedPs: ps.name,
+                    status: 'ok',
                 };
             })
         );
 
         return result;
+    }
+
+    async getAllTakeJoinWithScore(race, psId) {
+        let score = await this.getScoreFull(psId, race);
+
+        score = score.reverse();
+
+        let result = [];
+        let firstTakeIndex = score.length;
+        for (let i = 0; i < score.length; i++) {
+            const { runner, time, take, ps, start, diff } = { ...score[i] };
+
+            let status = 'next';
+            if (take?.time) status = 'ok';
+            else if (i > firstTakeIndex) status = 'missing';
+
+            result.push({
+                ...take,
+                assignedIdTime: time?.id,
+                assignedTime: time?.time,
+                assigned: runner.number,
+                assignedName: runner.name,
+                assignedPs: ps.name,
+                start,
+                diff,
+                status,
+            });
+
+            if (take?.time && firstTakeIndex > i) {
+                firstTakeIndex = i;
+            }
+        }
+
+        return result.slice(Math.max(0, firstTakeIndex - 3));
     }
 
     async getAllCategories(race) {
@@ -202,7 +237,7 @@ class DBManager {
         return [...new Set(categories)];
     }
 
-    async getScore(psId, race, category) {
+    async getScoreFull(psId, race, category) {
         const ps = await this.db.ps.get(parseInt(psId));
         if (!ps) return [];
 
@@ -213,8 +248,8 @@ class DBManager {
 
         // sort runners by ps direction
         runners = runners.sort((one, two) => {
-            const a = ps.direction == 'asc' ? one : two;
-            const b = ps.direction == 'asc' ? two : one;
+            const a = ps.order == 'asc' ? one : two;
+            const b = ps.order == 'asc' ? two : one;
 
             if (a.number === undefined) {
                 return 1;
@@ -235,24 +270,41 @@ class DBManager {
         let start = new Date(ps.start);
         const gap = parseInt(ps.gap);
         const result = [];
-        for (const runner of runners) {
+        for (let i = 0; i < runners.length; i++) {
+            const runner = runners[i];
+
             // get diff
             let diff = null;
             let end = null;
             const take = await this.getTakeBy({ ps: ps.id, runner: runner.id, race: race });
+            let time = null;
             if (take) {
-                const time = await this.getTime(take.time);
+                time = await this.getTime(take.time);
                 end = new Date(time.time);
                 diff = new Date(end.getTime() - start.getTime());
                 console.log(diff);
             }
-            result.push({ ...runner, ps: ps.name, start: start.getTime(), end: end?.getTime(), diff: diff?.getTime() });
+            result.push({ runner, ps, take, time, start, diff });
 
             // next start
-            start = new Date(start.getTime() + gap * 1000);
+            const nextRunner = i + 1 >= runners.length ? null : runners[i + 1];
+            const mult = !nextRunner ? 1 : Math.abs(nextRunner.number - runner.number);
+            start = new Date(start.getTime() + gap * 1000 * mult);
         }
 
         return result;
+    }
+
+    async getScore(psId, race, category) {
+        const result = await this.getScoreFull(psId, race, category);
+
+        return result.map(({ runner, ps, take, time, start, diff }) => ({
+            ...runner,
+            ps: ps.name,
+            start: start.getTime(),
+            end: time?.time,
+            diff: diff?.getTime(),
+        }));
     }
 
     ///////////// GLOBAL

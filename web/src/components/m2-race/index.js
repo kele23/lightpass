@@ -109,6 +109,7 @@ class M2Race extends Component {
 
     async deleteRow(id) {
         await this.dbManager.deletePS({ id });
+        return true;
     }
 
     async _download() {

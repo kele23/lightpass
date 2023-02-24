@@ -1,8 +1,8 @@
 <div class="lg:flex w-full">
     <div class="w-full lg:w-2/3 lg:pr-2">
 
-        <div class="mb-8">
-            <c1-table
+        <div>
+            <c1-table tabindex="0"
                 labels="id,Data"
                 keys="id,time"
                 orderBy="time"
@@ -14,17 +14,30 @@
             ></c1-table>
         </div>
 
-        <div>
-            <c1-table
-                labels="ID,Time,PS,Data,Nome,Num"
-                keys="id,assignedIdTime,assignedPs,assignedTime,assignedName,assigned"
+        <div ref="scoreTableDiv" class="mt-8 {{#unless selectedPs}}hidden{{/unless}}">
+            <c1-table tabindex="0"
+                labels="Num,Nome,Start,End,Diff,Stato"
+                keys="assigned,assignedName,start,assignedTime,diff,status"
                 filterKey="assignedName"
-                orderBy="assigned"
+                rowsKey="score"
+                title="Classifica parziale"
+                hideCount="true"
+                ref="scoreTable"
+            ></c1-table>
+        </div>
+
+        <div class="mt-8">
+            <c1-table tabindex="0"
+                labels="Num,Nome,PS,End,Stato"
+                keys="assigned,assignedName,assignedPs,assignedTime,status"
+                filterKey="assignedName"
                 rowsKey="take"
                 title="Tempi assegnati"
                 ref="takeTable"
             ></c1-table>
         </div>
+
+         
     </div>
     <div class="w-full lg:w-1/3">
 
