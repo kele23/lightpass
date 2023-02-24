@@ -62,7 +62,7 @@ class EventService {
 
     _addFakeListeners() {
         document.body.addEventListener('keypress', (e) => {
-            if (e.code == 'BracketRight') this._sendEvent(new Date());
+            if (e.code == 'BracketRight' || e.code == 'NumpadAdd') this._sendEvent(new Date());
         });
     }
 
