@@ -10,6 +10,7 @@ import M2Race from './components/m2-race';
 import M3Runners from './components/m3-runners';
 import { getEventService } from './libs/event-service';
 import M4Score from './components/m4-score';
+import C3Confirm from './components/c3-confirm';
 
 (async () => {
     // layout
@@ -24,6 +25,7 @@ import M4Score from './components/m4-score';
     // others
     customElements.define('c1-table', C1Table);
     customElements.define('c2-nav', C2Nav);
+    customElements.define('c3-confirm', C3Confirm);
 
     //start event service
     getEventService().start();

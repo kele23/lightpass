@@ -4,6 +4,7 @@ import { dateToStr, dateToDiffTimeStr, emptyElement, dateToTime } from '../../li
 import template from './template.hbs';
 import rowTemplate from './row-template.hbs';
 import { formToJSON } from '../../libs/form-to-json';
+import C3Confirm from '../c3-confirm';
 
 class C1Table extends Component {
     constructor() {
@@ -56,6 +57,10 @@ class C1Table extends Component {
     _addListeners() {
         this._addListener('click', async (event) => {
             if (!event.target.matches('[ref=deleteRow]')) return;
+
+            const selection = await C3Confirm.openAndWait('default');
+            if (!selection) return;
+
             const tr = event.target.closest('tr');
             const id = tr.dataset.id;
             const ok = await this._parent().deleteRow(id, this.rowsKey);

@@ -10,7 +10,8 @@ class DBManager {
             runner: '++id, name, number, category, race',
             ps: '++id, name, start, gap, order, race',
             time: '++id, time, race',
-            take: '++id, &time, ps, runner, race',
+            take: '++id, time, ps, runner, race',
+
         });
     }
 
@@ -282,7 +283,6 @@ class DBManager {
                 time = await this.getTime(take.time);
                 end = new Date(time.time);
                 diff = new Date(end.getTime() - start.getTime());
-                console.log(diff);
             }
             result.push({ runner, ps, take, time, start, diff });
 

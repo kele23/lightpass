@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////
 //////////// PROMISIFY EVENT
 ///////////////////////////////////////////////////
-export const buildWaitForEvent = (eventName) => (node, func) =>
+export const buildWaitForEvent = (eventName) => (node) =>
     new Promise((resolve, reject) => {
         // reject for invalid node
         if (!(node instanceof window.HTMLElement || node instanceof window.SVGElement)) {
@@ -9,20 +9,15 @@ export const buildWaitForEvent = (eventName) => (node, func) =>
         }
 
         // create the event handler
-        const handler = () => {
+        const handler = (event) => {
             // unbind the handler
             node.removeEventListener(eventName, handler);
             // resolve the (now clean) node
-            return resolve(node);
+            return resolve(event);
         };
 
         // bind the handler
         node.addEventListener(eventName, handler);
-
-        // if it exists, call the function passing in the node
-        if (typeof func === 'function') {
-            window.requestAnimationFrame(() => func(node));
-        }
     });
 
 ///////////////////////////////////////////////////
