@@ -75,6 +75,7 @@ class M2Race extends Component {
         if (!files) return;
 
         //clean
+        await this.dbManager.cleanTake({ race: this.raceId });
         await this.dbManager.cleanPS({ race: this.raceId });
 
         //read file

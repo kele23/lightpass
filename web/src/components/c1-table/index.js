@@ -1,10 +1,10 @@
 import Component from '../../libs/component';
 import { getDBManager } from '../../libs/db-manager';
-import { dateToStr, dateToDiffTimeStr, emptyElement, dateToTime } from '../../libs/utils';
-import template from './template.hbs';
-import rowTemplate from './row-template.hbs';
 import { formToJSON } from '../../libs/form-to-json';
+import { dateToDiffTimeStr, dateToTime } from '../../libs/utils';
 import C3Confirm from '../c3-confirm';
+import rowTemplate from './row-template.hbs';
+import template from './template.hbs';
 
 class C1Table extends Component {
     constructor() {
@@ -78,16 +78,17 @@ class C1Table extends Component {
             await this._parent().editRow(id, this.rowsKey);
         });
 
-        this._addListener(
-            'submit',
-            (event) => {
-                event.preventDefault();
-                this.currentFilter = formToJSON(event.target);
-                const rowsHtmlsJoin = this._generateRows().join('');
-                this.tableBody.innerHTML = rowsHtmlsJoin;
-            },
-            'filter'
-        );
+        if (this._ref('filter'))
+            this._addListener(
+                'submit',
+                (event) => {
+                    event.preventDefault();
+                    this.currentFilter = formToJSON(event.target);
+                    const rowsHtmlsJoin = this._generateRows().join('');
+                    this.tableBody.innerHTML = rowsHtmlsJoin;
+                },
+                'filter'
+            );
     }
 
     _rowMap(item) {
@@ -95,8 +96,10 @@ class C1Table extends Component {
         for (const key of this.keys) {
             let data = item[key];
 
-            if (key == 'start') data = dateToStr(item[key]);
-            else if (key == 'time' || key == 'end' || key == 'assignedTime') data = dateToTime(item[key], true);
+            if (key == 'pen')
+                data = item[key] && item[key] != 0 ? `${Math.sign(item[key]) > 0 ? '+' : '-'}${item[key]} sec` : null;
+            else if (key == 'start' || key == 'time' || key == 'end' || key == 'assignedTime')
+                data = dateToTime(item[key], true);
             else if (key == 'diff') data = dateToDiffTimeStr(item[key], true);
 
             res.data.push({ key, data });
@@ -123,17 +126,21 @@ class C1Table extends Component {
                 const a = this.orderDir == 'asc' ? one : two;
                 const b = this.orderDir == 'asc' ? two : one;
 
-                if (a[this.orderBy] === undefined) {
+                if (a[this.orderBy] == b[this.orderBy]) {
+                    return 0;
+                }
+
+                if (a[this.orderBy] === undefined || a[this.orderBy] === null) {
                     return 1;
                 }
-                if (b[this.orderBy] === undefined) {
+                if (b[this.orderBy] === undefined || b[this.orderBy] === null) {
                     return -1;
                 }
 
                 if (a[this.orderBy] < b[this.orderBy]) {
                     return -1;
                 }
-                if (a[this.orderBy] >= b[this.orderBy]) {
+                if (a[this.orderBy] > b[this.orderBy]) {
                     return 1;
                 }
             });

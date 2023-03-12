@@ -1,7 +1,7 @@
 import Component from '../../libs/component';
 import template from './template.hbs';
 import { getDBManager } from '../../libs/db-manager';
-import { dateToStr, emptyElement } from '../../libs/utils';
+import { dateToTime, emptyElement } from '../../libs/utils';
 import { getStoreManager } from '../../libs/store-manager';
 
 class L2Main extends Component {
@@ -11,11 +11,11 @@ class L2Main extends Component {
         this.dbManager = getDBManager();
         this.storeManager = getStoreManager();
 
-        this._addStoreListeners();
         this._init();
+        this._addStoreListeners();
 
         setInterval(() => {
-            if (this.currentTime) this.currentTime.innerHTML = dateToStr(new Date());
+            if (this.currentTime) this.currentTime.innerHTML = dateToTime(new Date());
         }, 1000);
     }
 
@@ -24,6 +24,15 @@ class L2Main extends Component {
             const location = this._getLocation(data);
             this.dashboardContent.innerHTML = location.content;
             this.dashboardTitle.innerHTML = location.title;
+        });
+        this._addStoreListener('events', (path, data) => {
+            if (data.ok) {
+                this._ref('okConnect').classList.remove('hidden');
+                this._ref('notConnect').classList.add('hidden');
+            } else {
+                this._ref('okConnect').classList.add('hidden');
+                this._ref('notConnect').classList.remove('hidden');
+            }
         });
     }
 
@@ -50,8 +59,8 @@ class L2Main extends Component {
         this._addListener(
             'click',
             () => {
-                if (!this.drawerMenu.classList.contains('-left-80')) {
-                    this.drawerMenu.classList.add('-left-80');
+                if (!this.drawerMenu.classList.contains('-left-64')) {
+                    this.drawerMenu.classList.add('-left-64');
                 } else {
                     this._emit('selectedRace', {});
                 }
@@ -62,10 +71,10 @@ class L2Main extends Component {
         this._addListener(
             'click',
             () => {
-                if (this.drawerMenu.classList.contains('-left-80')) {
-                    this.drawerMenu.classList.remove('-left-80');
+                if (this.drawerMenu.classList.contains('-left-64')) {
+                    this.drawerMenu.classList.remove('-left-64');
                 } else {
-                    this.drawerMenu.classList.add('-left-80');
+                    this.drawerMenu.classList.add('-left-64');
                 }
             },
             'menuBtn'
@@ -78,6 +87,8 @@ class L2Main extends Component {
         if (currentPage.destination == 'race') return { title: currentPage.title, content: '<m2-race></m2-race>' };
         if (currentPage.destination == 'runner')
             return { title: currentPage.title, content: '<m3-runners></m3-runners>' };
+        if (currentPage.destination == 'results')
+            return { title: currentPage.title, content: '<m5-results></m5-results>' };
         if (currentPage.destination.startsWith('ps-'))
             return { title: currentPage.title, content: '<m4-score></m4-score>' };
         return { title: 'Dashboard', content: '<m1-dashboard></m1-dashboard>' };

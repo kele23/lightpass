@@ -1,5 +1,5 @@
-<div class="lg:flex w-full">
-    <div class="w-full lg:w-2/3 lg:pr-2">
+<div class="lg:flex w-full items-start">
+    <div class="w-full lg:w-auto lg:pr-4 grow">
 
         <div>
             <c1-table tabindex="0"
@@ -16,36 +16,38 @@
 
         <div ref="scoreTableDiv" class="mt-8 {{#unless selectedPs}}hidden{{/unless}}">
             <c1-table tabindex="0"
-                labels="Num,Nome,Start,End,Diff,Stato"
-                keys="assigned,assignedName,start,assignedTime,diff,status"
+                labels="Num,Nome,Start,End,Penalità,Tempo,Stato"
+                keys="assigned,assignedName,start,assignedTime,pen,diff,status"
                 filterKey="assignedName"
                 rowsKey="score"
                 title="Classifica parziale"
                 hideCount="true"
+                actionDisabled="true"
                 ref="scoreTable"
             ></c1-table>
         </div>
 
         <div class="mt-8">
             <c1-table tabindex="0"
-                labels="Num,Nome,PS,End,Stato"
-                keys="assigned,assignedName,assignedPs,assignedTime,status"
+                labels="Num,Nome,PS,End,Penalità"
+                keys="assigned,assignedName,assignedPs,assignedTime,pen"
                 filterKey="assignedName"
                 rowsKey="take"
                 title="Tempi assegnati"
+                editEnabled="true"
                 ref="takeTable"
             ></c1-table>
         </div>
 
          
     </div>
-    <div class="w-full lg:w-1/3">
+    <div class="w-full lg:w-80 lg:sticky lg:top-0">
 
         <div
-            class="bg-white rounded-lg shadow sm:max-w-md sm:w-full sm:mx-auto sm:overflow-hidden transition-colors mb-4"
+            class="bg-white rounded-lg shadow transition-colors mb-4"
         >
 
-            <div class="px-4 py-4 sm:px-10">
+            <div class="px-6 py-4">
                 <div class="w-full space-y-6">
                     <div class="w-full">
                         <select
@@ -68,14 +70,14 @@
         </div>
 
         <form
-            class="bg-white rounded-lg shadow sm:max-w-md sm:w-full sm:mx-auto sm:overflow-hidden transition-colors"
+            class="bg-white rounded-lg shadow  transition-colors"
             ref="assignTime"
         >
 
-            <div class="px-4 py-8 sm:px-10">
+            <div class="px-6 py-4">
                 <div class="relative mt-6">
                     <div class="relative flex items-center justify-between text-base leading-5 font-semibold">
-                        <span class="px-2 text-gray-500">
+                        <span class=" text-gray-500">
                             Assegna
                         </span>
                         <button

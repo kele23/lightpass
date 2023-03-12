@@ -72,6 +72,7 @@ class M3Runners extends Component {
         if (!files) return;
 
         //clean
+        await this.dbManager.cleanTake({ race: this.raceId });
         await this.dbManager.cleanRunner({ race: this.raceId });
 
         //read file

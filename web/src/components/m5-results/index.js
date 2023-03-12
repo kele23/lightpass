@@ -1,12 +1,12 @@
-import Component from '../../libs/component';
-import template from './template.hbs';
-import { getDBManager } from '../../libs/db-manager';
-import { getStoreManager } from '../../libs/store-manager';
 import Papa from 'papaparse';
-import { dateToTime, dateToDiffTimeStr } from '../../libs/utils';
+import Component from '../../libs/component';
+import { getDBManager } from '../../libs/db-manager';
 import { formToJSON } from '../../libs/form-to-json';
+import { getStoreManager } from '../../libs/store-manager';
+import { dateToDiffTimeStr } from '../../libs/utils';
+import template from './template.hbs';
 
-class M4Score extends Component {
+class M5Results extends Component {
     constructor() {
         super();
 
@@ -19,11 +19,7 @@ class M4Score extends Component {
         const selectedRace = getStoreManager().get('selectedRace');
         this.raceId = selectedRace.race;
 
-        const selectedPage = getStoreManager().get('selectedPage');
-        this.psId = selectedPage.destination.substring(3);
-
         this.categories = null;
-
         const data = {
             categories: await this.dbManager.getAllCategories(this.raceId),
         };
@@ -43,6 +39,17 @@ class M4Score extends Component {
                 this._download();
             },
             'download'
+        );
+
+        this._addListener(
+            'submit',
+            (event) => {
+                event.preventDefault();
+                const data = formToJSON(event.target);
+                this.categories = Object.keys(data);
+                this.table.reload();
+            },
+            'selectCategories'
         );
 
         this._addListener(
@@ -92,21 +99,10 @@ class M4Score extends Component {
             },
             'print'
         );
-
-        this._addListener(
-            'submit',
-            (event) => {
-                event.preventDefault();
-                const data = formToJSON(event.target);
-                this.categories = Object.keys(data);
-                this.table.reload();
-            },
-            'selectCategories'
-        );
     }
 
     async getRows() {
-        return await this.dbManager.getScore(this.psId, this.raceId, this.categories);
+        return await this.dbManager.getGlobalScore(this.raceId, this.categories);
     }
 
     async _download() {
@@ -117,8 +113,6 @@ class M4Score extends Component {
             name: item.name,
             team: item.team,
             category: item.category,
-            start: dateToTime(item.start, true),
-            end: dateToTime(item.end, true),
             diff: dateToDiffTimeStr(item.diff, true),
             uci: item.uci,
             fci: item.fci,
@@ -131,4 +125,4 @@ class M4Score extends Component {
     }
 }
 
-export default M4Score;
+export default M5Results;

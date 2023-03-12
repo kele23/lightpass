@@ -129,6 +129,10 @@ class DBManager {
     }
 
     ////////////////////////////////////////////////////////////////////////////////// take
+    async getTake(id) {
+        return await this.db.take.get(parseInt(id));
+    }
+
     async getTakeBy({ ps, runner, race }) {
         return await this.db.take.get({ ps: parseInt(ps), runner: parseInt(runner), race: parseInt(race) });
     }
@@ -144,6 +148,7 @@ class DBManager {
             ps: parseInt(ps),
             runner: parseInt(runner),
             race: parseInt(race),
+            pen: 0,
         });
     }
 
@@ -157,6 +162,10 @@ class DBManager {
             return item.id;
         });
         await this.db.take.bulkDelete(ids);
+    }
+
+    async setPenalty(id, penalty) {
+        return await this.db.take.update(parseInt(id), { pen: parseInt(penalty) });
     }
 
     ////////////////////////////////////////////////////////////////////////////////// special
@@ -252,31 +261,32 @@ class DBManager {
         return [...new Set(categories)];
     }
 
-    async getScoreFull(psId, race, category) {
+    async getScoreFull(psId, race, categories) {
         const ps = await this.db.ps.get(parseInt(psId));
         if (!ps) return [];
 
-        let runners = [];
-        if (!category) runners = await this.db.runner.where({ race: parseInt(race) }).toArray();
-        else runners = await this.db.runner.where({ race: parseInt(race), category }).toArray();
+        let runners = await this.db.runner.where({ race: parseInt(race) }).toArray();
         if (!runners) return [];
 
-        // sort runners by ps direction
+        const takes = await this.getAllTake(race, psId);
+        const takesObj = {};
+        for (const take of takes) {
+            takesObj[take.runner] = take;
+        }
+
+        // sort runners by ps direction for start calc
         runners = runners.sort((one, two) => {
             const a = ps.order == 'asc' ? one : two;
             const b = ps.order == 'asc' ? two : one;
 
-            if (a.number === undefined) {
-                return 1;
-            }
-            if (b.number === undefined) {
-                return -1;
+            if (a.number == b.number) {
+                return 0;
             }
 
             if (a.number < b.number) {
                 return -1;
             }
-            if (a.number >= b.number) {
+            if (a.number > b.number) {
                 return 1;
             }
         });
@@ -284,21 +294,24 @@ class DBManager {
         //iterate and create final object
         let start = new Date(ps.start);
         const gap = parseInt(ps.gap);
-        const result = [];
+        const tmpResult = [];
         for (let i = 0; i < runners.length; i++) {
             const runner = runners[i];
 
             // get diff
             let diff = null;
             let end = null;
-            const take = await this.getTakeBy({ ps: ps.id, runner: runner.id, race: race });
+            let take = takesObj[runner.id];
             let time = null;
             if (take) {
                 time = await this.getTime(take.time);
                 end = new Date(time.time);
-                diff = new Date(end.getTime() - start.getTime());
+                diff = end.getTime() - start.getTime();
+                if (take.pen) {
+                    diff += take.pen * 1000;
+                }
             }
-            result.push({ runner, ps, take, time, start, diff });
+            tmpResult.push({ runner, ps, take, time, start, diff });
 
             // next start
             const nextRunner = i + 1 >= runners.length ? null : runners[i + 1];
@@ -306,19 +319,74 @@ class DBManager {
             start = new Date(start.getTime() + gap * 1000 * mult);
         }
 
+        // filter by categories if required
+        let result = [];
+        if (categories && categories.length > 0) {
+            for (const item of tmpResult) if (categories.indexOf(item.runner.category) >= 0) result.push(item);
+        } else {
+            result = tmpResult;
+        }
+
         return result;
     }
 
-    async getScore(psId, race, category) {
-        const result = await this.getScoreFull(psId, race, category);
+    async getScore(psId, race, categories) {
+        const result = await this.getScoreFull(psId, race, categories);
 
         return result.map(({ runner, ps, take, time, start, diff }) => ({
             ...runner,
             ps: ps.name,
             start: start.getTime(),
             end: time?.time,
-            diff: diff?.getTime(),
+            pen: take?.pen,
+            diff,
         }));
+    }
+
+    async getGlobalScore(race, categories) {
+        const initRunners = await this.getAllRunner(race);
+        if (!initRunners) return [];
+
+        let runners = [];
+        if (categories && categories.length > 0) {
+            for (const runner of initRunners) {
+                if (categories.indexOf(runner.category) >= 0) runners.push(runner);
+            }
+        } else {
+            runners = initRunners;
+        }
+
+        const pss = await this.getAllPS(race);
+        const map = new Map();
+        for (const ps of pss) {
+            const psResults = await this.getScoreFull(ps.id, race, categories);
+            for (const result of psResults) {
+                if (!result.diff) continue;
+                let psRunnerRes = map.get(result.runner.number);
+                if (!psRunnerRes) psRunnerRes = [];
+                psRunnerRes.push(result.diff);
+                map.set(result.runner.number, psRunnerRes);
+            }
+        }
+
+        const results = [];
+        for (const runner of runners) {
+            const values = map.get(runner.number);
+
+            let diff = null;
+            if (values && values.length == pss.length) {
+                diff = 0;
+                for (const val of values) {
+                    diff += val;
+                }
+            }
+
+            results.push({
+                ...runner,
+                diff,
+            });
+        }
+        return results;
     }
 
     ///////////// GLOBAL

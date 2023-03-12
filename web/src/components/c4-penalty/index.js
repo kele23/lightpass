@@ -1,10 +1,11 @@
 import template from './template.hbs';
 import Component from '../../libs/component';
 import { buildWaitForEvent } from '../../libs/utils';
+import { formToJSON } from '../../libs/form-to-json';
 
 const waitForClose = buildWaitForEvent('close');
 
-class C3Confirm extends Component {
+class C4Penalty extends Component {
     constructor() {
         super();
         this._init();
@@ -19,17 +20,19 @@ class C3Confirm extends Component {
         this.appendChild(htmlDoc.body.firstElementChild);
 
         // get elements
-        this.yesBtn = this._ref('yes');
+        this.penaltyForm = this._ref('penaltyForm');
         this.noBtn = this._ref('no');
         this.backdropBtn = this._ref('backdrop');
         this.root = this._ref('root');
 
         this._addListener(
-            'click',
-            () => {
-                this.close(true);
+            'submit',
+            (event) => {
+                event.preventDefault();
+                const data = formToJSON(event.target);
+                this.close(parseInt(data.penalty));
             },
-            this.yesBtn
+            this.penaltyForm
         );
 
         this._addListener(
@@ -55,25 +58,25 @@ class C3Confirm extends Component {
         });
     }
 
-    close(selection = false) {
-        this.dispatchEvent(new CustomEvent('close', { detail: selection }));
+    close(penalty = -1) {
+        this.dispatchEvent(new CustomEvent('close', { detail: penalty }));
         this.root.classList.add('hidden');
     }
 
     open() {
+        this.penaltyForm?.reset();
         this.root.classList.remove('hidden');
         this.noBtn?.focus();
     }
 
     static async openAndWait(name) {
-        const dialog = document.querySelector(`c3-confirm[name=${name}]`);
+        const dialog = document.querySelector(`c4-penalty[name=${name}]`);
         if (!dialog) return;
         dialog.open();
 
         const event = await waitForClose(dialog);
-        if (event.detail) return true;
-        return false;
+        return event.detail;
     }
 }
 
-export default C3Confirm;
+export default C4Penalty;

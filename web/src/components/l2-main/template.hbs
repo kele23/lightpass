@@ -1,7 +1,7 @@
 <main class="relative h-screen overflow-hidden bg-gray-100 dark:bg-gray-800">
     <div class="flex items-start justify-between">
         <div
-            class="-left-80 lg:left-0 transition-all absolute lg:relative h-screen shadow-lg lg:block w-80 z-50 shrink-0"
+            class="-left-64 lg:left-0 transition-all absolute lg:relative h-screen shadow-lg lg:block w-64 z-50 shrink-0"
             ref="drawerMenu"
         >
             <div class="h-full bg-white dark:bg-gray-700">
@@ -14,9 +14,9 @@
             </div>
         </div>
         <div class="flex flex-col w-full space-y-2 md:space-y-4">
-            <header class="z-40 flex items-center justify-between w-full h-16">
+            <header class="z-40 flex items-center justify-between w-full h-16 shadow-md">
 
-                <div class="flex flex-col justify-end h-full px-3 lg:hidden">
+                <div class="flex flex-col justify-center h-full px-3 lg:hidden">
                     <div class="relative flex items-center justify-end w-full p-1 space-x-4">
                         <button
                             class="flex items-center p-2 text-gray-500 bg-white rounded-full shadow text-md"
@@ -37,11 +37,47 @@
                         </button>
                     </div>
                 </div>
-                <div class="relative z-20 flex flex-col justify-end h-full px-3 md:w-full">
+                <div class="relative z-20 flex flex-col justify-center h-full px-3 md:w-full">
                     <div class="relative flex items-center justify-end w-full p-1 space-x-4">
                         <div class="text-gray-700 dark:text-gray-100" ref="currentTime"></div>
+                        <div>
+                            <div ref="okConnect" class="hidden">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke-width="1.5"
+                                    stroke="currentColor"
+                                    class="w-6 h-6 text-green-600 inline-block"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        d="M12.75 19.5v-.75a7.5 7.5 0 00-7.5-7.5H4.5m0-6.75h.75c7.87 0 14.25 6.38 14.25 14.25v.75M6 18.75a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"
+                                    />
+                                </svg>
+                                <span class="text-sm hidden lg:inline font-medium">Connesso</span>
+                            </div>
+                            <div ref="notConnect">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke-width="1.5"
+                                    stroke="currentColor"
+                                    class="w-6 h-6 text-red-600 inline-block"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
+                                    />
+                                </svg>
+                                <span class="text-sm hidden lg:inline font-medium">Non connesso</span>
+                            </div>
+                        </div>
                         <button
-                            class="flex items-center p-2 text-red-600 bg-white rounded-full shadow hover:text-gray-700 text-md"
+                            class="flex items-center p-2 text-blue-600 bg-white rounded-full shadow hover:text-gray-700 text-md"
                             title="Chiudi Gara"
                             ref="closeRace"
                         >
@@ -74,4 +110,5 @@
         </div>
     </div>
     <c3-confirm name="default"></c3-confirm>
+    <c4-penalty name="default"></c4-penalty>
 </main>

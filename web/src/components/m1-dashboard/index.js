@@ -2,7 +2,8 @@ import Component from '../../libs/component';
 import { getDBManager } from '../../libs/db-manager';
 import { formToJSON, jsonToForm } from '../../libs/form-to-json';
 import { getStoreManager } from '../../libs/store-manager';
-import { dateToStr } from '../../libs/utils';
+import { dateToTime } from '../../libs/utils';
+import C4Penalty from '../c4-penalty';
 import template from './template.hbs';
 
 class M1Dashboard extends Component {
@@ -118,6 +119,11 @@ class M1Dashboard extends Component {
             const time = await this.dbManager.getTime(id);
             this._setTime(time);
         }
+        if (type == 'take') {
+            const penalty = await C4Penalty.openAndWait('default');
+            if (penalty == -1) return;
+            this.dbManager.setPenalty(id, penalty);
+        }
     }
 
     async _newTime(time) {
@@ -138,7 +144,7 @@ class M1Dashboard extends Component {
         const formData = {
             ...time,
             psName: this.ps?.name,
-            timeStr: dateToStr(new Date(time.time), true),
+            timeStr: dateToTime(new Date(time.time), true),
         };
         jsonToForm(this.assignTime, formData);
 
