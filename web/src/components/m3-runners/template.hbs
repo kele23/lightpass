@@ -1,8 +1,8 @@
 <div class="lg:flex w-full">
     <div class="w-full lg:w-2/3 lg:pr-2">
         <c1-table
-            labels="ID,Nome,Num,Categoria,Team"
-            keys="id,name,number,category,team"
+            labels="Nome,Num,Categoria,Team"
+            keys="name,number,category,team"
             filterKey="name"
             orderBy="number"
             ref="table"
@@ -73,6 +73,17 @@
                                     placeholder="Categoria"
                                     required
                                     name="category"
+                                />
+                            </div>
+                        </div>
+                        <div class="w-full">
+                            <div class="relative">
+                                <input
+                                    type="text"
+                                    class="rounded-lg flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-transparent"
+                                    required
+                                    placeholder="Team"
+                                    name="team"
                                 />
                             </div>
                         </div>

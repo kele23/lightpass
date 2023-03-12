@@ -3,6 +3,7 @@ import template from './template.hbs';
 import { getDBManager } from '../../libs/db-manager';
 import { getStoreManager } from '../../libs/store-manager';
 import Papa from 'papaparse';
+import { dateToTime, dateToDiffTimeStr } from '../../libs/utils';
 
 class M4Score extends Component {
     constructor() {
@@ -59,7 +60,16 @@ class M4Score extends Component {
     }
 
     async _download() {
-        const rows = await this.getRows();
+        let rows = await this.getRows();
+        rows = rows.map((item) => ({
+            number: item.number,
+            name: item.name,
+            team: item.team,
+            category: item.category,
+            start: dateToTime(item.start, true),
+            end: dateToTime(item.end, true),
+            diff: dateToDiffTimeStr(item.diff, true),
+        }));
         const csv = Papa.unparse(rows);
         const csvContent = 'data:text/csv;charset=utf-8,' + csv;
         window.open(encodeURI(csvContent));

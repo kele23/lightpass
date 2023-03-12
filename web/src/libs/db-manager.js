@@ -71,16 +71,17 @@ class DBManager {
         return await this.db.runner.where('race').equals(parseInt(race)).toArray();
     }
 
-    async createOrUpdateRunner({ name, number, category, race, id }) {
+    async createOrUpdateRunner({ name, number, category, race, team, id }) {
         if (id) {
             return await this.db.runner.update(parseInt(id), {
                 name,
                 number: parseInt(number),
                 category,
                 race: parseInt(race),
+                team
             });
         } else {
-            return await this.db.runner.add({ name, number: parseInt(number), category, race: parseInt(race) });
+            return await this.db.runner.add({ name, number: parseInt(number), category, race: parseInt(race), team });
         }
     }
 
