@@ -120,6 +120,7 @@ class M4Score extends Component {
             start: dateToTime(item.start, true),
             end: dateToTime(item.end, true),
             diff: dateToDiffTimeStr(item.diff, true),
+            pen: item.pen,
             uci: item.uci,
             fci: item.fci,
             societa: item.soc,

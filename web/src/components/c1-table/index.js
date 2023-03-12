@@ -96,7 +96,8 @@ class C1Table extends Component {
         for (const key of this.keys) {
             let data = item[key];
 
-            if (key == 'pen')
+            if (key == 'start') data = dateToTime(item[key]);
+            else if (key == 'pen')
                 data = item[key] && item[key] != 0 ? `${Math.sign(item[key]) > 0 ? '+' : '-'}${item[key]} sec` : null;
             else if (key == 'start' || key == 'time' || key == 'end' || key == 'assignedTime')
                 data = dateToTime(item[key], true);
