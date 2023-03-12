@@ -2083,6 +2083,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _row_template_hbs__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./row-template.hbs */ "./src/components/c1-table/row-template.hbs");
 /* harmony import */ var _row_template_hbs__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_row_template_hbs__WEBPACK_IMPORTED_MODULE_4__);
 /* harmony import */ var _libs_form_to_json__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../libs/form-to-json */ "./src/libs/form-to-json.js");
+/* harmony import */ var _c3_confirm__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../c3-confirm */ "./src/components/c3-confirm/index.js");
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
@@ -2102,6 +2103,7 @@ function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) ===
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
 
 
 
@@ -2179,7 +2181,7 @@ var C1Table = /*#__PURE__*/function (_Component) {
       var _this2 = this;
       this._addListener('click', /*#__PURE__*/function () {
         var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(event) {
-          var tr, id, ok;
+          var selection, tr, id, ok;
           return _regeneratorRuntime().wrap(function _callee2$(_context2) {
             while (1) switch (_context2.prev = _context2.next) {
               case 0:
@@ -2189,11 +2191,21 @@ var C1Table = /*#__PURE__*/function (_Component) {
                 }
                 return _context2.abrupt("return");
               case 2:
+                _context2.next = 4;
+                return _c3_confirm__WEBPACK_IMPORTED_MODULE_6__["default"].openAndWait('default');
+              case 4:
+                selection = _context2.sent;
+                if (selection) {
+                  _context2.next = 7;
+                  break;
+                }
+                return _context2.abrupt("return");
+              case 7:
                 tr = event.target.closest('tr');
                 id = tr.dataset.id;
-                _context2.next = 6;
+                _context2.next = 11;
                 return _this2._parent().deleteRow(id, _this2.rowsKey);
-              case 6:
+              case 11:
                 ok = _context2.sent;
                 if (ok) {
                   tr.remove();
@@ -2202,7 +2214,7 @@ var C1Table = /*#__PURE__*/function (_Component) {
                   }); // remove row
                   if (_this2._ref('count')) _this2._ref('count').innerHTML = _this2.rows.length;
                 }
-              case 8:
+              case 13:
               case "end":
                 return _context2.stop();
             }
@@ -2521,6 +2533,156 @@ var C2Nav = /*#__PURE__*/function (_Component) {
   return C2Nav;
 }(_libs_component__WEBPACK_IMPORTED_MODULE_0__["default"]);
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (C2Nav);
+
+/***/ }),
+
+/***/ "./src/components/c3-confirm/index.js":
+/*!********************************************!*\
+  !*** ./src/components/c3-confirm/index.js ***!
+  \********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _template_hbs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./template.hbs */ "./src/components/c3-confirm/template.hbs");
+/* harmony import */ var _template_hbs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_template_hbs__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _libs_component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../libs/component */ "./src/libs/component.js");
+/* harmony import */ var _libs_utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../libs/utils */ "./src/libs/utils.js");
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return exports; }; var exports = {}, Op = Object.prototype, hasOwn = Op.hasOwnProperty, defineProperty = Object.defineProperty || function (obj, key, desc) { obj[key] = desc.value; }, $Symbol = "function" == typeof Symbol ? Symbol : {}, iteratorSymbol = $Symbol.iterator || "@@iterator", asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator", toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag"; function define(obj, key, value) { return Object.defineProperty(obj, key, { value: value, enumerable: !0, configurable: !0, writable: !0 }), obj[key]; } try { define({}, ""); } catch (err) { define = function define(obj, key, value) { return obj[key] = value; }; } function wrap(innerFn, outerFn, self, tryLocsList) { var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator, generator = Object.create(protoGenerator.prototype), context = new Context(tryLocsList || []); return defineProperty(generator, "_invoke", { value: makeInvokeMethod(innerFn, self, context) }), generator; } function tryCatch(fn, obj, arg) { try { return { type: "normal", arg: fn.call(obj, arg) }; } catch (err) { return { type: "throw", arg: err }; } } exports.wrap = wrap; var ContinueSentinel = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var IteratorPrototype = {}; define(IteratorPrototype, iteratorSymbol, function () { return this; }); var getProto = Object.getPrototypeOf, NativeIteratorPrototype = getProto && getProto(getProto(values([]))); NativeIteratorPrototype && NativeIteratorPrototype !== Op && hasOwn.call(NativeIteratorPrototype, iteratorSymbol) && (IteratorPrototype = NativeIteratorPrototype); var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(IteratorPrototype); function defineIteratorMethods(prototype) { ["next", "throw", "return"].forEach(function (method) { define(prototype, method, function (arg) { return this._invoke(method, arg); }); }); } function AsyncIterator(generator, PromiseImpl) { function invoke(method, arg, resolve, reject) { var record = tryCatch(generator[method], generator, arg); if ("throw" !== record.type) { var result = record.arg, value = result.value; return value && "object" == _typeof(value) && hasOwn.call(value, "__await") ? PromiseImpl.resolve(value.__await).then(function (value) { invoke("next", value, resolve, reject); }, function (err) { invoke("throw", err, resolve, reject); }) : PromiseImpl.resolve(value).then(function (unwrapped) { result.value = unwrapped, resolve(result); }, function (error) { return invoke("throw", error, resolve, reject); }); } reject(record.arg); } var previousPromise; defineProperty(this, "_invoke", { value: function value(method, arg) { function callInvokeWithMethodAndArg() { return new PromiseImpl(function (resolve, reject) { invoke(method, arg, resolve, reject); }); } return previousPromise = previousPromise ? previousPromise.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(innerFn, self, context) { var state = "suspendedStart"; return function (method, arg) { if ("executing" === state) throw new Error("Generator is already running"); if ("completed" === state) { if ("throw" === method) throw arg; return doneResult(); } for (context.method = method, context.arg = arg;;) { var delegate = context.delegate; if (delegate) { var delegateResult = maybeInvokeDelegate(delegate, context); if (delegateResult) { if (delegateResult === ContinueSentinel) continue; return delegateResult; } } if ("next" === context.method) context.sent = context._sent = context.arg;else if ("throw" === context.method) { if ("suspendedStart" === state) throw state = "completed", context.arg; context.dispatchException(context.arg); } else "return" === context.method && context.abrupt("return", context.arg); state = "executing"; var record = tryCatch(innerFn, self, context); if ("normal" === record.type) { if (state = context.done ? "completed" : "suspendedYield", record.arg === ContinueSentinel) continue; return { value: record.arg, done: context.done }; } "throw" === record.type && (state = "completed", context.method = "throw", context.arg = record.arg); } }; } function maybeInvokeDelegate(delegate, context) { var methodName = context.method, method = delegate.iterator[methodName]; if (undefined === method) return context.delegate = null, "throw" === methodName && delegate.iterator["return"] && (context.method = "return", context.arg = undefined, maybeInvokeDelegate(delegate, context), "throw" === context.method) || "return" !== methodName && (context.method = "throw", context.arg = new TypeError("The iterator does not provide a '" + methodName + "' method")), ContinueSentinel; var record = tryCatch(method, delegate.iterator, context.arg); if ("throw" === record.type) return context.method = "throw", context.arg = record.arg, context.delegate = null, ContinueSentinel; var info = record.arg; return info ? info.done ? (context[delegate.resultName] = info.value, context.next = delegate.nextLoc, "return" !== context.method && (context.method = "next", context.arg = undefined), context.delegate = null, ContinueSentinel) : info : (context.method = "throw", context.arg = new TypeError("iterator result is not an object"), context.delegate = null, ContinueSentinel); } function pushTryEntry(locs) { var entry = { tryLoc: locs[0] }; 1 in locs && (entry.catchLoc = locs[1]), 2 in locs && (entry.finallyLoc = locs[2], entry.afterLoc = locs[3]), this.tryEntries.push(entry); } function resetTryEntry(entry) { var record = entry.completion || {}; record.type = "normal", delete record.arg, entry.completion = record; } function Context(tryLocsList) { this.tryEntries = [{ tryLoc: "root" }], tryLocsList.forEach(pushTryEntry, this), this.reset(!0); } function values(iterable) { if (iterable) { var iteratorMethod = iterable[iteratorSymbol]; if (iteratorMethod) return iteratorMethod.call(iterable); if ("function" == typeof iterable.next) return iterable; if (!isNaN(iterable.length)) { var i = -1, next = function next() { for (; ++i < iterable.length;) if (hasOwn.call(iterable, i)) return next.value = iterable[i], next.done = !1, next; return next.value = undefined, next.done = !0, next; }; return next.next = next; } } return { next: doneResult }; } function doneResult() { return { value: undefined, done: !0 }; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, defineProperty(Gp, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), defineProperty(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, toStringTagSymbol, "GeneratorFunction"), exports.isGeneratorFunction = function (genFun) { var ctor = "function" == typeof genFun && genFun.constructor; return !!ctor && (ctor === GeneratorFunction || "GeneratorFunction" === (ctor.displayName || ctor.name)); }, exports.mark = function (genFun) { return Object.setPrototypeOf ? Object.setPrototypeOf(genFun, GeneratorFunctionPrototype) : (genFun.__proto__ = GeneratorFunctionPrototype, define(genFun, toStringTagSymbol, "GeneratorFunction")), genFun.prototype = Object.create(Gp), genFun; }, exports.awrap = function (arg) { return { __await: arg }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, asyncIteratorSymbol, function () { return this; }), exports.AsyncIterator = AsyncIterator, exports.async = function (innerFn, outerFn, self, tryLocsList, PromiseImpl) { void 0 === PromiseImpl && (PromiseImpl = Promise); var iter = new AsyncIterator(wrap(innerFn, outerFn, self, tryLocsList), PromiseImpl); return exports.isGeneratorFunction(outerFn) ? iter : iter.next().then(function (result) { return result.done ? result.value : iter.next(); }); }, defineIteratorMethods(Gp), define(Gp, toStringTagSymbol, "Generator"), define(Gp, iteratorSymbol, function () { return this; }), define(Gp, "toString", function () { return "[object Generator]"; }), exports.keys = function (val) { var object = Object(val), keys = []; for (var key in object) keys.push(key); return keys.reverse(), function next() { for (; keys.length;) { var key = keys.pop(); if (key in object) return next.value = key, next.done = !1, next; } return next.done = !0, next; }; }, exports.values = values, Context.prototype = { constructor: Context, reset: function reset(skipTempReset) { if (this.prev = 0, this.next = 0, this.sent = this._sent = undefined, this.done = !1, this.delegate = null, this.method = "next", this.arg = undefined, this.tryEntries.forEach(resetTryEntry), !skipTempReset) for (var name in this) "t" === name.charAt(0) && hasOwn.call(this, name) && !isNaN(+name.slice(1)) && (this[name] = undefined); }, stop: function stop() { this.done = !0; var rootRecord = this.tryEntries[0].completion; if ("throw" === rootRecord.type) throw rootRecord.arg; return this.rval; }, dispatchException: function dispatchException(exception) { if (this.done) throw exception; var context = this; function handle(loc, caught) { return record.type = "throw", record.arg = exception, context.next = loc, caught && (context.method = "next", context.arg = undefined), !!caught; } for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i], record = entry.completion; if ("root" === entry.tryLoc) return handle("end"); if (entry.tryLoc <= this.prev) { var hasCatch = hasOwn.call(entry, "catchLoc"), hasFinally = hasOwn.call(entry, "finallyLoc"); if (hasCatch && hasFinally) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } else if (hasCatch) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); } else { if (!hasFinally) throw new Error("try statement without catch or finally"); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } } } }, abrupt: function abrupt(type, arg) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc <= this.prev && hasOwn.call(entry, "finallyLoc") && this.prev < entry.finallyLoc) { var finallyEntry = entry; break; } } finallyEntry && ("break" === type || "continue" === type) && finallyEntry.tryLoc <= arg && arg <= finallyEntry.finallyLoc && (finallyEntry = null); var record = finallyEntry ? finallyEntry.completion : {}; return record.type = type, record.arg = arg, finallyEntry ? (this.method = "next", this.next = finallyEntry.finallyLoc, ContinueSentinel) : this.complete(record); }, complete: function complete(record, afterLoc) { if ("throw" === record.type) throw record.arg; return "break" === record.type || "continue" === record.type ? this.next = record.arg : "return" === record.type ? (this.rval = this.arg = record.arg, this.method = "return", this.next = "end") : "normal" === record.type && afterLoc && (this.next = afterLoc), ContinueSentinel; }, finish: function finish(finallyLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.finallyLoc === finallyLoc) return this.complete(entry.completion, entry.afterLoc), resetTryEntry(entry), ContinueSentinel; } }, "catch": function _catch(tryLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc === tryLoc) { var record = entry.completion; if ("throw" === record.type) { var thrown = record.arg; resetTryEntry(entry); } return thrown; } } throw new Error("illegal catch attempt"); }, delegateYield: function delegateYield(iterable, resultName, nextLoc) { return this.delegate = { iterator: values(iterable), resultName: resultName, nextLoc: nextLoc }, "next" === this.method && (this.arg = undefined), ContinueSentinel; } }, exports; }
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); Object.defineProperty(subClass, "prototype", { writable: false }); if (superClass) _setPrototypeOf(subClass, superClass); }
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+
+
+var waitForClose = (0,_libs_utils__WEBPACK_IMPORTED_MODULE_2__.buildWaitForEvent)('close');
+var C3Confirm = /*#__PURE__*/function (_Component) {
+  _inherits(C3Confirm, _Component);
+  var _super = _createSuper(C3Confirm);
+  function C3Confirm() {
+    var _this;
+    _classCallCheck(this, C3Confirm);
+    _this = _super.call(this);
+    _this._init();
+    return _this;
+  }
+  _createClass(C3Confirm, [{
+    key: "_init",
+    value: function () {
+      var _init2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
+        var _this2 = this;
+        var data, parser, htmlDoc;
+        return _regeneratorRuntime().wrap(function _callee$(_context) {
+          while (1) switch (_context.prev = _context.next) {
+            case 0:
+              data = {}; // parse html
+              parser = new DOMParser();
+              htmlDoc = parser.parseFromString(_template_hbs__WEBPACK_IMPORTED_MODULE_0___default()(data), 'text/html');
+              this.appendChild(htmlDoc.body.firstElementChild);
+
+              // get elements
+              this.yesBtn = this._ref('yes');
+              this.noBtn = this._ref('no');
+              this.backdropBtn = this._ref('backdrop');
+              this.root = this._ref('root');
+              this._addListener('click', function () {
+                _this2.close(true);
+              }, this.yesBtn);
+              this._addListener('click', function () {
+                _this2.close();
+              }, this.noBtn);
+              this._addListener('click', function () {
+                _this2.close();
+              }, this.backdropBtn);
+              this.root.addEventListener('keydown', function (evt) {
+                if (evt.key === 'Escape') {
+                  _this2.close();
+                }
+              });
+            case 12:
+            case "end":
+              return _context.stop();
+          }
+        }, _callee, this);
+      }));
+      function _init() {
+        return _init2.apply(this, arguments);
+      }
+      return _init;
+    }()
+  }, {
+    key: "close",
+    value: function close() {
+      var selection = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+      this.dispatchEvent(new CustomEvent('close', {
+        detail: selection
+      }));
+      this.root.classList.add('hidden');
+    }
+  }, {
+    key: "open",
+    value: function open() {
+      var _this$noBtn;
+      this.root.classList.remove('hidden');
+      (_this$noBtn = this.noBtn) === null || _this$noBtn === void 0 ? void 0 : _this$noBtn.focus();
+    }
+  }], [{
+    key: "openAndWait",
+    value: function () {
+      var _openAndWait = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(name) {
+        var dialog, event;
+        return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+          while (1) switch (_context2.prev = _context2.next) {
+            case 0:
+              dialog = document.querySelector("[name=".concat(name, "]"));
+              if (dialog) {
+                _context2.next = 3;
+                break;
+              }
+              return _context2.abrupt("return");
+            case 3:
+              dialog.open();
+              _context2.next = 6;
+              return waitForClose(dialog);
+            case 6:
+              event = _context2.sent;
+              if (!event.detail) {
+                _context2.next = 9;
+                break;
+              }
+              return _context2.abrupt("return", true);
+            case 9:
+              return _context2.abrupt("return", false);
+            case 10:
+            case "end":
+              return _context2.stop();
+          }
+        }, _callee2);
+      }));
+      function openAndWait(_x) {
+        return _openAndWait.apply(this, arguments);
+      }
+      return openAndWait;
+    }()
+  }]);
+  return C3Confirm;
+}(_libs_component__WEBPACK_IMPORTED_MODULE_1__["default"]);
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (C3Confirm);
 
 /***/ }),
 
@@ -4341,7 +4503,7 @@ var DBManager = /*#__PURE__*/function () {
       runner: '++id, name, number, category, race',
       ps: '++id, name, start, gap, order, race',
       time: '++id, time, race',
-      take: '++id, &time, ps, runner, race'
+      take: '++id, time, ps, runner, race'
     });
   }
 
@@ -5287,7 +5449,7 @@ var DBManager = /*#__PURE__*/function () {
               i = 0;
             case 22:
               if (!(i < runners.length)) {
-                _context30.next = 44;
+                _context30.next = 43;
                 break;
               }
               runner = runners[i]; // get diff
@@ -5303,7 +5465,7 @@ var DBManager = /*#__PURE__*/function () {
               take = _context30.sent;
               time = null;
               if (!take) {
-                _context30.next = 37;
+                _context30.next = 36;
                 break;
               }
               _context30.next = 33;
@@ -5312,8 +5474,7 @@ var DBManager = /*#__PURE__*/function () {
               time = _context30.sent;
               end = new Date(time.time);
               diff = new Date(end.getTime() - start.getTime());
-              console.log(diff);
-            case 37:
+            case 36:
               result.push({
                 runner: runner,
                 ps: ps,
@@ -5327,13 +5488,13 @@ var DBManager = /*#__PURE__*/function () {
               nextRunner = i + 1 >= runners.length ? null : runners[i + 1];
               mult = !nextRunner ? 1 : Math.abs(nextRunner.number - runner.number);
               start = new Date(start.getTime() + gap * 1000 * mult);
-            case 41:
+            case 40:
               i++;
               _context30.next = 22;
               break;
-            case 44:
+            case 43:
               return _context30.abrupt("return", result);
-            case 45:
+            case 44:
             case "end":
               return _context30.stop();
           }
@@ -5490,7 +5651,7 @@ var EventService = /*#__PURE__*/function () {
     value: function _addFakeListeners() {
       var _this2 = this;
       document.body.addEventListener('keypress', function (e) {
-        if (e.code == 'BracketRight') _this2._sendEvent(new Date());
+        if (e.code == 'BracketRight' || e.code == 'NumpadAdd') _this2._sendEvent(new Date());
       });
     }
   }, {
@@ -5950,7 +6111,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 //////////// PROMISIFY EVENT
 ///////////////////////////////////////////////////
 var buildWaitForEvent = function buildWaitForEvent(eventName) {
-  return function (node, func) {
+  return function (node) {
     return new Promise(function (resolve, reject) {
       // reject for invalid node
       if (!(node instanceof window.HTMLElement || node instanceof window.SVGElement)) {
@@ -5958,22 +6119,15 @@ var buildWaitForEvent = function buildWaitForEvent(eventName) {
       }
 
       // create the event handler
-      var handler = function handler() {
+      var handler = function handler(event) {
         // unbind the handler
         node.removeEventListener(eventName, handler);
         // resolve the (now clean) node
-        return resolve(node);
+        return resolve(event);
       };
 
       // bind the handler
       node.addEventListener(eventName, handler);
-
-      // if it exists, call the function passing in the node
-      if (typeof func === 'function') {
-        window.requestAnimationFrame(function () {
-          return func(node);
-        });
-      }
     });
   };
 };
@@ -6336,7 +6490,7 @@ module.exports = (Handlebars["default"] || Handlebars).template({"1":function(co
     };
 
   return "        <td class=\"px-5 py-3 text-sm bg-white border-b border-gray-200\">\n            <p class=\"text-gray-900 whitespace-no-wrap\">\n"
-    + ((stack1 = __default(__webpack_require__(/*! ../../helpers/equals.js */ "./src/helpers/equals.js")).call(depth0 != null ? depth0 : (container.nullContext || {}),(depth0 != null ? lookupProperty(depth0,"key") : depth0),"status",{"name":"equals","hash":{},"fn":container.program(2, data, 0),"inverse":container.program(9, data, 0),"data":data,"loc":{"start":{"line":5,"column":16},"end":{"line":17,"column":27}}})) != null ? stack1 : "")
+    + ((stack1 = __default(__webpack_require__(/*! ../../helpers/equals.js */ "./src/helpers/equals.js")).call(depth0 != null ? depth0 : (container.nullContext || {}),(depth0 != null ? lookupProperty(depth0,"key") : depth0),"status",{"name":"equals","hash":{},"fn":container.program(2, data, 0),"inverse":container.program(9, data, 0),"data":data,"loc":{"start":{"line":5,"column":16},"end":{"line":26,"column":27}}})) != null ? stack1 : "")
     + "            </p>\n        </td>\n";
 },"2":function(container,depth0,helpers,partials,data) {
     var stack1, alias1=depth0 != null ? depth0 : (container.nullContext || {}), lookupProperty = container.lookupProperty || function(parent, propertyName) {
@@ -6346,15 +6500,15 @@ module.exports = (Handlebars["default"] || Handlebars).template({"1":function(co
         return undefined
     };
 
-  return ((stack1 = __default(__webpack_require__(/*! ../../helpers/equals.js */ "./src/helpers/equals.js")).call(alias1,(depth0 != null ? lookupProperty(depth0,"data") : depth0),"next",{"name":"equals","hash":{},"fn":container.program(3, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":6,"column":20},"end":{"line":8,"column":31}}})) != null ? stack1 : "")
-    + ((stack1 = __default(__webpack_require__(/*! ../../helpers/equals.js */ "./src/helpers/equals.js")).call(alias1,(depth0 != null ? lookupProperty(depth0,"data") : depth0),"ok",{"name":"equals","hash":{},"fn":container.program(5, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":9,"column":20},"end":{"line":11,"column":31}}})) != null ? stack1 : "")
-    + ((stack1 = __default(__webpack_require__(/*! ../../helpers/equals.js */ "./src/helpers/equals.js")).call(alias1,(depth0 != null ? lookupProperty(depth0,"data") : depth0),"missing",{"name":"equals","hash":{},"fn":container.program(7, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":12,"column":20},"end":{"line":14,"column":31}}})) != null ? stack1 : "");
+  return ((stack1 = __default(__webpack_require__(/*! ../../helpers/equals.js */ "./src/helpers/equals.js")).call(alias1,(depth0 != null ? lookupProperty(depth0,"data") : depth0),"next",{"name":"equals","hash":{},"fn":container.program(3, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":6,"column":20},"end":{"line":11,"column":31}}})) != null ? stack1 : "")
+    + ((stack1 = __default(__webpack_require__(/*! ../../helpers/equals.js */ "./src/helpers/equals.js")).call(alias1,(depth0 != null ? lookupProperty(depth0,"data") : depth0),"ok",{"name":"equals","hash":{},"fn":container.program(5, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":12,"column":20},"end":{"line":17,"column":31}}})) != null ? stack1 : "")
+    + ((stack1 = __default(__webpack_require__(/*! ../../helpers/equals.js */ "./src/helpers/equals.js")).call(alias1,(depth0 != null ? lookupProperty(depth0,"data") : depth0),"missing",{"name":"equals","hash":{},"fn":container.program(7, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":18,"column":20},"end":{"line":23,"column":31}}})) != null ? stack1 : "");
 },"3":function(container,depth0,helpers,partials,data) {
-    return "                        <span title=\"In arrivo\" class=\"inline-block rounded-full bg-blue-500 border border-black h-3 w-3 border-opacity-60\"></span>\n";
+    return "                        <span\n                            title=\"In arrivo\"\n                            class=\"inline-block rounded-full bg-blue-500 border border-black h-3 w-3 border-opacity-60\"\n                        ></span>\n";
 },"5":function(container,depth0,helpers,partials,data) {
-    return "                        <span title=\"Assegnato\" class=\"inline-block rounded-full bg-green-500 border border-black h-3 w-3 border-opacity-60\"></span>\n";
+    return "                        <span\n                            title=\"Assegnato\"\n                            class=\"inline-block rounded-full bg-green-500 border border-black h-3 w-3 border-opacity-60\"\n                        ></span>\n";
 },"7":function(container,depth0,helpers,partials,data) {
-    return "                        <span title=\"Mancante\" class=\"inline-block rounded-full bg-yellow-500 border border-black h-3 w-3 border-opacity-60\"></span>\n";
+    return "                        <span\n                            title=\"Mancante\"\n                            class=\"inline-block rounded-full bg-yellow-500 border border-black h-3 w-3 border-opacity-60\"\n                        ></span>\n";
 },"9":function(container,depth0,helpers,partials,data) {
     var lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
@@ -6375,7 +6529,7 @@ module.exports = (Handlebars["default"] || Handlebars).template({"1":function(co
     };
 
   return "        <td class=\"px-5 py-3 text-sm bg-white border-b border-gray-200\">\n            <div class=\"flex flew-row justify-end\">\n"
-    + ((stack1 = lookupProperty(helpers,"if").call(depth0 != null ? depth0 : (container.nullContext || {}),(depth0 != null ? lookupProperty(depth0,"editEnabled") : depth0),{"name":"if","hash":{},"fn":container.program(12, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":24,"column":16},"end":{"line":45,"column":23}}})) != null ? stack1 : "")
+    + ((stack1 = lookupProperty(helpers,"if").call(depth0 != null ? depth0 : (container.nullContext || {}),(depth0 != null ? lookupProperty(depth0,"editEnabled") : depth0),{"name":"if","hash":{},"fn":container.program(12, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":33,"column":16},"end":{"line":54,"column":23}}})) != null ? stack1 : "")
     + "                <button\n                    class=\"flex items-center p-1 text-white bg-gray-500 rounded-full shadow hover:text-white-700 text-md\"\n                    title=\"Cancella\"\n                    ref=\"deleteRow\"\n                >\n                    <svg\n                        xmlns=\"http://www.w3.org/2000/svg\"\n                        viewBox=\"0 0 24 24\"\n                        fill=\"currentColor\"\n                        class=\"w-4 h-4 pointer-events-none\"\n                    >\n                        <path\n                            fill-rule=\"evenodd\"\n                            d=\"M5.47 5.47a.75.75 0 011.06 0L12 10.94l5.47-5.47a.75.75 0 111.06 1.06L13.06 12l5.47 5.47a.75.75 0 11-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 01-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 010-1.06z\"\n                            clip-rule=\"evenodd\"\n                        />\n                    </svg>\n                </button>\n            </div>\n        </td>\n";
 },"12":function(container,depth0,helpers,partials,data) {
     return "                    <button\n                        class=\"flex items-center p-1 text-white bg-gray-500 rounded-full shadow hover:text-white-700 text-md mr-1\"\n                        title=\"Modifica\"\n                        ref=\"editRow\"\n                    >\n                        <svg\n                            xmlns=\"http://www.w3.org/2000/svg\"\n                            fill=\"none\"\n                            viewBox=\"0 0 24 24\"\n                            stroke-width=\"1.5\"\n                            stroke=\"currentColor\"\n                            class=\"w-4 h-4 pointer-events-none\"\n                        >\n                            <path\n                                stroke-linecap=\"round\"\n                                stroke-linejoin=\"round\"\n                                d=\"M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10\"\n                            />\n                        </svg>\n                    </button>\n";
@@ -6390,8 +6544,8 @@ module.exports = (Handlebars["default"] || Handlebars).template({"1":function(co
   return "<tr data-id=\""
     + container.escapeExpression(container.lambda((depth0 != null ? lookupProperty(depth0,"id") : depth0), depth0))
     + "\">\n"
-    + ((stack1 = lookupProperty(helpers,"each").call(alias1,(depth0 != null ? lookupProperty(depth0,"data") : depth0),{"name":"each","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":2,"column":4},"end":{"line":20,"column":13}}})) != null ? stack1 : "")
-    + ((stack1 = lookupProperty(helpers,"unless").call(alias1,(depth0 != null ? lookupProperty(depth0,"actionDisabled") : depth0),{"name":"unless","hash":{},"fn":container.program(11, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":21,"column":4},"end":{"line":66,"column":15}}})) != null ? stack1 : "")
+    + ((stack1 = lookupProperty(helpers,"each").call(alias1,(depth0 != null ? lookupProperty(depth0,"data") : depth0),{"name":"each","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":2,"column":4},"end":{"line":29,"column":13}}})) != null ? stack1 : "")
+    + ((stack1 = lookupProperty(helpers,"unless").call(alias1,(depth0 != null ? lookupProperty(depth0,"actionDisabled") : depth0),{"name":"unless","hash":{},"fn":container.program(11, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":30,"column":4},"end":{"line":75,"column":15}}})) != null ? stack1 : "")
     + "</tr>";
 },"useData":true});
 
@@ -6413,8 +6567,8 @@ module.exports = (Handlebars["default"] || Handlebars).template({"1":function(co
         return undefined
     };
 
-  return "<h2 class=\"font-semibold text-lg mr-4\">"
-    + container.escapeExpression(((helper = (helper = lookupProperty(helpers,"title") || (depth0 != null ? lookupProperty(depth0,"title") : depth0)) != null ? helper : container.hooks.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"title","hash":{},"data":data,"loc":{"start":{"line":4,"column":64},"end":{"line":4,"column":73}}}) : helper)))
+  return "<h2 class=\"font-semibold text-lg mr-4 dark:text-white\">"
+    + container.escapeExpression(((helper = (helper = lookupProperty(helpers,"title") || (depth0 != null ? lookupProperty(depth0,"title") : depth0)) != null ? helper : container.hooks.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"title","hash":{},"data":data,"loc":{"start":{"line":4,"column":80},"end":{"line":4,"column":89}}}) : helper)))
     + "</h2>";
 },"3":function(container,depth0,helpers,partials,data) {
     var stack1, lookupProperty = container.lookupProperty || function(parent, propertyName) {
@@ -6435,7 +6589,7 @@ module.exports = (Handlebars["default"] || Handlebars).template({"1":function(co
         return undefined
     };
 
-  return "            <form class=\"mt-4 md:mt-0 flex flex-col md:flex-row mb-0\" ref=\"filter\">\n                <div class=\"relative\">\n                    <input\n                        type=\"text\"\n                        id=\"&quot;form-subscribe-Filter\"\n                        class=\"rounded-lg border-transparent flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-transparent\"\n                        name=\""
+  return "            <form class=\"mt-4 md:mt-0 flex flex-col md:flex-row mb-0\" ref=\"filter\">\n                <div class=\"relative\">\n                    <input\n                        type=\"text\"\n                        id=\"&quot;form-subscribe-Filter\"\n                        class=\"rounded-lg border-transparent flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white dark:bg-black text-gray-700 dark:text-gray-100 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-gray-600 dark:focus:ring-gray-100 focus:border-transparent\"\n                        name=\""
     + container.escapeExpression(((helper = (helper = lookupProperty(helpers,"filterKey") || (depth0 != null ? lookupProperty(depth0,"filterKey") : depth0)) != null ? helper : container.hooks.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"filterKey","hash":{},"data":data,"loc":{"start":{"line":19,"column":30},"end":{"line":19,"column":43}}}) : helper)))
     + "\"\n                        placeholder=\"Filtra...\"\n                    />\n                </div>\n                <button\n                    class=\"self-end mt-1 md:mt-0 md:ml-1 flex-shrink-0 px-4 py-2 text-base font-semibold text-white bg-gray-500 rounded-lg shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-200\"\n                    type=\"submit\"\n                >\n                    Filtra\n                </button>\n            </form>\n";
 },"7":function(container,depth0,helpers,partials,data) {
@@ -6443,7 +6597,7 @@ module.exports = (Handlebars["default"] || Handlebars).template({"1":function(co
     + container.escapeExpression(container.lambda(depth0, depth0))
     + "\n                            </th>\n";
 },"9":function(container,depth0,helpers,partials,data) {
-    return "                            <th\n                                scope=\"col\"\n                                class=\"px-5 py-3 text-sm font-normal text-left text-gray-800 uppercase bg-white border-b border-gray-200 text-right\"\n                            >\n                                Azioni\n                            </th>\n";
+    return "                            <th\n                                scope=\"col\"\n                                class=\"px-5 py-3 text-sm font-normal text-gray-800 uppercase bg-white border-b border-gray-200 text-right\"\n                            >\n                                Azioni\n                            </th>\n";
 },"11":function(container,depth0,helpers,partials,data) {
     var stack1;
 
@@ -6483,7 +6637,7 @@ module.exports = (Handlebars["default"] || Handlebars).template({"1":function(co
     };
 
   return "<div class=\"\">\n    <div class=\"flex flex-col md:flex-row justify-between md:items-center\">\n        <div class=\"flex flex-row items-center\">\n            "
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"title") : depth0),{"name":"if","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":4,"column":12},"end":{"line":4,"column":85}}})) != null ? stack1 : "")
+    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"title") : depth0),{"name":"if","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":4,"column":12},"end":{"line":4,"column":101}}})) != null ? stack1 : "")
     + "\n"
     + ((stack1 = lookupProperty(helpers,"unless").call(alias1,(depth0 != null ? lookupProperty(depth0,"hideCount") : depth0),{"name":"unless","hash":{},"fn":container.program(3, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":5,"column":12},"end":{"line":10,"column":23}}})) != null ? stack1 : "")
     + "        </div>\n"
@@ -6516,7 +6670,7 @@ module.exports = (Handlebars["default"] || Handlebars).template({"1":function(co
         return undefined
     };
 
-  return "            <button\n                class=\"flex items-center justify-start w-full p-2 pl-6 my-2 text-gray-400 transition-colors duration-200 border-l-4 border-transparent hover:text-gray-800\"\n                ref=\"menuItem\"\n                data-destination=\"ps-"
+  return "            <button\n                class=\"flex items-center justify-start w-full p-2 pl-6 my-2 transition-colors duration-200 border-l-4 border-transparent text-gray-400 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white active:text-gray-800 dark:active:text-white\"\n                ref=\"menuItem\"\n                data-destination=\"ps-"
     + alias4(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":31,"column":37},"end":{"line":31,"column":43}}}) : helper)))
     + "\"\n                data-title=\""
     + alias4(((helper = (helper = lookupProperty(helpers,"name") || (depth0 != null ? lookupProperty(depth0,"name") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data,"loc":{"start":{"line":32,"column":28},"end":{"line":32,"column":36}}}) : helper)))
@@ -6531,9 +6685,23 @@ module.exports = (Handlebars["default"] || Handlebars).template({"1":function(co
         return undefined
     };
 
-  return "<nav class=\"mt-6\">\n    <div>\n        <button\n            class=\"flex items-center justify-start w-full p-2 pl-6 my-2 text-gray-400 transition-colors duration-200 border-l-4 border-transparent hover:text-gray-800 active:text-gray-800\"\n            ref=\"menuItem\"\n            data-destination=\"dashboard\"\n            data-title=\"Dashboard\"\n        >\n            <span class=\"text-left\">\n                <svg\n                    width=\"20\"\n                    height=\"20\"\n                    fill=\"currentColor\"\n                    viewBox=\"0 0 1792 1792\"\n                    xmlns=\"http://www.w3.org/2000/svg\"\n                >\n                    <path\n                        d=\"M1472 992v480q0 26-19 45t-45 19h-384v-384h-256v384h-384q-26 0-45-19t-19-45v-480q0-1 .5-3t.5-3l575-474 575 474q1 2 1 6zm223-69l-62 74q-8 9-21 11h-3q-13 0-21-7l-692-577-692 577q-12 8-24 7-13-2-21-11l-62-74q-8-10-7-23.5t11-21.5l719-599q32-26 76-26t76 26l244 204v-195q0-14 9-23t23-9h192q14 0 23 9t9 23v408l219 182q10 8 11 21.5t-7 23.5z\"\n                    >\n                    </path>\n                </svg>\n            </span>\n            <span class=\"mx-2 text-sm font-normal\">\n                Dashboard\n            </span>\n        </button>\n"
+  return "<nav class=\"mt-6\">\n    <div>\n        <button\n            class=\"flex items-center justify-start w-full p-2 pl-6 my-2 transition-colors duration-200 border-l-4 border-transparent text-gray-400 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white active:text-gray-800 dark:active:text-white\"\n            ref=\"menuItem\"\n            data-destination=\"dashboard\"\n            data-title=\"Dashboard\"\n        >\n            <span class=\"text-left\">\n                <svg\n                    width=\"20\"\n                    height=\"20\"\n                    fill=\"currentColor\"\n                    viewBox=\"0 0 1792 1792\"\n                    xmlns=\"http://www.w3.org/2000/svg\"\n                >\n                    <path\n                        d=\"M1472 992v480q0 26-19 45t-45 19h-384v-384h-256v384h-384q-26 0-45-19t-19-45v-480q0-1 .5-3t.5-3l575-474 575 474q1 2 1 6zm223-69l-62 74q-8 9-21 11h-3q-13 0-21-7l-692-577-692 577q-12 8-24 7-13-2-21-11l-62-74q-8-10-7-23.5t11-21.5l719-599q32-26 76-26t76 26l244 204v-195q0-14 9-23t23-9h192q14 0 23 9t9 23v408l219 182q10 8 11 21.5t-7 23.5z\"\n                    >\n                    </path>\n                </svg>\n            </span>\n            <span class=\"mx-2 text-sm font-normal\">\n                Dashboard\n            </span>\n        </button>\n"
     + ((stack1 = lookupProperty(helpers,"each").call(depth0 != null ? depth0 : (container.nullContext || {}),(depth0 != null ? lookupProperty(depth0,"ps") : depth0),{"name":"each","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":27,"column":8},"end":{"line":55,"column":17}}})) != null ? stack1 : "")
-    + "        <button\n            class=\"flex items-center justify-start w-full p-2 pl-6 my-2 text-gray-400 transition-colors duration-200 border-l-4 border-transparent hover:text-gray-800\"\n            ref=\"menuItem\"\n            data-destination=\"runner\"\n            data-title=\"Corridori\"\n        >\n            <span class=\"text-left\">\n                <svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"currentColor\" class=\"w-6 h-6\">\n                    <path\n                        d=\"M4.5 6.375a4.125 4.125 0 118.25 0 4.125 4.125 0 01-8.25 0zM14.25 8.625a3.375 3.375 0 116.75 0 3.375 3.375 0 01-6.75 0zM1.5 19.125a7.125 7.125 0 0114.25 0v.003l-.001.119a.75.75 0 01-.363.63 13.067 13.067 0 01-6.761 1.873c-2.472 0-4.786-.684-6.76-1.873a.75.75 0 01-.364-.63l-.001-.122zM17.25 19.128l-.001.144a2.25 2.25 0 01-.233.96 10.088 10.088 0 005.06-1.01.75.75 0 00.42-.643 4.875 4.875 0 00-6.957-4.611 8.586 8.586 0 011.71 5.157v.003z\"\n                    />\n                </svg>\n\n            </span>\n            <span class=\"mx-2 text-sm font-normal\">\n                Corridori\n            </span>\n        </button>\n        <button\n            class=\"flex items-center justify-start w-full p-2 pl-6 my-2 text-gray-400 transition-colors duration-200 border-l-4 border-transparent hover:text-gray-800\"\n            ref=\"menuItem\"\n            data-destination=\"race\"\n            data-title=\"Gara\"\n        >\n            <span class=\"text-left\">\n                <svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"currentColor\" class=\"w-6 h-6\">\n                    <path\n                        d=\"M17.004 10.407c.138.435-.216.842-.672.842h-3.465a.75.75 0 01-.65-.375l-1.732-3c-.229-.396-.053-.907.393-1.004a5.252 5.252 0 016.126 3.537zM8.12 8.464c.307-.338.838-.235 1.066.16l1.732 3a.75.75 0 010 .75l-1.732 3.001c-.229.396-.76.498-1.067.16A5.231 5.231 0 016.75 12c0-1.362.519-2.603 1.37-3.536zM10.878 17.13c-.447-.097-.623-.608-.394-1.003l1.733-3.003a.75.75 0 01.65-.375h3.465c.457 0 .81.408.672.843a5.252 5.252 0 01-6.126 3.538z\"\n                    />\n                    <path\n                        fill-rule=\"evenodd\"\n                        d=\"M21 12.75a.75.75 0 000-1.5h-.783a8.22 8.22 0 00-.237-1.357l.734-.267a.75.75 0 10-.513-1.41l-.735.268a8.24 8.24 0 00-.689-1.191l.6-.504a.75.75 0 10-.964-1.149l-.6.504a8.3 8.3 0 00-1.054-.885l.391-.678a.75.75 0 10-1.299-.75l-.39.677a8.188 8.188 0 00-1.295-.471l.136-.77a.75.75 0 00-1.477-.26l-.136.77a8.364 8.364 0 00-1.377 0l-.136-.77a.75.75 0 10-1.477.26l.136.77c-.448.121-.88.28-1.294.47l-.39-.676a.75.75 0 00-1.3.75l.392.678a8.29 8.29 0 00-1.054.885l-.6-.504a.75.75 0 00-.965 1.149l.6.503a8.243 8.243 0 00-.689 1.192L3.8 8.217a.75.75 0 10-.513 1.41l.735.267a8.222 8.222 0 00-.238 1.355h-.783a.75.75 0 000 1.5h.783c.042.464.122.917.238 1.356l-.735.268a.75.75 0 10.513 1.41l.735-.268c.197.417.428.816.69 1.192l-.6.504a.75.75 0 10.963 1.149l.601-.505c.326.323.679.62 1.054.885l-.392.68a.75.75 0 101.3.75l.39-.679c.414.192.847.35 1.294.471l-.136.771a.75.75 0 101.477.26l.137-.772a8.376 8.376 0 001.376 0l.136.773a.75.75 0 101.477-.26l-.136-.772a8.19 8.19 0 001.294-.47l.391.677a.75.75 0 101.3-.75l-.393-.679a8.282 8.282 0 001.054-.885l.601.504a.75.75 0 10.964-1.15l-.6-.503a8.24 8.24 0 00.69-1.191l.735.268a.75.75 0 10.512-1.41l-.734-.268c.115-.438.195-.892.237-1.356h.784zm-2.657-3.06a6.744 6.744 0 00-1.19-2.053 6.784 6.784 0 00-1.82-1.51A6.704 6.704 0 0012 5.25a6.801 6.801 0 00-1.225.111 6.7 6.7 0 00-2.15.792 6.784 6.784 0 00-2.952 3.489.758.758 0 01-.036.099A6.74 6.74 0 005.251 12a6.739 6.739 0 003.355 5.835l.01.006.01.005a6.706 6.706 0 002.203.802c.007 0 .014.002.021.004a6.792 6.792 0 002.301 0l.022-.004a6.707 6.707 0 002.228-.816 6.781 6.781 0 001.762-1.483l.009-.01.009-.012a6.744 6.744 0 001.18-2.064c.253-.708.39-1.47.39-2.264a6.74 6.74 0 00-.408-2.308z\"\n                        clip-rule=\"evenodd\"\n                    />\n                </svg>\n            </span>\n            <span class=\"mx-2 text-sm font-normal\">\n                Gara\n            </span>\n        </button>\n    </div>\n</nav>";
+    + "        <button\n            class=\"flex items-center justify-start w-full p-2 pl-6 my-2 transition-colors duration-200 border-l-4 border-transparent text-gray-400 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white active:text-gray-800 dark:active:text-white\"\n            ref=\"menuItem\"\n            data-destination=\"runner\"\n            data-title=\"Corridori\"\n        >\n            <span class=\"text-left\">\n                <svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"currentColor\" class=\"w-6 h-6\">\n                    <path\n                        d=\"M4.5 6.375a4.125 4.125 0 118.25 0 4.125 4.125 0 01-8.25 0zM14.25 8.625a3.375 3.375 0 116.75 0 3.375 3.375 0 01-6.75 0zM1.5 19.125a7.125 7.125 0 0114.25 0v.003l-.001.119a.75.75 0 01-.363.63 13.067 13.067 0 01-6.761 1.873c-2.472 0-4.786-.684-6.76-1.873a.75.75 0 01-.364-.63l-.001-.122zM17.25 19.128l-.001.144a2.25 2.25 0 01-.233.96 10.088 10.088 0 005.06-1.01.75.75 0 00.42-.643 4.875 4.875 0 00-6.957-4.611 8.586 8.586 0 011.71 5.157v.003z\"\n                    />\n                </svg>\n\n            </span>\n            <span class=\"mx-2 text-sm font-normal\">\n                Corridori\n            </span>\n        </button>\n        <button\n            class=\"flex items-center justify-start w-full p-2 pl-6 my-2 transition-colors duration-200 border-l-4 border-transparent text-gray-400 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white active:text-gray-800 dark:active:text-white\"\n            ref=\"menuItem\"\n            data-destination=\"race\"\n            data-title=\"Gara\"\n        >\n            <span class=\"text-left\">\n                <svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"currentColor\" class=\"w-6 h-6\">\n                    <path\n                        d=\"M17.004 10.407c.138.435-.216.842-.672.842h-3.465a.75.75 0 01-.65-.375l-1.732-3c-.229-.396-.053-.907.393-1.004a5.252 5.252 0 016.126 3.537zM8.12 8.464c.307-.338.838-.235 1.066.16l1.732 3a.75.75 0 010 .75l-1.732 3.001c-.229.396-.76.498-1.067.16A5.231 5.231 0 016.75 12c0-1.362.519-2.603 1.37-3.536zM10.878 17.13c-.447-.097-.623-.608-.394-1.003l1.733-3.003a.75.75 0 01.65-.375h3.465c.457 0 .81.408.672.843a5.252 5.252 0 01-6.126 3.538z\"\n                    />\n                    <path\n                        fill-rule=\"evenodd\"\n                        d=\"M21 12.75a.75.75 0 000-1.5h-.783a8.22 8.22 0 00-.237-1.357l.734-.267a.75.75 0 10-.513-1.41l-.735.268a8.24 8.24 0 00-.689-1.191l.6-.504a.75.75 0 10-.964-1.149l-.6.504a8.3 8.3 0 00-1.054-.885l.391-.678a.75.75 0 10-1.299-.75l-.39.677a8.188 8.188 0 00-1.295-.471l.136-.77a.75.75 0 00-1.477-.26l-.136.77a8.364 8.364 0 00-1.377 0l-.136-.77a.75.75 0 10-1.477.26l.136.77c-.448.121-.88.28-1.294.47l-.39-.676a.75.75 0 00-1.3.75l.392.678a8.29 8.29 0 00-1.054.885l-.6-.504a.75.75 0 00-.965 1.149l.6.503a8.243 8.243 0 00-.689 1.192L3.8 8.217a.75.75 0 10-.513 1.41l.735.267a8.222 8.222 0 00-.238 1.355h-.783a.75.75 0 000 1.5h.783c.042.464.122.917.238 1.356l-.735.268a.75.75 0 10.513 1.41l.735-.268c.197.417.428.816.69 1.192l-.6.504a.75.75 0 10.963 1.149l.601-.505c.326.323.679.62 1.054.885l-.392.68a.75.75 0 101.3.75l.39-.679c.414.192.847.35 1.294.471l-.136.771a.75.75 0 101.477.26l.137-.772a8.376 8.376 0 001.376 0l.136.773a.75.75 0 101.477-.26l-.136-.772a8.19 8.19 0 001.294-.47l.391.677a.75.75 0 101.3-.75l-.393-.679a8.282 8.282 0 001.054-.885l.601.504a.75.75 0 10.964-1.15l-.6-.503a8.24 8.24 0 00.69-1.191l.735.268a.75.75 0 10.512-1.41l-.734-.268c.115-.438.195-.892.237-1.356h.784zm-2.657-3.06a6.744 6.744 0 00-1.19-2.053 6.784 6.784 0 00-1.82-1.51A6.704 6.704 0 0012 5.25a6.801 6.801 0 00-1.225.111 6.7 6.7 0 00-2.15.792 6.784 6.784 0 00-2.952 3.489.758.758 0 01-.036.099A6.74 6.74 0 005.251 12a6.739 6.739 0 003.355 5.835l.01.006.01.005a6.706 6.706 0 002.203.802c.007 0 .014.002.021.004a6.792 6.792 0 002.301 0l.022-.004a6.707 6.707 0 002.228-.816 6.781 6.781 0 001.762-1.483l.009-.01.009-.012a6.744 6.744 0 001.18-2.064c.253-.708.39-1.47.39-2.264a6.74 6.74 0 00-.408-2.308z\"\n                        clip-rule=\"evenodd\"\n                    />\n                </svg>\n            </span>\n            <span class=\"mx-2 text-sm font-normal\">\n                Gara\n            </span>\n        </button>\n    </div>\n</nav>";
+},"useData":true});
+
+/***/ }),
+
+/***/ "./src/components/c3-confirm/template.hbs":
+/*!************************************************!*\
+  !*** ./src/components/c3-confirm/template.hbs ***!
+  \************************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+var Handlebars = __webpack_require__(/*! ../../../node_modules/handlebars/runtime.js */ "./node_modules/handlebars/runtime.js");
+function __default(obj) { return obj && (obj.__esModule ? obj["default"] : obj); }
+module.exports = (Handlebars["default"] || Handlebars).template({"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
+    return "<div class=\"fixed top-0 left-0 right-0 bottom-0 hidden z-50\" ref=\"root\">\n    <div class=\"absolute w-full h-full bg-black dark:bg-white opacity-30\" ref=\"backdrop\"></div>\n    <div class=\"absolute w-full h-full flex items-center justify-center pointer-events-none\">\n        <div class=\"w-80 h-40 bg-white dark:bg-black rounded-xl flex flex-col px-4 py-4 pointer-events-auto\">\n            <h3 class=\"text-xl font-semibold grow dark:text-white\">\n                Vuoi confermare l'operazione?\n            </h3>\n            <div class=\"flex justify-end\">\n                <button\n                    class=\"min-w-[100px] px-4 py-2 mr-4 text-base font-semibold text-black bg-gray-200 rounded-lg shadow-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200 focus:ring-offset-2 focus:ring-offset-gray-100\"\n                    ref=\"no\"\n                >Annulla</button>\n                <button\n                    class=\"min-w-[100px] px-4 py-2 text-base font-semibold text-white bg-gray-500 rounded-lg shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-200\"\n                    ref=\"yes\"\n                >SI</button>\n            </div>\n        </div>\n    </div>\n</div>";
 },"useData":true});
 
 /***/ }),
@@ -6568,11 +6736,11 @@ module.exports = (Handlebars["default"] || Handlebars).template({"compiler":[8,"
         return undefined
     };
 
-  return "<main class=\"relative h-screen overflow-hidden bg-gray-100 dark:bg-gray-800\">\n    <div class=\"flex items-start justify-between\">\n        <div\n            class=\"-left-80 lg:left-0 transition-all absolute lg:relative h-screen shadow-lg lg:block w-80 z-50 shrink-0\"\n            ref=\"drawerMenu\"\n        >\n            <div class=\"h-full bg-white dark:bg-gray-700\">\n                <div class=\"flex items-center justify-start pt-6 ml-8\">\n                    <p class=\"text-2xl font-bold dark:text-white\">\n                        Lighpass V2\n                    </p>\n                </div>\n                <c2-nav ref=\"nav\"></c2-nav>\n            </div>\n        </div>\n        <div class=\"flex flex-col w-full space-y-2 md:space-y-4\">\n            <header class=\"z-40 flex items-center justify-between w-full h-16\">\n\n                <div class=\"flex flex-col justify-end h-full px-3 lg:hidden\">\n                    <div class=\"relative flex items-center justify-end w-full p-1 space-x-4\">\n                        <button\n                            class=\"flex items-center p-2 text-gray-500 bg-white rounded-full shadow text-md\"\n                            ref=\"menuBtn\"\n                        >\n                            <svg\n                                class=\"w-6 h-6\"\n                                class=\"text-gray-400\"\n                                fill=\"currentColor\"\n                                viewBox=\"0 0 1792 1792\"\n                                xmlns=\"http://www.w3.org/2000/svg\"\n                            >\n                                <path\n                                    d=\"M1664 1344v128q0 26-19 45t-45 19h-1408q-26 0-45-19t-19-45v-128q0-26 19-45t45-19h1408q26 0 45 19t19 45zm0-512v128q0 26-19 45t-45 19h-1408q-26 0-45-19t-19-45v-128q0-26 19-45t45-19h1408q26 0 45 19t19 45zm0-512v128q0 26-19 45t-45 19h-1408q-26 0-45-19t-19-45v-128q0-26 19-45t45-19h1408q26 0 45 19t19 45z\"\n                                >\n                                </path>\n                            </svg>\n                        </button>\n                    </div>\n                </div>\n                <div class=\"relative z-20 flex flex-col justify-end h-full px-3 md:w-full\">\n                    <div class=\"relative flex items-center justify-end w-full p-1 space-x-4\">\n                        <div class=\"text-gray-700\" ref=\"currentTime\"></div>\n                        <button\n                            class=\"flex items-center p-2 text-red-600 bg-white rounded-full shadow hover:text-gray-700 text-md\"\n                            title=\"Chiudi Gara\"\n                            ref=\"closeRace\"\n                        >\n                            <svg\n                                xmlns=\"http://www.w3.org/2000/svg\"\n                                viewBox=\"0 0 24 24\"\n                                fill=\"currentColor\"\n                                class=\"w-6 h-6\"\n                            >\n                                <path\n                                    fill-rule=\"evenodd\"\n                                    d=\"M5.47 5.47a.75.75 0 011.06 0L12 10.94l5.47-5.47a.75.75 0 111.06 1.06L13.06 12l5.47 5.47a.75.75 0 11-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 01-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 010-1.06z\"\n                                    clip-rule=\"evenodd\"\n                                />\n                            </svg>\n\n                        </button>\n\n                    </div>\n                </div>\n            </header>\n            <div class=\"h-screen px-4 pb-24 overflow-auto md:px-6\">\n                <h1 class=\"text-4xl font-semibold text-gray-800 dark:text-white mb-4\" ref=\"dashboardTitle\">\n                    "
+  return "<main class=\"relative h-screen overflow-hidden bg-gray-100 dark:bg-gray-800\">\n    <div class=\"flex items-start justify-between\">\n        <div\n            class=\"-left-80 lg:left-0 transition-all absolute lg:relative h-screen shadow-lg lg:block w-80 z-50 shrink-0\"\n            ref=\"drawerMenu\"\n        >\n            <div class=\"h-full bg-white dark:bg-gray-700\">\n                <div class=\"flex items-center justify-start pt-6 ml-8\">\n                    <p class=\"text-2xl font-bold dark:text-white\">\n                        Lighpass V2\n                    </p>\n                </div>\n                <c2-nav ref=\"nav\"></c2-nav>\n            </div>\n        </div>\n        <div class=\"flex flex-col w-full space-y-2 md:space-y-4\">\n            <header class=\"z-40 flex items-center justify-between w-full h-16\">\n\n                <div class=\"flex flex-col justify-end h-full px-3 lg:hidden\">\n                    <div class=\"relative flex items-center justify-end w-full p-1 space-x-4\">\n                        <button\n                            class=\"flex items-center p-2 text-gray-500 bg-white rounded-full shadow text-md\"\n                            ref=\"menuBtn\"\n                        >\n                            <svg\n                                class=\"w-6 h-6\"\n                                class=\"text-gray-400\"\n                                fill=\"currentColor\"\n                                viewBox=\"0 0 1792 1792\"\n                                xmlns=\"http://www.w3.org/2000/svg\"\n                            >\n                                <path\n                                    d=\"M1664 1344v128q0 26-19 45t-45 19h-1408q-26 0-45-19t-19-45v-128q0-26 19-45t45-19h1408q26 0 45 19t19 45zm0-512v128q0 26-19 45t-45 19h-1408q-26 0-45-19t-19-45v-128q0-26 19-45t45-19h1408q26 0 45 19t19 45zm0-512v128q0 26-19 45t-45 19h-1408q-26 0-45-19t-19-45v-128q0-26 19-45t45-19h1408q26 0 45 19t19 45z\"\n                                >\n                                </path>\n                            </svg>\n                        </button>\n                    </div>\n                </div>\n                <div class=\"relative z-20 flex flex-col justify-end h-full px-3 md:w-full\">\n                    <div class=\"relative flex items-center justify-end w-full p-1 space-x-4\">\n                        <div class=\"text-gray-700 dark:text-gray-100\" ref=\"currentTime\"></div>\n                        <button\n                            class=\"flex items-center p-2 text-red-600 bg-white rounded-full shadow hover:text-gray-700 text-md\"\n                            title=\"Chiudi Gara\"\n                            ref=\"closeRace\"\n                        >\n                            <svg\n                                xmlns=\"http://www.w3.org/2000/svg\"\n                                viewBox=\"0 0 24 24\"\n                                fill=\"currentColor\"\n                                class=\"w-6 h-6\"\n                            >\n                                <path\n                                    fill-rule=\"evenodd\"\n                                    d=\"M5.47 5.47a.75.75 0 011.06 0L12 10.94l5.47-5.47a.75.75 0 111.06 1.06L13.06 12l5.47 5.47a.75.75 0 11-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 01-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 010-1.06z\"\n                                    clip-rule=\"evenodd\"\n                                />\n                            </svg>\n\n                        </button>\n\n                    </div>\n                </div>\n            </header>\n            <div class=\"h-screen px-4 pb-24 overflow-auto md:px-6\">\n                <h1 class=\"text-4xl font-semibold text-gray-800 dark:text-white mb-4\" ref=\"dashboardTitle\">\n                    "
     + container.escapeExpression(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"location") : depth0)) != null ? lookupProperty(stack1,"title") : stack1), depth0))
     + "\n                </h1>\n                <div ref=\"dashboardContent\">\n                    "
     + ((stack1 = alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"location") : depth0)) != null ? lookupProperty(stack1,"content") : stack1), depth0)) != null ? stack1 : "")
-    + "\n                </div>\n            </div>\n        </div>\n    </div>\n</main>";
+    + "\n                </div>\n            </div>\n        </div>\n    </div>\n    <c3-confirm name=\"default\"></c3-confirm>\n</main>";
 },"useData":true});
 
 /***/ }),
@@ -11978,10 +12146,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _components_m3_runners__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./components/m3-runners */ "./src/components/m3-runners/index.js");
 /* harmony import */ var _libs_event_service__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./libs/event-service */ "./src/libs/event-service.js");
 /* harmony import */ var _components_m4_score__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./components/m4-score */ "./src/components/m4-score/index.js");
+/* harmony import */ var _components_c3_confirm__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./components/c3-confirm */ "./src/components/c3-confirm/index.js");
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return exports; }; var exports = {}, Op = Object.prototype, hasOwn = Op.hasOwnProperty, defineProperty = Object.defineProperty || function (obj, key, desc) { obj[key] = desc.value; }, $Symbol = "function" == typeof Symbol ? Symbol : {}, iteratorSymbol = $Symbol.iterator || "@@iterator", asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator", toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag"; function define(obj, key, value) { return Object.defineProperty(obj, key, { value: value, enumerable: !0, configurable: !0, writable: !0 }), obj[key]; } try { define({}, ""); } catch (err) { define = function define(obj, key, value) { return obj[key] = value; }; } function wrap(innerFn, outerFn, self, tryLocsList) { var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator, generator = Object.create(protoGenerator.prototype), context = new Context(tryLocsList || []); return defineProperty(generator, "_invoke", { value: makeInvokeMethod(innerFn, self, context) }), generator; } function tryCatch(fn, obj, arg) { try { return { type: "normal", arg: fn.call(obj, arg) }; } catch (err) { return { type: "throw", arg: err }; } } exports.wrap = wrap; var ContinueSentinel = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var IteratorPrototype = {}; define(IteratorPrototype, iteratorSymbol, function () { return this; }); var getProto = Object.getPrototypeOf, NativeIteratorPrototype = getProto && getProto(getProto(values([]))); NativeIteratorPrototype && NativeIteratorPrototype !== Op && hasOwn.call(NativeIteratorPrototype, iteratorSymbol) && (IteratorPrototype = NativeIteratorPrototype); var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(IteratorPrototype); function defineIteratorMethods(prototype) { ["next", "throw", "return"].forEach(function (method) { define(prototype, method, function (arg) { return this._invoke(method, arg); }); }); } function AsyncIterator(generator, PromiseImpl) { function invoke(method, arg, resolve, reject) { var record = tryCatch(generator[method], generator, arg); if ("throw" !== record.type) { var result = record.arg, value = result.value; return value && "object" == _typeof(value) && hasOwn.call(value, "__await") ? PromiseImpl.resolve(value.__await).then(function (value) { invoke("next", value, resolve, reject); }, function (err) { invoke("throw", err, resolve, reject); }) : PromiseImpl.resolve(value).then(function (unwrapped) { result.value = unwrapped, resolve(result); }, function (error) { return invoke("throw", error, resolve, reject); }); } reject(record.arg); } var previousPromise; defineProperty(this, "_invoke", { value: function value(method, arg) { function callInvokeWithMethodAndArg() { return new PromiseImpl(function (resolve, reject) { invoke(method, arg, resolve, reject); }); } return previousPromise = previousPromise ? previousPromise.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(innerFn, self, context) { var state = "suspendedStart"; return function (method, arg) { if ("executing" === state) throw new Error("Generator is already running"); if ("completed" === state) { if ("throw" === method) throw arg; return doneResult(); } for (context.method = method, context.arg = arg;;) { var delegate = context.delegate; if (delegate) { var delegateResult = maybeInvokeDelegate(delegate, context); if (delegateResult) { if (delegateResult === ContinueSentinel) continue; return delegateResult; } } if ("next" === context.method) context.sent = context._sent = context.arg;else if ("throw" === context.method) { if ("suspendedStart" === state) throw state = "completed", context.arg; context.dispatchException(context.arg); } else "return" === context.method && context.abrupt("return", context.arg); state = "executing"; var record = tryCatch(innerFn, self, context); if ("normal" === record.type) { if (state = context.done ? "completed" : "suspendedYield", record.arg === ContinueSentinel) continue; return { value: record.arg, done: context.done }; } "throw" === record.type && (state = "completed", context.method = "throw", context.arg = record.arg); } }; } function maybeInvokeDelegate(delegate, context) { var methodName = context.method, method = delegate.iterator[methodName]; if (undefined === method) return context.delegate = null, "throw" === methodName && delegate.iterator["return"] && (context.method = "return", context.arg = undefined, maybeInvokeDelegate(delegate, context), "throw" === context.method) || "return" !== methodName && (context.method = "throw", context.arg = new TypeError("The iterator does not provide a '" + methodName + "' method")), ContinueSentinel; var record = tryCatch(method, delegate.iterator, context.arg); if ("throw" === record.type) return context.method = "throw", context.arg = record.arg, context.delegate = null, ContinueSentinel; var info = record.arg; return info ? info.done ? (context[delegate.resultName] = info.value, context.next = delegate.nextLoc, "return" !== context.method && (context.method = "next", context.arg = undefined), context.delegate = null, ContinueSentinel) : info : (context.method = "throw", context.arg = new TypeError("iterator result is not an object"), context.delegate = null, ContinueSentinel); } function pushTryEntry(locs) { var entry = { tryLoc: locs[0] }; 1 in locs && (entry.catchLoc = locs[1]), 2 in locs && (entry.finallyLoc = locs[2], entry.afterLoc = locs[3]), this.tryEntries.push(entry); } function resetTryEntry(entry) { var record = entry.completion || {}; record.type = "normal", delete record.arg, entry.completion = record; } function Context(tryLocsList) { this.tryEntries = [{ tryLoc: "root" }], tryLocsList.forEach(pushTryEntry, this), this.reset(!0); } function values(iterable) { if (iterable) { var iteratorMethod = iterable[iteratorSymbol]; if (iteratorMethod) return iteratorMethod.call(iterable); if ("function" == typeof iterable.next) return iterable; if (!isNaN(iterable.length)) { var i = -1, next = function next() { for (; ++i < iterable.length;) if (hasOwn.call(iterable, i)) return next.value = iterable[i], next.done = !1, next; return next.value = undefined, next.done = !0, next; }; return next.next = next; } } return { next: doneResult }; } function doneResult() { return { value: undefined, done: !0 }; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, defineProperty(Gp, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), defineProperty(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, toStringTagSymbol, "GeneratorFunction"), exports.isGeneratorFunction = function (genFun) { var ctor = "function" == typeof genFun && genFun.constructor; return !!ctor && (ctor === GeneratorFunction || "GeneratorFunction" === (ctor.displayName || ctor.name)); }, exports.mark = function (genFun) { return Object.setPrototypeOf ? Object.setPrototypeOf(genFun, GeneratorFunctionPrototype) : (genFun.__proto__ = GeneratorFunctionPrototype, define(genFun, toStringTagSymbol, "GeneratorFunction")), genFun.prototype = Object.create(Gp), genFun; }, exports.awrap = function (arg) { return { __await: arg }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, asyncIteratorSymbol, function () { return this; }), exports.AsyncIterator = AsyncIterator, exports.async = function (innerFn, outerFn, self, tryLocsList, PromiseImpl) { void 0 === PromiseImpl && (PromiseImpl = Promise); var iter = new AsyncIterator(wrap(innerFn, outerFn, self, tryLocsList), PromiseImpl); return exports.isGeneratorFunction(outerFn) ? iter : iter.next().then(function (result) { return result.done ? result.value : iter.next(); }); }, defineIteratorMethods(Gp), define(Gp, toStringTagSymbol, "Generator"), define(Gp, iteratorSymbol, function () { return this; }), define(Gp, "toString", function () { return "[object Generator]"; }), exports.keys = function (val) { var object = Object(val), keys = []; for (var key in object) keys.push(key); return keys.reverse(), function next() { for (; keys.length;) { var key = keys.pop(); if (key in object) return next.value = key, next.done = !1, next; } return next.done = !0, next; }; }, exports.values = values, Context.prototype = { constructor: Context, reset: function reset(skipTempReset) { if (this.prev = 0, this.next = 0, this.sent = this._sent = undefined, this.done = !1, this.delegate = null, this.method = "next", this.arg = undefined, this.tryEntries.forEach(resetTryEntry), !skipTempReset) for (var name in this) "t" === name.charAt(0) && hasOwn.call(this, name) && !isNaN(+name.slice(1)) && (this[name] = undefined); }, stop: function stop() { this.done = !0; var rootRecord = this.tryEntries[0].completion; if ("throw" === rootRecord.type) throw rootRecord.arg; return this.rval; }, dispatchException: function dispatchException(exception) { if (this.done) throw exception; var context = this; function handle(loc, caught) { return record.type = "throw", record.arg = exception, context.next = loc, caught && (context.method = "next", context.arg = undefined), !!caught; } for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i], record = entry.completion; if ("root" === entry.tryLoc) return handle("end"); if (entry.tryLoc <= this.prev) { var hasCatch = hasOwn.call(entry, "catchLoc"), hasFinally = hasOwn.call(entry, "finallyLoc"); if (hasCatch && hasFinally) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } else if (hasCatch) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); } else { if (!hasFinally) throw new Error("try statement without catch or finally"); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } } } }, abrupt: function abrupt(type, arg) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc <= this.prev && hasOwn.call(entry, "finallyLoc") && this.prev < entry.finallyLoc) { var finallyEntry = entry; break; } } finallyEntry && ("break" === type || "continue" === type) && finallyEntry.tryLoc <= arg && arg <= finallyEntry.finallyLoc && (finallyEntry = null); var record = finallyEntry ? finallyEntry.completion : {}; return record.type = type, record.arg = arg, finallyEntry ? (this.method = "next", this.next = finallyEntry.finallyLoc, ContinueSentinel) : this.complete(record); }, complete: function complete(record, afterLoc) { if ("throw" === record.type) throw record.arg; return "break" === record.type || "continue" === record.type ? this.next = record.arg : "return" === record.type ? (this.rval = this.arg = record.arg, this.method = "return", this.next = "end") : "normal" === record.type && afterLoc && (this.next = afterLoc), ContinueSentinel; }, finish: function finish(finallyLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.finallyLoc === finallyLoc) return this.complete(entry.completion, entry.afterLoc), resetTryEntry(entry), ContinueSentinel; } }, "catch": function _catch(tryLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc === tryLoc) { var record = entry.completion; if ("throw" === record.type) { var thrown = record.arg; resetTryEntry(entry); } return thrown; } } throw new Error("illegal catch attempt"); }, delegateYield: function delegateYield(iterable, resultName, nextLoc) { return this.delegate = { iterator: values(iterable), resultName: resultName, nextLoc: nextLoc }, "next" === this.method && (this.arg = undefined), ContinueSentinel; } }, exports; }
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
 
 
 
@@ -12009,10 +12179,11 @@ _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
         // others
         customElements.define('c1-table', _components_c1_table__WEBPACK_IMPORTED_MODULE_1__["default"]);
         customElements.define('c2-nav', _components_c2_nav__WEBPACK_IMPORTED_MODULE_2__["default"]);
+        customElements.define('c3-confirm', _components_c3_confirm__WEBPACK_IMPORTED_MODULE_11__["default"]);
 
         //start event service
         (0,_libs_event_service__WEBPACK_IMPORTED_MODULE_9__.getEventService)().start();
-      case 10:
+      case 11:
       case "end":
         return _context.stop();
     }
