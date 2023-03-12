@@ -61,6 +61,7 @@ class M4Score extends Component {
 
     async _download() {
         let rows = await this.getRows();
+        console.log(rows);
         rows = rows.map((item) => ({
             number: item.number,
             name: item.name,
@@ -69,6 +70,10 @@ class M4Score extends Component {
             start: dateToTime(item.start, true),
             end: dateToTime(item.end, true),
             diff: dateToDiffTimeStr(item.diff, true),
+            uci: item.uci,
+            fci: item.fci,
+            societa: item.soc,
+            nazionalita: item.naz
         }));
         const csv = Papa.unparse(rows);
         const csvContent = 'data:text/csv;charset=utf-8,' + csv;

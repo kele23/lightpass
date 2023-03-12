@@ -5,12 +5,12 @@ class DBManager {
         this.db = new Dexie('Lightpass');
 
         // Declare tables, IDs and indexes
-        this.db.version(5).stores({
+        this.db.version(6).stores({
             race: '++id, name',
-            runner: '++id, name, number, category, team, race',
+            runner: '++id, name, number, category, team, fci, uci, soc, naz, race',
             ps: '++id, name, start, gap, order, race',
             time: '++id, time, race',
-            take: '++id, time, ps, runner, race',
+            take: '++id, time, ps, runner, race, pen',
         });
     }
 
@@ -71,17 +71,31 @@ class DBManager {
         return await this.db.runner.where('race').equals(parseInt(race)).toArray();
     }
 
-    async createOrUpdateRunner({ name, number, category, race, team, id }) {
+    async createOrUpdateRunner({ name, number, category, race, team, id, naz, uci, fci, soc }) {
         if (id) {
             return await this.db.runner.update(parseInt(id), {
                 name,
                 number: parseInt(number),
                 category,
                 race: parseInt(race),
-                team
+                team,
+                naz,
+                uci,
+                fci,
+                soc,
             });
         } else {
-            return await this.db.runner.add({ name, number: parseInt(number), category, race: parseInt(race), team });
+            return await this.db.runner.add({
+                name,
+                number: parseInt(number),
+                category,
+                race: parseInt(race),
+                team,
+                naz,
+                uci,
+                fci,
+                soc,
+            });
         }
     }
 
