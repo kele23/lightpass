@@ -7,11 +7,10 @@ class DBManager {
         // Declare tables, IDs and indexes
         this.db.version(5).stores({
             race: '++id, name',
-            runner: '++id, name, number, category, race',
+            runner: '++id, name, number, category, team, race',
             ps: '++id, name, start, gap, order, race',
             time: '++id, time, race',
             take: '++id, time, ps, runner, race',
-
         });
     }
 
