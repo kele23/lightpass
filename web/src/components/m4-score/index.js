@@ -23,9 +23,11 @@ class M4Score extends Component {
         this.psId = selectedPage.destination.substring(3);
 
         this.categories = null;
+        this.teams = null;
 
         const data = {
             categories: await this.dbManager.getAllCategories(this.raceId),
+            teams: await this.dbManager.getAllTeams(this.raceId),
         };
 
         // parse html
@@ -62,6 +64,7 @@ class M4Score extends Component {
                                 body {
                                     padding-left: 16px;
                                     padding-right: 16px;
+                                    font-size: 13px;
                                 }
                                 .text-left {
                                     text-align: left;
@@ -76,6 +79,18 @@ class M4Score extends Component {
                                 .py-3 {
                                     padding-top: 8px;
                                     padding-bottom: 8px;
+                                }
+                                table {
+                                    font-size: 13px;
+                                }
+                                td {
+                                    max-width: 35ch;
+                                }
+                                tr:nth-child(odd) {
+                                    background-color: white;
+                                }
+                                tr:nth-child(even) {
+                                    background-color: #eeeeee;
                                 }
                             </style>
                         </head>
@@ -103,10 +118,59 @@ class M4Score extends Component {
             },
             'selectCategories'
         );
+
+        this._addListener(
+            'submit',
+            (event) => {
+                event.preventDefault();
+                const data = formToJSON(event.target);
+                this.teams = data.selectTeam ? [data.selectTeam] : null;
+                this.table.reload();
+            },
+            'selectTeams'
+        );
+
+        this._addListener(
+            'submit',
+            (event) => {
+                event.preventDefault();
+                this._uploadPsScore(event.target);
+            },
+            'uploadPsScore'
+        );
     }
 
     async getRows() {
-        return await this.dbManager.getScore(this.psId, this.raceId, this.categories);
+        return await this.dbManager.getScore(this.psId, this.raceId, this.categories, this.teams);
+    }
+
+    async _uploadPsScore(form){
+        const files = form.querySelector('[type=file]').files;
+        if (!files) return;
+
+        //clean
+        await this.dbManager.cleanTake({ race: this.raceId });
+        await this.dbManager.cleanRunner({ race: this.raceId });
+
+        //read file
+        const f = files[0];
+        const arrayBuffer = await readFileAsync(f);
+        const decoder = new TextDecoder('utf-8');
+        const csv = decoder.decode(arrayBuffer);
+
+        //read csv
+        const results = Papa.parse(csv, {
+            header: true,
+        });
+
+        //add item
+        const rows = results.data;
+        for (const row of rows) {
+            await this.dbManager.createOrUpdateRunner({ ...row, id: null, race: this.raceId });
+        }
+
+        await this.table.reload();
+        form.reset();
     }
 
     async _download() {

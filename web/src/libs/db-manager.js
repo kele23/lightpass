@@ -261,7 +261,13 @@ class DBManager {
         return [...new Set(categories)];
     }
 
-    async getScoreFull(psId, race, categories) {
+    async getAllTeams(race) {
+        const runners = await this.getAllRunner(race);
+        const teams = runners.map((item) => item.team);
+        return [...new Set(teams)];
+    }
+
+    async getScoreFull(psId, race) {
         const ps = await this.db.ps.get(parseInt(psId));
         if (!ps) return [];
 
@@ -319,47 +325,70 @@ class DBManager {
             start = new Date(start.getTime() + gap * 1000 * mult);
         }
 
-        // filter by categories if required
-        let result = [];
-        if (categories && categories.length > 0) {
-            for (const item of tmpResult) if (categories.indexOf(item.runner.category) >= 0) result.push(item);
-        } else {
-            result = tmpResult;
-        }
-
-        return result;
+        return tmpResult;
     }
 
-    async getScore(psId, race, categories) {
-        const result = await this.getScoreFull(psId, race, categories);
+    async getScore(psId, race, categories, teams) {
+        const scoreFull = await this.getScoreFull(psId, race);
 
-        return result.map(({ runner, ps, take, time, start, diff }) => ({
-            ...runner,
-            ps: ps.name,
-            start: start.getTime(),
-            end: time?.time,
-            pen: take?.pen,
-            diff,
-        }));
-    }
+        // order and map
+        let tmpResult = scoreFull
+            .sort((a, b) => {
+                if (a.diff == b.diff) return 0;
+                if (a.diff == null || a.diff == undefined) return 1;
+                if (b.diff == null || b.diff == undefined) return -1;
+                return a.diff - b.diff;
+            })
+            .map(({ runner, ps, take, time, start, diff }) => ({
+                ...runner,
+                ps: ps.name,
+                start: start.getTime(),
+                end: time?.time,
+                pen: take?.pen,
+                diff,
+            }));
 
-    async getGlobalScore(race, categories) {
-        const initRunners = await this.getAllRunner(race);
-        if (!initRunners) return [];
-
-        let runners = [];
+        //filter category
         if (categories && categories.length > 0) {
-            for (const runner of initRunners) {
-                if (categories.indexOf(runner.category) >= 0) runners.push(runner);
-            }
-        } else {
-            runners = initRunners;
+            tmpResult = tmpResult.filter((item) => categories.indexOf(item.category) >= 0);
         }
 
+        // filter team
+        if (teams && teams.length > 0) {
+            tmpResult = tmpResult.filter((item) => teams.indexOf(item.team) >= 0);
+        }
+
+        // set position
+        let results = [];
+        for (let i = 0; i < tmpResult.length; i++) {
+            results.push({
+                pos: i + 1,
+                ...tmpResult[i],
+            });
+        }
+
+        return results;
+    }
+
+    async getGlobalScore(race, categories, teams) {
+        let runners = await this.getAllRunner(race);
+        if (!runners) return [];
+
+        //filter category
+        if (categories && categories.length > 0) {
+            runners = runners.filter((item) => categories.indexOf(item.category) >= 0);
+        }
+
+        // filter team
+        if (teams && teams.length > 0) {
+            runners = runners.filter((item) => teams.indexOf(item.team) >= 0);
+        }
+
+        // get score for each ps
         const pss = await this.getAllPS(race);
         const map = new Map();
         for (const ps of pss) {
-            const psResults = await this.getScoreFull(ps.id, race, categories);
+            const psResults = await this.getScoreFull(ps.id, race);
             for (const result of psResults) {
                 if (!result.diff) continue;
                 let psRunnerRes = map.get(result.runner.number);
@@ -369,7 +398,8 @@ class DBManager {
             }
         }
 
-        const results = [];
+        // calcolate diff, only for selected runners
+        let tmpResult = [];
         for (const runner of runners) {
             const values = map.get(runner.number);
 
@@ -381,11 +411,29 @@ class DBManager {
                 }
             }
 
-            results.push({
+            tmpResult.push({
                 ...runner,
                 diff,
             });
         }
+
+        // order
+        tmpResult = tmpResult.sort((a, b) => {
+            if (a.diff == b.diff) return 0;
+            if (a.diff == null || a.diff == undefined) return 1;
+            if (b.diff == null || b.diff == undefined) return -1;
+            return a.diff - b.diff;
+        });
+
+        // make results and set position
+        let results = [];
+        for (let i = 0; i < tmpResult.length; i++) {
+            results.push({
+                pos: i + 1,
+                ...tmpResult[i],
+            });
+        }
+
         return results;
     }
 

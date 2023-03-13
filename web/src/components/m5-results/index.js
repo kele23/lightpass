@@ -20,8 +20,11 @@ class M5Results extends Component {
         this.raceId = selectedRace.race;
 
         this.categories = null;
+        this.teams = null;
+
         const data = {
             categories: await this.dbManager.getAllCategories(this.raceId),
+            teams: await this.dbManager.getAllTeams(this.raceId),
         };
 
         // parse html
@@ -53,6 +56,17 @@ class M5Results extends Component {
         );
 
         this._addListener(
+            'submit',
+            (event) => {
+                event.preventDefault();
+                const data = formToJSON(event.target);
+                this.teams = data.selectTeam ? [data.selectTeam] : null;
+                this.table.reload();
+            },
+            'selectTeams'
+        );
+
+        this._addListener(
             'click',
             (event) => {
                 event.preventDefault();
@@ -69,6 +83,7 @@ class M5Results extends Component {
                                 body {
                                     padding-left: 16px;
                                     padding-right: 16px;
+                                    font-size: 13px;
                                 }
                                 .text-left {
                                     text-align: left;
@@ -83,6 +98,18 @@ class M5Results extends Component {
                                 .py-3 {
                                     padding-top: 8px;
                                     padding-bottom: 8px;
+                                }
+                                table {
+                                    font-size: 13px;
+                                }
+                                td {
+                                    max-width: 35ch;
+                                }
+                                tr:nth-child(odd) {
+                                    background-color: white;
+                                }
+                                tr:nth-child(even) {
+                                    background-color: #eeeeee;
                                 }
                             </style>
                         </head>
@@ -102,7 +129,7 @@ class M5Results extends Component {
     }
 
     async getRows() {
-        return await this.dbManager.getGlobalScore(this.raceId, this.categories);
+        return await this.dbManager.getGlobalScore(this.raceId, this.categories, this.teams);
     }
 
     async _download() {
