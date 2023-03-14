@@ -1,7 +1,7 @@
 import Component from '../../libs/component';
 import { getDBManager } from '../../libs/db-manager';
 import { formToJSON } from '../../libs/form-to-json';
-import { dateToDiffTimeStr, dateToTime } from '../../libs/utils';
+import { dateToDiffTimeStr, dateToStr, dateToTime } from '../../libs/utils';
 import C3Confirm from '../c3-confirm';
 import rowTemplate from './row-template.hbs';
 import template from './template.hbs';
@@ -27,6 +27,7 @@ class C1Table extends Component {
         this.editEnabled = this.getAttribute('editEnabled');
         this.actionDisabled = this.getAttribute('actionDisabled');
         this.keys = this.getAttribute('keys').split(',');
+        this.types = this.getAttribute('types').split(',');
         this.orderBy = this.getAttribute('orderBy');
         this.orderDir = this.getAttribute('orderDir') || 'asc';
 
@@ -93,15 +94,36 @@ class C1Table extends Component {
 
     _rowMap(item) {
         const res = { id: item.id, data: [], editEnabled: this.editEnabled, actionDisabled: this.actionDisabled };
-        for (const key of this.keys) {
+        for (let i = 0; i < this.keys.length; i++) {
+            const key = this.keys[i];
+            const type = this.types[i] || 'as-is';
             let data = item[key];
 
-            if (key == 'start') data = dateToTime(item[key]);
-            else if (key == 'pen')
-                data = item[key] && item[key] != 0 ? `${Math.sign(item[key]) > 0 ? '+' : '-'}${item[key]} sec` : null;
-            else if (key == 'start' || key == 'time' || key == 'end' || key == 'assignedTime')
-                data = dateToTime(item[key], true);
-            else if (key == 'diff') data = dateToDiffTimeStr(item[key], true);
+            switch (type) {
+                case 'date-time':
+                    data = dateToStr(item[key], true);
+                    break;
+                case 'penalty':
+                    data =
+                        item[key] && item[key] != 0 ? `${Math.sign(item[key]) > 0 ? '+' : '-'}${item[key]} sec` : null;
+                    break;
+                case 'time':
+                    data = dateToTime(item[key], true);
+                    break;
+                case 'diff':
+                    data = data
+                        ? `<span class="underline font-bold">${dateToDiffTimeStr(item[key], true)}</span>`
+                        : null;
+                    break;
+                case 'bolder':
+                    data = '<span class="font-bold">' + data + '</span>';
+                    break;
+                case 'pos':
+                    data =
+                        '<span class="font-bold inline-block rounded-md min-w-[42px] px-2 bg-white border text-center text-red-700 text-base">' +
+                        data +
+                        '</span>';
+            }
 
             res.data.push({ key, data });
         }

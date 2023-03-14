@@ -3,8 +3,9 @@ import template from './template.hbs';
 import { getDBManager } from '../../libs/db-manager';
 import { getStoreManager } from '../../libs/store-manager';
 import Papa from 'papaparse';
-import { dateToTime, dateToDiffTimeStr } from '../../libs/utils';
+import { dateToTime, dateToDiffTimeStr, printTable, dateToStr, readFileAsync } from '../../libs/utils';
 import { formToJSON } from '../../libs/form-to-json';
+import C3Confirm from '../c3-confirm';
 
 class M4Score extends Component {
     constructor() {
@@ -22,8 +23,8 @@ class M4Score extends Component {
         const selectedPage = getStoreManager().get('selectedPage');
         this.psId = selectedPage.destination.substring(3);
 
-        this.categories = null;
-        this.teams = null;
+        this.categories = [];
+        this.teams = [];
 
         const data = {
             categories: await this.dbManager.getAllCategories(this.raceId),
@@ -51,59 +52,7 @@ class M4Score extends Component {
             'click',
             (event) => {
                 event.preventDefault();
-
-                console.log(this._ref('printTable').innerHTML);
-
-                const printWindow = window.open('', '', 'height=800,width=1000');
-                printWindow.document.write(`
-                    <html>
-                        <head>
-                            <title>Print</title>
-                            <style>
-                                @page { margin: 0; }
-                                body {
-                                    padding-left: 16px;
-                                    padding-right: 16px;
-                                    font-size: 13px;
-                                }
-                                .text-left {
-                                    text-align: left;
-                                }
-                                .text-center {
-                                    text-align: center;
-                                }
-                                .px-2 {
-                                    padding-left: 4px;
-                                    padding-right: 4px;
-                                }
-                                .py-3 {
-                                    padding-top: 8px;
-                                    padding-bottom: 8px;
-                                }
-                                table {
-                                    font-size: 13px;
-                                }
-                                td {
-                                    max-width: 35ch;
-                                }
-                                tr:nth-child(odd) {
-                                    background-color: white;
-                                }
-                                tr:nth-child(even) {
-                                    background-color: #eeeeee;
-                                }
-                            </style>
-                        </head>
-                        <body>
-                            <table>${this._ref('printTable').innerHTML}</table>
-                        </body>
-                    </html>`);
-
-                //Print the Table CSS.
-
-                printWindow.document.close();
-                printWindow.print();
-                printWindow.close();
+                this._print();
             },
             'print'
         );
@@ -144,13 +93,15 @@ class M4Score extends Component {
         return await this.dbManager.getScore(this.psId, this.raceId, this.categories, this.teams);
     }
 
-    async _uploadPsScore(form){
+    async _uploadPsScore(form) {
         const files = form.querySelector('[type=file]').files;
         if (!files) return;
 
-        //clean
-        await this.dbManager.cleanTake({ race: this.raceId });
-        await this.dbManager.cleanRunner({ race: this.raceId });
+        const selection = await C3Confirm.openAndWait('default');
+        if (!selection) return;
+
+        //clean take for ps
+        await this.dbManager.cleanTakeByPs({ race: this.raceId, ps: this.psId });
 
         //read file
         const f = files[0];
@@ -163,10 +114,25 @@ class M4Score extends Component {
             header: true,
         });
 
+        // get all runners
+        let runners = await this.dbManager.getAllRunner(this.raceId);
+        runners = runners.reduce((result, item) => {
+            result[item.number] = item;
+            return result;
+        }, {});
+
         //add item
         const rows = results.data;
         for (const row of rows) {
-            await this.dbManager.createOrUpdateRunner({ ...row, id: null, race: this.raceId });
+            const runner = runners[row.number]?.id;
+            if (!runner) continue; // skip if runner not found
+            if (!row.endIso) continue; // skip if no end
+
+            const endDate = new Date(row.endIso);
+            const time = await this.dbManager.addTime({ time: endDate.getTime(), race: this.raceId });
+            const pen = row.pen ? parseInt(row.pen) : 0;
+
+            await this.dbManager.createTake({ race: this.raceId, ps: this.psId, runner, time, pen });
         }
 
         await this.table.reload();
@@ -181,18 +147,35 @@ class M4Score extends Component {
             name: item.name,
             team: item.team,
             category: item.category,
-            start: dateToTime(item.start, true),
-            end: dateToTime(item.end, true),
+            start: dateToStr(item.start, true),
+            startIso: new Date(item.start).toISOString(),
+            end: dateToStr(item.end, true),
+            endIso: item.end ? new Date(item.end).toISOString() : null,
             diff: dateToDiffTimeStr(item.diff, true),
+            diffMs: item.diff,
             pen: item.pen,
             uci: item.uci,
             fci: item.fci,
-            societa: item.soc,
-            nazionalita: item.naz,
+            soc: item.soc,
+            naz: item.naz,
         }));
         const csv = Papa.unparse(rows);
         const csvContent = 'data:text/csv;charset=utf-8,' + csv;
         window.open(encodeURI(csvContent));
+    }
+
+    async _print() {
+        const title = `<h1 class="text-3xl font-bold mb-4 mt-8">Risultati</h1>`;
+        let subtitle = '';
+        if (this.categories.length > 0) {
+            subtitle += `<p class="mt-2 text-lg mb-4">Categorie: <b class="text-xl">${this.categories.join(
+                ' - '
+            )}</b></p>`;
+        }
+        if (this.teams.length > 0) {
+            subtitle += `<p class="mt-2 text-lg mb-4">Team: <b class="text-xl">${this.teams.join(' - ')}</b></p>`;
+        }
+        printTable(title, subtitle, this._ref('printTable').innerHTML);
     }
 }
 

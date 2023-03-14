@@ -142,13 +142,13 @@ class DBManager {
         return await this.db.take.where({ race: parseInt(race), ps: parseInt(ps) }).toArray();
     }
 
-    async createTake({ time, ps, runner, race }) {
+    async createTake({ time, ps, runner, race, pen = 0 }) {
         return await this.db.take.add({
             time: parseInt(time),
             ps: parseInt(ps),
             runner: parseInt(runner),
             race: parseInt(race),
-            pen: 0,
+            pen: pen,
         });
     }
 
@@ -158,6 +158,14 @@ class DBManager {
 
     async cleanTake({ race }) {
         const array = await this.db.take.where('race').equals(parseInt(race)).toArray();
+        const ids = array.map((item) => {
+            return item.id;
+        });
+        await this.db.take.bulkDelete(ids);
+    }
+
+    async cleanTakeByPs({ race, ps }) {
+        const array = await this.db.take.where({ race: parseInt(race), ps: parseInt(ps) }).toArray();
         const ids = array.map((item) => {
             return item.id;
         });

@@ -1,8 +1,9 @@
 <div class="lg:flex w-full items-start">
     <div class="w-full lg:w-auto lg:pr-4 grow">
         <c1-table
-            labels="ID,Nome,Gap,Start,Ordine"
-            keys="id,name,gap,start,order"
+            labels="Nome,Gap,Start,Ordine"
+            keys="name,gap,start,order"
+            types="bolder,as-is,date-time,as-is"
             filterKey="name"
             orderBy="name"
             ref="table"

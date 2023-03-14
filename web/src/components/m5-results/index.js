@@ -3,7 +3,7 @@ import Component from '../../libs/component';
 import { getDBManager } from '../../libs/db-manager';
 import { formToJSON } from '../../libs/form-to-json';
 import { getStoreManager } from '../../libs/store-manager';
-import { dateToDiffTimeStr } from '../../libs/utils';
+import { dateToDiffTimeStr, printTable } from '../../libs/utils';
 import template from './template.hbs';
 
 class M5Results extends Component {
@@ -19,8 +19,8 @@ class M5Results extends Component {
         const selectedRace = getStoreManager().get('selectedRace');
         this.raceId = selectedRace.race;
 
-        this.categories = null;
-        this.teams = null;
+        this.categories = [];
+        this.teams = [];
 
         const data = {
             categories: await this.dbManager.getAllCategories(this.raceId),
@@ -70,59 +70,7 @@ class M5Results extends Component {
             'click',
             (event) => {
                 event.preventDefault();
-
-                console.log(this._ref('printTable').innerHTML);
-
-                const printWindow = window.open('', '', 'height=800,width=1000');
-                printWindow.document.write(`
-                    <html>
-                        <head>
-                            <title>Print</title>
-                            <style>
-                                @page { margin: 0; }
-                                body {
-                                    padding-left: 16px;
-                                    padding-right: 16px;
-                                    font-size: 13px;
-                                }
-                                .text-left {
-                                    text-align: left;
-                                }
-                                .text-center {
-                                    text-align: center;
-                                }
-                                .px-2 {
-                                    padding-left: 4px;
-                                    padding-right: 4px;
-                                }
-                                .py-3 {
-                                    padding-top: 8px;
-                                    padding-bottom: 8px;
-                                }
-                                table {
-                                    font-size: 13px;
-                                }
-                                td {
-                                    max-width: 35ch;
-                                }
-                                tr:nth-child(odd) {
-                                    background-color: white;
-                                }
-                                tr:nth-child(even) {
-                                    background-color: #eeeeee;
-                                }
-                            </style>
-                        </head>
-                        <body>
-                            <table>${this._ref('printTable').innerHTML}</table>
-                        </body>
-                    </html>`);
-
-                //Print the Table CSS.
-
-                printWindow.document.close();
-                printWindow.print();
-                printWindow.close();
+                this._print();
             },
             'print'
         );
@@ -143,12 +91,26 @@ class M5Results extends Component {
             diff: dateToDiffTimeStr(item.diff, true),
             uci: item.uci,
             fci: item.fci,
-            societa: item.soc,
-            nazionalita: item.naz,
+            soc: item.soc,
+            naz: item.naz,
         }));
         const csv = Papa.unparse(rows);
         const csvContent = 'data:text/csv;charset=utf-8,' + csv;
         window.open(encodeURI(csvContent));
+    }
+
+    async _print() {
+        const title = `<h1 class="text-3xl font-bold mb-4 mt-8">Risultati</h1>`;
+        let subtitle = '';
+        if (this.categories.length > 0) {
+            subtitle += `<p class="mt-2 text-lg mb-4">Categorie: <b class="text-xl">${this.categories.join(
+                ' - '
+            )}</b></p>`;
+        }
+        if (this.teams.length > 0) {
+            subtitle += `<p class="mt-2 text-lg mb-4">Team: <b class="text-xl">${this.teams.join(' - ')}</b></p>`;
+        }
+        printTable(title, subtitle, this._ref('printTable').innerHTML);
     }
 }
 
