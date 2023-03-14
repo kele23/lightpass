@@ -2141,14 +2141,15 @@ var C1Table = /*#__PURE__*/function (_Component) {
               this.editEnabled = this.getAttribute('editEnabled');
               this.actionDisabled = this.getAttribute('actionDisabled');
               this.keys = this.getAttribute('keys').split(',');
+              this.types = this.getAttribute('types').split(',');
               this.orderBy = this.getAttribute('orderBy');
               this.orderDir = this.getAttribute('orderDir') || 'asc';
 
               // get rows and generate
               parent = this._parent();
-              _context.next = 13;
+              _context.next = 14;
               return parent.getRows(this.rowsKey);
-            case 13:
+            case 14:
               this.rows = _context.sent;
               rowsHtmls = this._generateRows();
               data = {
@@ -2164,7 +2165,7 @@ var C1Table = /*#__PURE__*/function (_Component) {
               this.appendChild(htmlDoc.body.firstElementChild);
               this.tableBody = this._ref('tbody');
               this._addListeners();
-            case 21:
+            case 22:
             case "end":
               return _context.stop();
           }
@@ -2266,22 +2267,33 @@ var C1Table = /*#__PURE__*/function (_Component) {
         editEnabled: this.editEnabled,
         actionDisabled: this.actionDisabled
       };
-      var _iterator = _createForOfIteratorHelper(this.keys),
-        _step;
-      try {
-        for (_iterator.s(); !(_step = _iterator.n()).done;) {
-          var key = _step.value;
-          var data = item[key];
-          if (key == 'start') data = (0,_libs_utils__WEBPACK_IMPORTED_MODULE_3__.dateToTime)(item[key]);else if (key == 'pen') data = item[key] && item[key] != 0 ? "".concat(Math.sign(item[key]) > 0 ? '+' : '-').concat(item[key], " sec") : null;else if (key == 'start' || key == 'time' || key == 'end' || key == 'assignedTime') data = (0,_libs_utils__WEBPACK_IMPORTED_MODULE_3__.dateToTime)(item[key], true);else if (key == 'diff') data = (0,_libs_utils__WEBPACK_IMPORTED_MODULE_3__.dateToDiffTimeStr)(item[key], true);
-          res.data.push({
-            key: key,
-            data: data
-          });
+      for (var i = 0; i < this.keys.length; i++) {
+        var key = this.keys[i];
+        var type = this.types[i] || 'as-is';
+        var data = item[key];
+        switch (type) {
+          case 'date-time':
+            data = (0,_libs_utils__WEBPACK_IMPORTED_MODULE_3__.dateToStr)(item[key], true);
+            break;
+          case 'penalty':
+            data = item[key] && item[key] != 0 ? "".concat(Math.sign(item[key]) > 0 ? '+' : '-').concat(item[key], " sec") : null;
+            break;
+          case 'time':
+            data = (0,_libs_utils__WEBPACK_IMPORTED_MODULE_3__.dateToTime)(item[key], true);
+            break;
+          case 'diff':
+            data = data ? "<span class=\"underline font-bold\">".concat((0,_libs_utils__WEBPACK_IMPORTED_MODULE_3__.dateToDiffTimeStr)(item[key], true), "</span>") : null;
+            break;
+          case 'bolder':
+            data = '<span class="font-bold">' + data + '</span>';
+            break;
+          case 'pos':
+            data = '<span class="font-bold inline-block rounded-md min-w-[42px] px-2 bg-white border text-center text-red-700 text-base">' + data + '</span>';
         }
-      } catch (err) {
-        _iterator.e(err);
-      } finally {
-        _iterator.f();
+        res.data.push({
+          key: key,
+          data: data
+        });
       }
       return res;
     }
@@ -2335,17 +2347,17 @@ var C1Table = /*#__PURE__*/function (_Component) {
 
       // render rows
       var rowsHtmls = [];
-      var _iterator2 = _createForOfIteratorHelper(finalRows),
-        _step2;
+      var _iterator = _createForOfIteratorHelper(finalRows),
+        _step;
       try {
-        for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-          var row = _step2.value;
+        for (_iterator.s(); !(_step = _iterator.n()).done;) {
+          var row = _step.value;
           rowsHtmls.push(_row_template_hbs__WEBPACK_IMPORTED_MODULE_5___default()(row));
         }
       } catch (err) {
-        _iterator2.e(err);
+        _iterator.e(err);
       } finally {
-        _iterator2.f();
+        _iterator.f();
       }
       return rowsHtmls;
     }
@@ -4297,10 +4309,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var papaparse__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(papaparse__WEBPACK_IMPORTED_MODULE_4__);
 /* harmony import */ var _libs_utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../libs/utils */ "./src/libs/utils.js");
 /* harmony import */ var _libs_form_to_json__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../libs/form-to-json */ "./src/libs/form-to-json.js");
+/* harmony import */ var _c3_confirm__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../c3-confirm */ "./src/components/c3-confirm/index.js");
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
@@ -4319,6 +4329,7 @@ function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) ===
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
 
 
 
@@ -4351,8 +4362,8 @@ var M4Score = /*#__PURE__*/function (_Component) {
               this.raceId = selectedRace.race;
               selectedPage = (0,_libs_store_manager__WEBPACK_IMPORTED_MODULE_3__.getStoreManager)().get('selectedPage');
               this.psId = selectedPage.destination.substring(3);
-              this.categories = null;
-              this.teams = null;
+              this.categories = [];
+              this.teams = [];
               _context.next = 8;
               return this.dbManager.getAllCategories(this.raceId);
             case 8:
@@ -4378,15 +4389,7 @@ var M4Score = /*#__PURE__*/function (_Component) {
               }, 'download');
               this._addListener('click', function (event) {
                 event.preventDefault();
-                console.log(_this2._ref('printTable').innerHTML);
-                var printWindow = window.open('', '', 'height=800,width=1000');
-                printWindow.document.write("\n                    <html>\n                        <head>\n                            <title>Print</title>\n                            <style>\n                                @page { margin: 0; }\n                                body {\n                                    padding-left: 16px;\n                                    padding-right: 16px;\n                                    font-size: 13px;\n                                }\n                                .text-left {\n                                    text-align: left;\n                                }\n                                .text-center {\n                                    text-align: center;\n                                }\n                                .px-2 {\n                                    padding-left: 4px;\n                                    padding-right: 4px;\n                                }\n                                .py-3 {\n                                    padding-top: 8px;\n                                    padding-bottom: 8px;\n                                }\n                                table {\n                                    font-size: 13px;\n                                }\n                                td {\n                                    max-width: 35ch;\n                                }\n                                tr:nth-child(odd) {\n                                    background-color: white;\n                                }\n                                tr:nth-child(even) {\n                                    background-color: #eeeeee;\n                                }\n                            </style>\n                        </head>\n                        <body>\n                            <table>".concat(_this2._ref('printTable').innerHTML, "</table>\n                        </body>\n                    </html>"));
-
-                //Print the Table CSS.
-
-                printWindow.document.close();
-                printWindow.print();
-                printWindow.close();
+                _this2._print();
               }, 'print');
               this._addListener('submit', function (event) {
                 event.preventDefault();
@@ -4441,7 +4444,7 @@ var M4Score = /*#__PURE__*/function (_Component) {
     key: "_uploadPsScore",
     value: function () {
       var _uploadPsScore2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(form) {
-        var files, f, arrayBuffer, decoder, csv, results, rows, _iterator, _step, row;
+        var files, selection, f, arrayBuffer, decoder, csv, results, runners, rows, _iterator, _step, _runners$row$number, row, runner, endDate, time, pen;
         return _regeneratorRuntime().wrap(function _callee3$(_context3) {
           while (1) switch (_context3.prev = _context3.next) {
             case 0:
@@ -4453,65 +4456,107 @@ var M4Score = /*#__PURE__*/function (_Component) {
               return _context3.abrupt("return");
             case 3:
               _context3.next = 5;
-              return this.dbManager.cleanTake({
-                race: this.raceId
-              });
+              return _c3_confirm__WEBPACK_IMPORTED_MODULE_7__["default"].openAndWait('default');
             case 5:
-              _context3.next = 7;
-              return this.dbManager.cleanRunner({
-                race: this.raceId
+              selection = _context3.sent;
+              if (selection) {
+                _context3.next = 8;
+                break;
+              }
+              return _context3.abrupt("return");
+            case 8:
+              _context3.next = 10;
+              return this.dbManager.cleanTakeByPs({
+                race: this.raceId,
+                ps: this.psId
               });
-            case 7:
+            case 10:
               //read file
               f = files[0];
-              _context3.next = 10;
-              return readFileAsync(f);
-            case 10:
+              _context3.next = 13;
+              return (0,_libs_utils__WEBPACK_IMPORTED_MODULE_5__.readFileAsync)(f);
+            case 13:
               arrayBuffer = _context3.sent;
               decoder = new TextDecoder('utf-8');
               csv = decoder.decode(arrayBuffer); //read csv
               results = papaparse__WEBPACK_IMPORTED_MODULE_4___default().parse(csv, {
                 header: true
-              }); //add item
+              }); // get all runners
+              _context3.next = 19;
+              return this.dbManager.getAllRunner(this.raceId);
+            case 19:
+              runners = _context3.sent;
+              runners = runners.reduce(function (result, item) {
+                result[item.number] = item;
+                return result;
+              }, {});
+
+              //add item
               rows = results.data;
               _iterator = _createForOfIteratorHelper(rows);
-              _context3.prev = 16;
+              _context3.prev = 23;
               _iterator.s();
-            case 18:
+            case 25:
               if ((_step = _iterator.n()).done) {
-                _context3.next = 24;
+                _context3.next = 41;
                 break;
               }
               row = _step.value;
-              _context3.next = 22;
-              return this.dbManager.createOrUpdateRunner(_objectSpread(_objectSpread({}, row), {}, {
-                id: null,
-                race: this.raceId
-              }));
-            case 22:
-              _context3.next = 18;
-              break;
-            case 24:
-              _context3.next = 29;
-              break;
-            case 26:
-              _context3.prev = 26;
-              _context3.t0 = _context3["catch"](16);
-              _iterator.e(_context3.t0);
-            case 29:
-              _context3.prev = 29;
-              _iterator.f();
-              return _context3.finish(29);
+              runner = (_runners$row$number = runners[row.number]) === null || _runners$row$number === void 0 ? void 0 : _runners$row$number.id;
+              if (runner) {
+                _context3.next = 30;
+                break;
+              }
+              return _context3.abrupt("continue", 39);
+            case 30:
+              if (row.endIso) {
+                _context3.next = 32;
+                break;
+              }
+              return _context3.abrupt("continue", 39);
             case 32:
-              _context3.next = 34;
-              return this.table.reload();
-            case 34:
-              form.reset();
+              // skip if no end
+              endDate = new Date(row.endIso);
+              _context3.next = 35;
+              return this.dbManager.addTime({
+                time: endDate.getTime(),
+                race: this.raceId
+              });
             case 35:
+              time = _context3.sent;
+              pen = row.pen ? parseInt(row.pen) : 0;
+              _context3.next = 39;
+              return this.dbManager.createTake({
+                race: this.raceId,
+                ps: this.psId,
+                runner: runner,
+                time: time,
+                pen: pen
+              });
+            case 39:
+              _context3.next = 25;
+              break;
+            case 41:
+              _context3.next = 46;
+              break;
+            case 43:
+              _context3.prev = 43;
+              _context3.t0 = _context3["catch"](23);
+              _iterator.e(_context3.t0);
+            case 46:
+              _context3.prev = 46;
+              _iterator.f();
+              return _context3.finish(46);
+            case 49:
+              _context3.next = 51;
+              return this.table.reload();
+            case 51:
+              form.reset();
+            case 52:
             case "end":
               return _context3.stop();
           }
-        }, _callee3, this, [[16, 26, 29, 32]]);
+        }, _callee3, this, [[23, 43, 46, 49]]);
       }));
       function _uploadPsScore(_x) {
         return _uploadPsScore2.apply(this, arguments);
@@ -4537,14 +4582,17 @@ var M4Score = /*#__PURE__*/function (_Component) {
                   name: item.name,
                   team: item.team,
                   category: item.category,
-                  start: (0,_libs_utils__WEBPACK_IMPORTED_MODULE_5__.dateToTime)(item.start, true),
-                  end: (0,_libs_utils__WEBPACK_IMPORTED_MODULE_5__.dateToTime)(item.end, true),
+                  start: (0,_libs_utils__WEBPACK_IMPORTED_MODULE_5__.dateToStr)(item.start, true),
+                  startIso: new Date(item.start).toISOString(),
+                  end: (0,_libs_utils__WEBPACK_IMPORTED_MODULE_5__.dateToStr)(item.end, true),
+                  endIso: item.end ? new Date(item.end).toISOString() : null,
                   diff: (0,_libs_utils__WEBPACK_IMPORTED_MODULE_5__.dateToDiffTimeStr)(item.diff, true),
+                  diffMs: item.diff,
                   pen: item.pen,
                   uci: item.uci,
                   fci: item.fci,
-                  societa: item.soc,
-                  nazionalita: item.naz
+                  soc: item.soc,
+                  naz: item.naz
                 };
               });
               csv = papaparse__WEBPACK_IMPORTED_MODULE_4___default().unparse(rows);
@@ -4560,6 +4608,34 @@ var M4Score = /*#__PURE__*/function (_Component) {
         return _download2.apply(this, arguments);
       }
       return _download;
+    }()
+  }, {
+    key: "_print",
+    value: function () {
+      var _print2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5() {
+        var title, subtitle;
+        return _regeneratorRuntime().wrap(function _callee5$(_context5) {
+          while (1) switch (_context5.prev = _context5.next) {
+            case 0:
+              title = "<h1 class=\"text-3xl font-bold mb-4 mt-8\">Risultati</h1>";
+              subtitle = '';
+              if (this.categories.length > 0) {
+                subtitle += "<p class=\"mt-2 text-lg mb-4\">Categorie: <b class=\"text-xl\">".concat(this.categories.join(' - '), "</b></p>");
+              }
+              if (this.teams.length > 0) {
+                subtitle += "<p class=\"mt-2 text-lg mb-4\">Team: <b class=\"text-xl\">".concat(this.teams.join(' - '), "</b></p>");
+              }
+              (0,_libs_utils__WEBPACK_IMPORTED_MODULE_5__.printTable)(title, subtitle, this._ref('printTable').innerHTML);
+            case 5:
+            case "end":
+              return _context5.stop();
+          }
+        }, _callee5, this);
+      }));
+      function _print() {
+        return _print2.apply(this, arguments);
+      }
+      return _print;
     }()
   }]);
   return M4Score;
@@ -4634,8 +4710,8 @@ var M5Results = /*#__PURE__*/function (_Component) {
               // load raceId
               selectedRace = (0,_libs_store_manager__WEBPACK_IMPORTED_MODULE_4__.getStoreManager)().get('selectedRace');
               this.raceId = selectedRace.race;
-              this.categories = null;
-              this.teams = null;
+              this.categories = [];
+              this.teams = [];
               _context.next = 6;
               return this.dbManager.getAllCategories(this.raceId);
             case 6:
@@ -4673,15 +4749,7 @@ var M5Results = /*#__PURE__*/function (_Component) {
               }, 'selectTeams');
               this._addListener('click', function (event) {
                 event.preventDefault();
-                console.log(_this2._ref('printTable').innerHTML);
-                var printWindow = window.open('', '', 'height=800,width=1000');
-                printWindow.document.write("\n                    <html>\n                        <head>\n                            <title>Print</title>\n                            <style>\n                                @page { margin: 0; }\n                                body {\n                                    padding-left: 16px;\n                                    padding-right: 16px;\n                                    font-size: 13px;\n                                }\n                                .text-left {\n                                    text-align: left;\n                                }\n                                .text-center {\n                                    text-align: center;\n                                }\n                                .px-2 {\n                                    padding-left: 4px;\n                                    padding-right: 4px;\n                                }\n                                .py-3 {\n                                    padding-top: 8px;\n                                    padding-bottom: 8px;\n                                }\n                                table {\n                                    font-size: 13px;\n                                }\n                                td {\n                                    max-width: 35ch;\n                                }\n                                tr:nth-child(odd) {\n                                    background-color: white;\n                                }\n                                tr:nth-child(even) {\n                                    background-color: #eeeeee;\n                                }\n                            </style>\n                        </head>\n                        <body>\n                            <table>".concat(_this2._ref('printTable').innerHTML, "</table>\n                        </body>\n                    </html>"));
-
-                //Print the Table CSS.
-
-                printWindow.document.close();
-                printWindow.print();
-                printWindow.close();
+                _this2._print();
               }, 'print');
             case 19:
             case "end":
@@ -4738,8 +4806,8 @@ var M5Results = /*#__PURE__*/function (_Component) {
                   diff: (0,_libs_utils__WEBPACK_IMPORTED_MODULE_5__.dateToDiffTimeStr)(item.diff, true),
                   uci: item.uci,
                   fci: item.fci,
-                  societa: item.soc,
-                  nazionalita: item.naz
+                  soc: item.soc,
+                  naz: item.naz
                 };
               });
               csv = papaparse__WEBPACK_IMPORTED_MODULE_0___default().unparse(rows);
@@ -4755,6 +4823,34 @@ var M5Results = /*#__PURE__*/function (_Component) {
         return _download2.apply(this, arguments);
       }
       return _download;
+    }()
+  }, {
+    key: "_print",
+    value: function () {
+      var _print2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4() {
+        var title, subtitle;
+        return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+          while (1) switch (_context4.prev = _context4.next) {
+            case 0:
+              title = "<h1 class=\"text-3xl font-bold mb-4 mt-8\">Risultati</h1>";
+              subtitle = '';
+              if (this.categories.length > 0) {
+                subtitle += "<p class=\"mt-2 text-lg mb-4\">Categorie: <b class=\"text-xl\">".concat(this.categories.join(' - '), "</b></p>");
+              }
+              if (this.teams.length > 0) {
+                subtitle += "<p class=\"mt-2 text-lg mb-4\">Team: <b class=\"text-xl\">".concat(this.teams.join(' - '), "</b></p>");
+              }
+              (0,_libs_utils__WEBPACK_IMPORTED_MODULE_5__.printTable)(title, subtitle, this._ref('printTable').innerHTML);
+            case 5:
+            case "end":
+              return _context4.stop();
+          }
+        }, _callee4, this);
+      }));
+      function _print() {
+        return _print2.apply(this, arguments);
+      }
+      return _print;
     }()
   }]);
   return M5Results;
@@ -5587,18 +5683,18 @@ var DBManager = /*#__PURE__*/function () {
     key: "createTake",
     value: function () {
       var _createTake = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee21(_ref12) {
-        var time, ps, runner, race;
+        var time, ps, runner, race, _ref12$pen, pen;
         return _regeneratorRuntime().wrap(function _callee21$(_context21) {
           while (1) switch (_context21.prev = _context21.next) {
             case 0:
-              time = _ref12.time, ps = _ref12.ps, runner = _ref12.runner, race = _ref12.race;
+              time = _ref12.time, ps = _ref12.ps, runner = _ref12.runner, race = _ref12.race, _ref12$pen = _ref12.pen, pen = _ref12$pen === void 0 ? 0 : _ref12$pen;
               _context21.next = 3;
               return this.db.take.add({
                 time: parseInt(time),
                 ps: parseInt(ps),
                 runner: parseInt(runner),
                 race: parseInt(race),
-                pen: 0
+                pen: pen
               });
             case 3:
               return _context21.abrupt("return", _context21.sent);
@@ -5667,25 +5763,57 @@ var DBManager = /*#__PURE__*/function () {
       return cleanTake;
     }()
   }, {
-    key: "setPenalty",
+    key: "cleanTakeByPs",
     value: function () {
-      var _setPenalty = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee24(id, penalty) {
+      var _cleanTakeByPs = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee24(_ref15) {
+        var race, ps, array, ids;
         return _regeneratorRuntime().wrap(function _callee24$(_context24) {
           while (1) switch (_context24.prev = _context24.next) {
             case 0:
-              _context24.next = 2;
-              return this.db.take.update(parseInt(id), {
-                pen: parseInt(penalty)
-              });
-            case 2:
-              return _context24.abrupt("return", _context24.sent);
+              race = _ref15.race, ps = _ref15.ps;
+              _context24.next = 3;
+              return this.db.take.where({
+                race: parseInt(race),
+                ps: parseInt(ps)
+              }).toArray();
             case 3:
+              array = _context24.sent;
+              ids = array.map(function (item) {
+                return item.id;
+              });
+              _context24.next = 7;
+              return this.db.take.bulkDelete(ids);
+            case 7:
             case "end":
               return _context24.stop();
           }
         }, _callee24, this);
       }));
-      function setPenalty(_x24, _x25) {
+      function cleanTakeByPs(_x24) {
+        return _cleanTakeByPs.apply(this, arguments);
+      }
+      return cleanTakeByPs;
+    }()
+  }, {
+    key: "setPenalty",
+    value: function () {
+      var _setPenalty = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee25(id, penalty) {
+        return _regeneratorRuntime().wrap(function _callee25$(_context25) {
+          while (1) switch (_context25.prev = _context25.next) {
+            case 0:
+              _context25.next = 2;
+              return this.db.take.update(parseInt(id), {
+                pen: parseInt(penalty)
+              });
+            case 2:
+              return _context25.abrupt("return", _context25.sent);
+            case 3:
+            case "end":
+              return _context25.stop();
+          }
+        }, _callee25, this);
+      }));
+      function setPenalty(_x25, _x26) {
         return _setPenalty.apply(this, arguments);
       }
       return setPenalty;
@@ -5693,46 +5821,46 @@ var DBManager = /*#__PURE__*/function () {
   }, {
     key: "getTimeJoin",
     value: function () {
-      var _getTimeJoin = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee25(id) {
+      var _getTimeJoin = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee26(id) {
         var time, found, runner;
-        return _regeneratorRuntime().wrap(function _callee25$(_context25) {
-          while (1) switch (_context25.prev = _context25.next) {
+        return _regeneratorRuntime().wrap(function _callee26$(_context26) {
+          while (1) switch (_context26.prev = _context26.next) {
             case 0:
-              _context25.next = 2;
+              _context26.next = 2;
               return this.db.time.get(parseInt(id));
             case 2:
-              time = _context25.sent;
-              _context25.next = 5;
+              time = _context26.sent;
+              _context26.next = 5;
               return this.db.take.where('time').equals(time.id).toArray();
             case 5:
-              found = _context25.sent;
+              found = _context26.sent;
               if (!(!found || found.length == 0)) {
-                _context25.next = 8;
+                _context26.next = 8;
                 break;
               }
-              return _context25.abrupt("return", _objectSpread({}, time));
+              return _context26.abrupt("return", _objectSpread({}, time));
             case 8:
-              _context25.next = 10;
+              _context26.next = 10;
               return this.db.runner.get(found[0].runner);
             case 10:
-              runner = _context25.sent;
+              runner = _context26.sent;
               if (runner) {
-                _context25.next = 13;
+                _context26.next = 13;
                 break;
               }
-              return _context25.abrupt("return", _objectSpread({}, time));
+              return _context26.abrupt("return", _objectSpread({}, time));
             case 13:
-              return _context25.abrupt("return", _objectSpread(_objectSpread({}, time), {}, {
+              return _context26.abrupt("return", _objectSpread(_objectSpread({}, time), {}, {
                 assigned: runner.number,
                 assignedName: runner.name
               }));
             case 14:
             case "end":
-              return _context25.stop();
+              return _context26.stop();
           }
-        }, _callee25, this);
+        }, _callee26, this);
       }));
-      function getTimeJoin(_x26) {
+      function getTimeJoin(_x27) {
         return _getTimeJoin.apply(this, arguments);
       }
       return getTimeJoin;
@@ -5740,81 +5868,81 @@ var DBManager = /*#__PURE__*/function () {
   }, {
     key: "getAllTimeJoin",
     value: function () {
-      var _getAllTimeJoin = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee27(race) {
+      var _getAllTimeJoin = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee28(race) {
         var _this = this;
         var onlyNotAssigned,
           times,
           result,
-          _args27 = arguments;
-        return _regeneratorRuntime().wrap(function _callee27$(_context27) {
-          while (1) switch (_context27.prev = _context27.next) {
+          _args28 = arguments;
+        return _regeneratorRuntime().wrap(function _callee28$(_context28) {
+          while (1) switch (_context28.prev = _context28.next) {
             case 0:
-              onlyNotAssigned = _args27.length > 1 && _args27[1] !== undefined ? _args27[1] : false;
-              _context27.next = 3;
+              onlyNotAssigned = _args28.length > 1 && _args28[1] !== undefined ? _args28[1] : false;
+              _context28.next = 3;
               return this.getAllTime(race);
             case 3:
-              times = _context27.sent;
-              _context27.next = 6;
+              times = _context28.sent;
+              _context28.next = 6;
               return Promise.all(times.map( /*#__PURE__*/function () {
-                var _ref15 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee26(time) {
+                var _ref16 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee27(time) {
                   var found, runner, ps;
-                  return _regeneratorRuntime().wrap(function _callee26$(_context26) {
-                    while (1) switch (_context26.prev = _context26.next) {
+                  return _regeneratorRuntime().wrap(function _callee27$(_context27) {
+                    while (1) switch (_context27.prev = _context27.next) {
                       case 0:
-                        _context26.next = 2;
+                        _context27.next = 2;
                         return _this.db.take.where('time').equals(time.id).toArray();
                       case 2:
-                        found = _context26.sent;
+                        found = _context27.sent;
                         if (!(!found || found.length == 0)) {
-                          _context26.next = 5;
+                          _context27.next = 5;
                           break;
                         }
-                        return _context26.abrupt("return", time);
+                        return _context27.abrupt("return", time);
                       case 5:
-                        _context26.next = 7;
+                        _context27.next = 7;
                         return _this.db.runner.get(found[0].runner);
                       case 7:
-                        runner = _context26.sent;
-                        _context26.next = 10;
+                        runner = _context27.sent;
+                        _context27.next = 10;
                         return _this.db.ps.get(found[0].ps);
                       case 10:
-                        ps = _context26.sent;
+                        ps = _context27.sent;
                         if (!(!runner || !ps)) {
-                          _context26.next = 13;
+                          _context27.next = 13;
                           break;
                         }
-                        return _context26.abrupt("return", _objectSpread({}, time));
+                        return _context27.abrupt("return", _objectSpread({}, time));
                       case 13:
-                        return _context26.abrupt("return", _objectSpread(_objectSpread({}, time), {}, {
+                        return _context27.abrupt("return", _objectSpread(_objectSpread({}, time), {}, {
                           assigned: runner.number,
                           assignedName: runner.name,
                           assignedPs: ps.name
                         }));
                       case 14:
                       case "end":
-                        return _context26.stop();
+                        return _context27.stop();
                     }
-                  }, _callee26);
+                  }, _callee27);
                 }));
-                return function (_x28) {
-                  return _ref15.apply(this, arguments);
+                return function (_x29) {
+                  return _ref16.apply(this, arguments);
                 };
               }()));
             case 6:
-              result = _context27.sent;
+              result = _context28.sent;
               if (onlyNotAssigned) {
                 result = result.filter(function (item) {
                   return !item.assigned;
                 });
               }
-              return _context27.abrupt("return", result);
+              return _context28.abrupt("return", result);
             case 9:
             case "end":
-              return _context27.stop();
+              return _context28.stop();
           }
-        }, _callee27, this);
+        }, _callee28, this);
       }));
-      function getAllTimeJoin(_x27) {
+      function getAllTimeJoin(_x28) {
         return _getAllTimeJoin.apply(this, arguments);
       }
       return getAllTimeJoin;
@@ -5822,42 +5950,42 @@ var DBManager = /*#__PURE__*/function () {
   }, {
     key: "getAllTakeJoinWithoutScore",
     value: function () {
-      var _getAllTakeJoinWithoutScore = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee29(race, psId) {
+      var _getAllTakeJoinWithoutScore = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee30(race, psId) {
         var _this2 = this;
         var takes, result;
-        return _regeneratorRuntime().wrap(function _callee29$(_context29) {
-          while (1) switch (_context29.prev = _context29.next) {
+        return _regeneratorRuntime().wrap(function _callee30$(_context30) {
+          while (1) switch (_context30.prev = _context30.next) {
             case 0:
-              _context29.next = 2;
+              _context30.next = 2;
               return this.getAllTake(race, psId);
             case 2:
-              takes = _context29.sent;
-              _context29.next = 5;
+              takes = _context30.sent;
+              _context30.next = 5;
               return Promise.all(takes.map( /*#__PURE__*/function () {
-                var _ref16 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee28(take) {
+                var _ref17 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee29(take) {
                   var time, runner, ps;
-                  return _regeneratorRuntime().wrap(function _callee28$(_context28) {
-                    while (1) switch (_context28.prev = _context28.next) {
+                  return _regeneratorRuntime().wrap(function _callee29$(_context29) {
+                    while (1) switch (_context29.prev = _context29.next) {
                       case 0:
-                        _context28.next = 2;
+                        _context29.next = 2;
                         return _this2.db.time.get(take.time);
                       case 2:
-                        time = _context28.sent;
-                        _context28.next = 5;
+                        time = _context29.sent;
+                        _context29.next = 5;
                         return _this2.db.runner.get(take.runner);
                       case 5:
-                        runner = _context28.sent;
-                        _context28.next = 8;
+                        runner = _context29.sent;
+                        _context29.next = 8;
                         return _this2.db.ps.get(take.ps);
                       case 8:
-                        ps = _context28.sent;
+                        ps = _context29.sent;
                         if (!(!runner || !ps || !time)) {
-                          _context28.next = 11;
+                          _context29.next = 11;
                           break;
                         }
-                        return _context28.abrupt("return", _objectSpread({}, take));
+                        return _context29.abrupt("return", _objectSpread({}, take));
                       case 11:
-                        return _context28.abrupt("return", _objectSpread(_objectSpread({}, take), {}, {
+                        return _context29.abrupt("return", _objectSpread(_objectSpread({}, take), {}, {
                           assignedIdTime: time.id,
                           assignedTime: time.time,
                           assigned: runner.number,
@@ -5867,24 +5995,24 @@ var DBManager = /*#__PURE__*/function () {
                         }));
                       case 12:
                       case "end":
-                        return _context28.stop();
+                        return _context29.stop();
                     }
-                  }, _callee28);
+                  }, _callee29);
                 }));
-                return function (_x31) {
-                  return _ref16.apply(this, arguments);
+                return function (_x32) {
+                  return _ref17.apply(this, arguments);
                 };
               }()));
             case 5:
-              result = _context29.sent;
-              return _context29.abrupt("return", result);
+              result = _context30.sent;
+              return _context30.abrupt("return", result);
             case 7:
             case "end":
-              return _context29.stop();
+              return _context30.stop();
           }
-        }, _callee29, this);
+        }, _callee30, this);
       }));
-      function getAllTakeJoinWithoutScore(_x29, _x30) {
+      function getAllTakeJoinWithoutScore(_x30, _x31) {
         return _getAllTakeJoinWithoutScore.apply(this, arguments);
       }
       return getAllTakeJoinWithoutScore;
@@ -5892,15 +6020,15 @@ var DBManager = /*#__PURE__*/function () {
   }, {
     key: "getAllTakeJoinWithScore",
     value: function () {
-      var _getAllTakeJoinWithScore = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee30(race, psId) {
+      var _getAllTakeJoinWithScore = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee31(race, psId) {
         var score, result, firstTakeIndex, i, _score$i, runner, time, take, ps, start, diff, status;
-        return _regeneratorRuntime().wrap(function _callee30$(_context30) {
-          while (1) switch (_context30.prev = _context30.next) {
+        return _regeneratorRuntime().wrap(function _callee31$(_context31) {
+          while (1) switch (_context31.prev = _context31.next) {
             case 0:
-              _context30.next = 2;
+              _context31.next = 2;
               return this.getScoreFull(psId, race);
             case 2:
-              score = _context30.sent;
+              score = _context31.sent;
               score = score.reverse();
               result = [];
               firstTakeIndex = score.length;
@@ -5922,14 +6050,14 @@ var DBManager = /*#__PURE__*/function () {
                   firstTakeIndex = i;
                 }
               }
-              return _context30.abrupt("return", result.slice(Math.max(0, firstTakeIndex - 3)));
+              return _context31.abrupt("return", result.slice(Math.max(0, firstTakeIndex - 3)));
             case 8:
             case "end":
-              return _context30.stop();
+              return _context31.stop();
           }
-        }, _callee30, this);
+        }, _callee31, this);
       }));
-      function getAllTakeJoinWithScore(_x32, _x33) {
+      function getAllTakeJoinWithScore(_x33, _x34) {
         return _getAllTakeJoinWithScore.apply(this, arguments);
       }
       return getAllTakeJoinWithScore;
@@ -5937,35 +6065,8 @@ var DBManager = /*#__PURE__*/function () {
   }, {
     key: "getAllCategories",
     value: function () {
-      var _getAllCategories = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee31(race) {
+      var _getAllCategories = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee32(race) {
         var runners, categories;
-        return _regeneratorRuntime().wrap(function _callee31$(_context31) {
-          while (1) switch (_context31.prev = _context31.next) {
-            case 0:
-              _context31.next = 2;
-              return this.getAllRunner(race);
-            case 2:
-              runners = _context31.sent;
-              categories = runners.map(function (item) {
-                return item.category;
-              });
-              return _context31.abrupt("return", _toConsumableArray(new Set(categories)));
-            case 5:
-            case "end":
-              return _context31.stop();
-          }
-        }, _callee31, this);
-      }));
-      function getAllCategories(_x34) {
-        return _getAllCategories.apply(this, arguments);
-      }
-      return getAllCategories;
-    }()
-  }, {
-    key: "getAllTeams",
-    value: function () {
-      var _getAllTeams = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee32(race) {
-        var runners, teams;
         return _regeneratorRuntime().wrap(function _callee32$(_context32) {
           while (1) switch (_context32.prev = _context32.next) {
             case 0:
@@ -5973,17 +6074,44 @@ var DBManager = /*#__PURE__*/function () {
               return this.getAllRunner(race);
             case 2:
               runners = _context32.sent;
-              teams = runners.map(function (item) {
-                return item.team;
+              categories = runners.map(function (item) {
+                return item.category;
               });
-              return _context32.abrupt("return", _toConsumableArray(new Set(teams)));
+              return _context32.abrupt("return", _toConsumableArray(new Set(categories)));
             case 5:
             case "end":
               return _context32.stop();
           }
         }, _callee32, this);
       }));
-      function getAllTeams(_x35) {
+      function getAllCategories(_x35) {
+        return _getAllCategories.apply(this, arguments);
+      }
+      return getAllCategories;
+    }()
+  }, {
+    key: "getAllTeams",
+    value: function () {
+      var _getAllTeams = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee33(race) {
+        var runners, teams;
+        return _regeneratorRuntime().wrap(function _callee33$(_context33) {
+          while (1) switch (_context33.prev = _context33.next) {
+            case 0:
+              _context33.next = 2;
+              return this.getAllRunner(race);
+            case 2:
+              runners = _context33.sent;
+              teams = runners.map(function (item) {
+                return item.team;
+              });
+              return _context33.abrupt("return", _toConsumableArray(new Set(teams)));
+            case 5:
+            case "end":
+              return _context33.stop();
+          }
+        }, _callee33, this);
+      }));
+      function getAllTeams(_x36) {
         return _getAllTeams.apply(this, arguments);
       }
       return getAllTeams;
@@ -5991,37 +6119,37 @@ var DBManager = /*#__PURE__*/function () {
   }, {
     key: "getScoreFull",
     value: function () {
-      var _getScoreFull = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee33(psId, race) {
+      var _getScoreFull = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee34(psId, race) {
         var ps, runners, takes, takesObj, _iterator, _step, _take, start, gap, tmpResult, i, runner, diff, end, take, time, nextRunner, mult;
-        return _regeneratorRuntime().wrap(function _callee33$(_context33) {
-          while (1) switch (_context33.prev = _context33.next) {
+        return _regeneratorRuntime().wrap(function _callee34$(_context34) {
+          while (1) switch (_context34.prev = _context34.next) {
             case 0:
-              _context33.next = 2;
+              _context34.next = 2;
               return this.db.ps.get(parseInt(psId));
             case 2:
-              ps = _context33.sent;
+              ps = _context34.sent;
               if (ps) {
-                _context33.next = 5;
+                _context34.next = 5;
                 break;
               }
-              return _context33.abrupt("return", []);
+              return _context34.abrupt("return", []);
             case 5:
-              _context33.next = 7;
+              _context34.next = 7;
               return this.db.runner.where({
                 race: parseInt(race)
               }).toArray();
             case 7:
-              runners = _context33.sent;
+              runners = _context34.sent;
               if (runners) {
-                _context33.next = 10;
+                _context34.next = 10;
                 break;
               }
-              return _context33.abrupt("return", []);
+              return _context34.abrupt("return", []);
             case 10:
-              _context33.next = 12;
+              _context34.next = 12;
               return this.getAllTake(race, psId);
             case 12:
-              takes = _context33.sent;
+              takes = _context34.sent;
               takesObj = {};
               _iterator = _createForOfIteratorHelper(takes);
               try {
@@ -6057,7 +6185,7 @@ var DBManager = /*#__PURE__*/function () {
               i = 0;
             case 21:
               if (!(i < runners.length)) {
-                _context33.next = 41;
+                _context34.next = 41;
                 break;
               }
               runner = runners[i]; // get diff
@@ -6066,13 +6194,13 @@ var DBManager = /*#__PURE__*/function () {
               take = takesObj[runner.id];
               time = null;
               if (!take) {
-                _context33.next = 34;
+                _context34.next = 34;
                 break;
               }
-              _context33.next = 30;
+              _context34.next = 30;
               return this.getTime(take.time);
             case 30:
-              time = _context33.sent;
+              time = _context34.sent;
               end = new Date(time.time);
               diff = end.getTime() - start.getTime();
               if (take.pen) {
@@ -6094,17 +6222,17 @@ var DBManager = /*#__PURE__*/function () {
               start = new Date(start.getTime() + gap * 1000 * mult);
             case 38:
               i++;
-              _context33.next = 21;
+              _context34.next = 21;
               break;
             case 41:
-              return _context33.abrupt("return", tmpResult);
+              return _context34.abrupt("return", tmpResult);
             case 42:
             case "end":
-              return _context33.stop();
+              return _context34.stop();
           }
-        }, _callee33, this);
+        }, _callee34, this);
       }));
-      function getScoreFull(_x36, _x37) {
+      function getScoreFull(_x37, _x38) {
         return _getScoreFull.apply(this, arguments);
       }
       return getScoreFull;
@@ -6112,28 +6240,28 @@ var DBManager = /*#__PURE__*/function () {
   }, {
     key: "getScore",
     value: function () {
-      var _getScore = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee34(psId, race, categories, teams) {
+      var _getScore = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee35(psId, race, categories, teams) {
         var scoreFull, tmpResult, results, i;
-        return _regeneratorRuntime().wrap(function _callee34$(_context34) {
-          while (1) switch (_context34.prev = _context34.next) {
+        return _regeneratorRuntime().wrap(function _callee35$(_context35) {
+          while (1) switch (_context35.prev = _context35.next) {
             case 0:
-              _context34.next = 2;
+              _context35.next = 2;
               return this.getScoreFull(psId, race);
             case 2:
-              scoreFull = _context34.sent;
+              scoreFull = _context35.sent;
               // order and map
               tmpResult = scoreFull.sort(function (a, b) {
                 if (a.diff == b.diff) return 0;
                 if (a.diff == null || a.diff == undefined) return 1;
                 if (b.diff == null || b.diff == undefined) return -1;
                 return a.diff - b.diff;
-              }).map(function (_ref17) {
-                var runner = _ref17.runner,
-                  ps = _ref17.ps,
-                  take = _ref17.take,
-                  time = _ref17.time,
-                  start = _ref17.start,
-                  diff = _ref17.diff;
+              }).map(function (_ref18) {
+                var runner = _ref18.runner,
+                  ps = _ref18.ps,
+                  take = _ref18.take,
+                  time = _ref18.time,
+                  start = _ref18.start,
+                  diff = _ref18.diff;
                 return _objectSpread(_objectSpread({}, runner), {}, {
                   ps: ps.name,
                   start: start.getTime(),
@@ -6162,14 +6290,14 @@ var DBManager = /*#__PURE__*/function () {
                   pos: i + 1
                 }, tmpResult[i]));
               }
-              return _context34.abrupt("return", results);
+              return _context35.abrupt("return", results);
             case 9:
             case "end":
-              return _context34.stop();
+              return _context35.stop();
           }
-        }, _callee34, this);
+        }, _callee35, this);
       }));
-      function getScore(_x38, _x39, _x40, _x41) {
+      function getScore(_x39, _x40, _x41, _x42) {
         return _getScore.apply(this, arguments);
       }
       return getScore;
@@ -6177,20 +6305,20 @@ var DBManager = /*#__PURE__*/function () {
   }, {
     key: "getGlobalScore",
     value: function () {
-      var _getGlobalScore = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee35(race, categories, teams) {
+      var _getGlobalScore = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee36(race, categories, teams) {
         var runners, pss, map, _iterator2, _step2, ps, psResults, _iterator4, _step4, result, psRunnerRes, tmpResult, _iterator3, _step3, runner, values, diff, _iterator5, _step5, val, results, i;
-        return _regeneratorRuntime().wrap(function _callee35$(_context35) {
-          while (1) switch (_context35.prev = _context35.next) {
+        return _regeneratorRuntime().wrap(function _callee36$(_context36) {
+          while (1) switch (_context36.prev = _context36.next) {
             case 0:
-              _context35.next = 2;
+              _context36.next = 2;
               return this.getAllRunner(race);
             case 2:
-              runners = _context35.sent;
+              runners = _context36.sent;
               if (runners) {
-                _context35.next = 5;
+                _context36.next = 5;
                 break;
               }
-              return _context35.abrupt("return", []);
+              return _context36.abrupt("return", []);
             case 5:
               //filter category
               if (categories && categories.length > 0) {
@@ -6207,71 +6335,71 @@ var DBManager = /*#__PURE__*/function () {
               }
 
               // get score for each ps
-              _context35.next = 9;
+              _context36.next = 9;
               return this.getAllPS(race);
             case 9:
-              pss = _context35.sent;
+              pss = _context36.sent;
               map = new Map();
               _iterator2 = _createForOfIteratorHelper(pss);
-              _context35.prev = 12;
+              _context36.prev = 12;
               _iterator2.s();
             case 14:
               if ((_step2 = _iterator2.n()).done) {
-                _context35.next = 42;
+                _context36.next = 42;
                 break;
               }
               ps = _step2.value;
-              _context35.next = 18;
+              _context36.next = 18;
               return this.getScoreFull(ps.id, race);
             case 18:
-              psResults = _context35.sent;
+              psResults = _context36.sent;
               _iterator4 = _createForOfIteratorHelper(psResults);
-              _context35.prev = 20;
+              _context36.prev = 20;
               _iterator4.s();
             case 22:
               if ((_step4 = _iterator4.n()).done) {
-                _context35.next = 32;
+                _context36.next = 32;
                 break;
               }
               result = _step4.value;
               if (result.diff) {
-                _context35.next = 26;
+                _context36.next = 26;
                 break;
               }
-              return _context35.abrupt("continue", 30);
+              return _context36.abrupt("continue", 30);
             case 26:
               psRunnerRes = map.get(result.runner.number);
               if (!psRunnerRes) psRunnerRes = [];
               psRunnerRes.push(result.diff);
               map.set(result.runner.number, psRunnerRes);
             case 30:
-              _context35.next = 22;
+              _context36.next = 22;
               break;
             case 32:
-              _context35.next = 37;
+              _context36.next = 37;
               break;
             case 34:
-              _context35.prev = 34;
-              _context35.t0 = _context35["catch"](20);
-              _iterator4.e(_context35.t0);
+              _context36.prev = 34;
+              _context36.t0 = _context36["catch"](20);
+              _iterator4.e(_context36.t0);
             case 37:
-              _context35.prev = 37;
+              _context36.prev = 37;
               _iterator4.f();
-              return _context35.finish(37);
+              return _context36.finish(37);
             case 40:
-              _context35.next = 14;
+              _context36.next = 14;
               break;
             case 42:
-              _context35.next = 47;
+              _context36.next = 47;
               break;
             case 44:
-              _context35.prev = 44;
-              _context35.t1 = _context35["catch"](12);
-              _iterator2.e(_context35.t1);
+              _context36.prev = 44;
+              _context36.t1 = _context36["catch"](12);
+              _iterator2.e(_context36.t1);
             case 47:
-              _context35.prev = 47;
+              _context36.prev = 47;
               _iterator2.f();
-              return _context35.finish(47);
+              return _context36.finish(47);
             case 50:
               // calcolate diff, only for selected runners
               tmpResult = [];
@@ -6320,14 +6448,14 @@ var DBManager = /*#__PURE__*/function () {
                   pos: i + 1
                 }, tmpResult[i]));
               }
-              return _context35.abrupt("return", results);
+              return _context36.abrupt("return", results);
             case 57:
             case "end":
-              return _context35.stop();
+              return _context36.stop();
           }
-        }, _callee35, this, [[12, 44, 47, 50], [20, 34, 37, 40]]);
+        }, _callee36, this, [[12, 44, 47, 50], [20, 34, 37, 40]]);
       }));
-      function getGlobalScore(_x42, _x43, _x44) {
+      function getGlobalScore(_x43, _x44, _x45) {
         return _getGlobalScore.apply(this, arguments);
       }
       return getGlobalScore;
@@ -6335,18 +6463,18 @@ var DBManager = /*#__PURE__*/function () {
   }, {
     key: "clear",
     value: function () {
-      var _clear = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee36() {
-        return _regeneratorRuntime().wrap(function _callee36$(_context36) {
-          while (1) switch (_context36.prev = _context36.next) {
+      var _clear = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee37() {
+        return _regeneratorRuntime().wrap(function _callee37$(_context37) {
+          while (1) switch (_context37.prev = _context37.next) {
             case 0:
               this.db.tables.forEach(function (table) {
                 table.clear();
               });
             case 1:
             case "end":
-              return _context36.stop();
+              return _context37.stop();
           }
-        }, _callee36, this);
+        }, _callee37, this);
       }));
       function clear() {
         return _clear.apply(this, arguments);
@@ -6882,6 +7010,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "isReferrerCurrentDomain": () => (/* binding */ isReferrerCurrentDomain),
 /* harmony export */   "makeid": () => (/* binding */ makeid),
 /* harmony export */   "mergeDeep": () => (/* binding */ mergeDeep),
+/* harmony export */   "printTable": () => (/* binding */ printTable),
 /* harmony export */   "readFileAsync": () => (/* binding */ readFileAsync),
 /* harmony export */   "timeInstant": () => (/* binding */ timeInstant),
 /* harmony export */   "toUrlFriendly": () => (/* binding */ toUrlFriendly),
@@ -7260,6 +7389,15 @@ var dateToDiffTimeStr = function dateToDiffTimeStr(ms) {
   }
   return str;
 };
+var printTable = function printTable(title, subtitle, htmlTable) {
+  var printWindow = window.open('', '', 'height=800,width=1000');
+  printWindow.document.write("\n        <html>\n            <head>\n                <title>Print</title>\n                <link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\">\n                <style>\n                    @page { margin: 0; }\n                    body {\n                        padding-left: 16px;\n                        padding-right: 16px;\n                        font-size: 13px;\n                    }\n                </style>\n            </head>\n            <body>\n                ".concat(title, "\n                ").concat(subtitle, "\n                <table class=\"w-full table-auto\">").concat(htmlTable, "</table>\n            </body>\n        </html>"));
+  printWindow.document.close();
+  setTimeout(function () {
+    printWindow.print();
+    printWindow.close();
+  }, 1000);
+};
 
 /***/ }),
 
@@ -7279,7 +7417,7 @@ module.exports = (Handlebars["default"] || Handlebars).template({"1":function(co
         return undefined
     };
 
-  return "        <td class=\"px-2 py-3 text-sm border-b border-gray-200\">\n            <p class=\"text-gray-900 whitespace-no-wrap\">\n"
+  return "        <td class=\"px-2 py-3 text-sm border-b border-gray-200\">\n            <p class=\"text-gray-900 whitespace-no-wrap print:text-xs\">\n"
     + ((stack1 = __default(__webpack_require__(/*! ../../helpers/equals.js */ "./src/helpers/equals.js")).call(depth0 != null ? depth0 : (container.nullContext || {}),(depth0 != null ? lookupProperty(depth0,"key") : depth0),"status",{"name":"equals","hash":{},"fn":container.program(2, data, 0),"inverse":container.program(9, data, 0),"data":data,"loc":{"start":{"line":5,"column":16},"end":{"line":26,"column":27}}})) != null ? stack1 : "")
     + "            </p>\n        </td>\n";
 },"2":function(container,depth0,helpers,partials,data) {
@@ -7300,7 +7438,7 @@ module.exports = (Handlebars["default"] || Handlebars).template({"1":function(co
 },"7":function(container,depth0,helpers,partials,data) {
     return "                        <span\n                            title=\"Mancante\"\n                            class=\"inline-block rounded-full bg-yellow-500 border border-black h-3 w-3 border-opacity-60\"\n                        ></span>\n";
 },"9":function(container,depth0,helpers,partials,data) {
-    var lookupProperty = container.lookupProperty || function(parent, propertyName) {
+    var stack1, lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
           return parent[propertyName];
         }
@@ -7308,7 +7446,7 @@ module.exports = (Handlebars["default"] || Handlebars).template({"1":function(co
     };
 
   return "                    "
-    + container.escapeExpression(container.lambda((depth0 != null ? lookupProperty(depth0,"data") : depth0), depth0))
+    + ((stack1 = container.lambda((depth0 != null ? lookupProperty(depth0,"data") : depth0), depth0)) != null ? stack1 : "")
     + "\n";
 },"11":function(container,depth0,helpers,partials,data) {
     var stack1, lookupProperty = container.lookupProperty || function(parent, propertyName) {
@@ -7383,11 +7521,11 @@ module.exports = (Handlebars["default"] || Handlebars).template({"1":function(co
     + container.escapeExpression(((helper = (helper = lookupProperty(helpers,"filterKey") || (depth0 != null ? lookupProperty(depth0,"filterKey") : depth0)) != null ? helper : container.hooks.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"filterKey","hash":{},"data":data,"loc":{"start":{"line":19,"column":30},"end":{"line":19,"column":43}}}) : helper)))
     + "\"\n                        placeholder=\"Filtra...\"\n                    />\n                </div>\n                <button\n                    class=\"self-end mt-1 md:mt-0 md:ml-1 flex-shrink-0 px-4 py-2 text-base font-semibold text-white bg-gray-500 rounded-lg shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-200\"\n                    type=\"submit\"\n                >\n                    Filtra\n                </button>\n            </form>\n";
 },"7":function(container,depth0,helpers,partials,data) {
-    return "                            <th\n                                scope=\"col\"\n                                class=\"px-2 py-3 text-sm font-normal text-left text-gray-800 uppercase bg-white border-b border-gray-200\"\n                            >\n                                "
+    return "                            <th\n                                scope=\"col\"\n                                class=\"px-2 py-3 text-sm text-left text-gray-800 uppercase bg-white border-b border-gray-200 font-semibold\"\n                            >\n                                "
     + container.escapeExpression(container.lambda(depth0, depth0))
     + "\n                            </th>\n";
 },"9":function(container,depth0,helpers,partials,data) {
-    return "                            <th\n                                scope=\"col\"\n                                class=\"px-2 py-3 text-sm font-normal text-gray-800 uppercase bg-white border-b border-gray-200 text-right\"\n                            >\n                                Azioni\n                            </th>\n";
+    return "                            <th\n                                scope=\"col\"\n                                class=\"px-2 py-3 text-sm font-semibold text-gray-800 uppercase bg-white border-b border-gray-200 text-right\"\n                            >\n                                Azioni\n                            </th>\n";
 },"11":function(container,depth0,helpers,partials,data) {
     var stack1;
 
@@ -7606,11 +7744,11 @@ module.exports = (Handlebars["default"] || Handlebars).template({"1":function(co
     };
 
   return "                                <option value=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":62,"column":47},"end":{"line":62,"column":53}}}) : helper)))
+    + alias4(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":65,"column":47},"end":{"line":65,"column":53}}}) : helper)))
     + "\" "
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"selected") : depth0),{"name":"if","hash":{},"fn":container.program(4, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":62,"column":55},"end":{"line":62,"column":86}}})) != null ? stack1 : "")
+    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"selected") : depth0),{"name":"if","hash":{},"fn":container.program(4, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":65,"column":55},"end":{"line":65,"column":86}}})) != null ? stack1 : "")
     + ">\n                                    "
-    + alias4(((helper = (helper = lookupProperty(helpers,"name") || (depth0 != null ? lookupProperty(depth0,"name") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data,"loc":{"start":{"line":63,"column":36},"end":{"line":63,"column":44}}}) : helper)))
+    + alias4(((helper = (helper = lookupProperty(helpers,"name") || (depth0 != null ? lookupProperty(depth0,"name") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data,"loc":{"start":{"line":66,"column":36},"end":{"line":66,"column":44}}}) : helper)))
     + "\n                                </option>\n";
 },"4":function(container,depth0,helpers,partials,data) {
     return "selected";
@@ -7622,10 +7760,10 @@ module.exports = (Handlebars["default"] || Handlebars).template({"1":function(co
         return undefined
     };
 
-  return "<div class=\"lg:flex w-full items-start\">\n    <div class=\"w-full lg:w-auto lg:pr-4 grow\">\n\n        <div>\n            <c1-table tabindex=\"0\"\n                labels=\"id,Data\"\n                keys=\"id,time\"\n                orderBy=\"time\"\n                rowsKey=\"time\"\n                orderDir=\"desc\"\n                editEnabled=\"true\"\n                title=\"Tempi non assegnati\"\n                ref=\"timeTable\"\n            ></c1-table>\n        </div>\n\n        <div ref=\"scoreTableDiv\" class=\"mt-8 "
-    + ((stack1 = lookupProperty(helpers,"unless").call(alias1,(depth0 != null ? lookupProperty(depth0,"selectedPs") : depth0),{"name":"unless","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":17,"column":45},"end":{"line":17,"column":84}}})) != null ? stack1 : "")
-    + "\">\n            <c1-table tabindex=\"0\"\n                labels=\"Num,Nome,Start,End,Penalità,Tempo,Stato\"\n                keys=\"assigned,assignedName,start,assignedTime,pen,diff,status\"\n                filterKey=\"assignedName\"\n                rowsKey=\"score\"\n                title=\"Classifica parziale\"\n                hideCount=\"true\"\n                actionDisabled=\"true\"\n                ref=\"scoreTable\"\n            ></c1-table>\n        </div>\n\n        <div class=\"mt-8\">\n            <c1-table tabindex=\"0\"\n                labels=\"Num,Nome,PS,End,Penalità\"\n                keys=\"assigned,assignedName,assignedPs,assignedTime,pen\"\n                filterKey=\"assignedName\"\n                rowsKey=\"take\"\n                title=\"Tempi assegnati\"\n                editEnabled=\"true\"\n                ref=\"takeTable\"\n            ></c1-table>\n        </div>\n\n         \n    </div>\n    <div class=\"w-full lg:w-80 lg:sticky lg:top-0\">\n\n        <div\n            class=\"bg-white rounded-lg shadow transition-colors mb-4\"\n        >\n\n            <div class=\"px-6 py-4\">\n                <div class=\"w-full space-y-6\">\n                    <div class=\"w-full\">\n                        <select\n                            class=\"font-semibold w-full block px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500\"\n                            required\n                            ref=\"selectPs\"\n                        >\n                            <option value=\"\">\n                                Tutte le PS\n                            </option>\n"
-    + ((stack1 = lookupProperty(helpers,"each").call(alias1,(depth0 != null ? lookupProperty(depth0,"pss") : depth0),{"name":"each","hash":{},"fn":container.program(3, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":61,"column":28},"end":{"line":65,"column":37}}})) != null ? stack1 : "")
+  return "<div class=\"lg:flex w-full items-start\">\n    <div class=\"w-full lg:w-auto lg:pr-4 grow\">\n\n        <div>\n            <c1-table tabindex=\"0\"\n                labels=\"id,Data\"\n                keys=\"id,time\"\n                types=\"as-is,date-time\"\n                orderBy=\"time\"\n                rowsKey=\"time\"\n                orderDir=\"desc\"\n                editEnabled=\"true\"\n                title=\"Tempi non assegnati\"\n                ref=\"timeTable\"\n            ></c1-table>\n        </div>\n\n        <div ref=\"scoreTableDiv\" class=\"mt-8 "
+    + ((stack1 = lookupProperty(helpers,"unless").call(alias1,(depth0 != null ? lookupProperty(depth0,"selectedPs") : depth0),{"name":"unless","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":18,"column":45},"end":{"line":18,"column":84}}})) != null ? stack1 : "")
+    + "\">\n            <c1-table tabindex=\"0\"\n                labels=\"Num,Nome,Start,End,Penalità,Tempo,Stato\"\n                keys=\"assigned,assignedName,start,assignedTime,pen,diff,status\"\n                types=\"bolder,as-is,time,time,penalty,diff,as-is\"\n                filterKey=\"assignedName\"\n                rowsKey=\"score\"\n                title=\"Classifica parziale\"\n                hideCount=\"true\"\n                actionDisabled=\"true\"\n                ref=\"scoreTable\"\n            ></c1-table>\n        </div>\n\n        <div class=\"mt-8\">\n            <c1-table tabindex=\"0\"\n                labels=\"Num,Nome,PS,End,Penalità\"\n                keys=\"assigned,assignedName,assignedPs,assignedTime,pen\"\n                types=\"bolder,as-is,as-is,date-time,penalty\"\n                filterKey=\"assignedName\"\n                rowsKey=\"take\"\n                title=\"Tempi assegnati\"\n                editEnabled=\"true\"\n                ref=\"takeTable\"\n            ></c1-table>\n        </div>\n\n         \n    </div>\n    <div class=\"w-full lg:w-80 lg:sticky lg:top-0\">\n\n        <div\n            class=\"bg-white rounded-lg shadow transition-colors mb-4\"\n        >\n\n            <div class=\"px-6 py-4\">\n                <div class=\"w-full space-y-6\">\n                    <div class=\"w-full\">\n                        <select\n                            class=\"font-semibold w-full block px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500\"\n                            required\n                            ref=\"selectPs\"\n                        >\n                            <option value=\"\">\n                                Tutte le PS\n                            </option>\n"
+    + ((stack1 = lookupProperty(helpers,"each").call(alias1,(depth0 != null ? lookupProperty(depth0,"pss") : depth0),{"name":"each","hash":{},"fn":container.program(3, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":64,"column":28},"end":{"line":68,"column":37}}})) != null ? stack1 : "")
     + "                        </select>\n                    </div>\n                </div>\n            </div>\n        </div>\n\n        <form\n            class=\"bg-white rounded-lg shadow  transition-colors\"\n            ref=\"assignTime\"\n        >\n\n            <div class=\"px-6 py-4\">\n                <div class=\"relative mt-6\">\n                    <div class=\"relative flex items-center justify-between text-base leading-5 font-semibold\">\n                        <span class=\" text-gray-500\">\n                            Assegna\n                        </span>\n                        <button\n                            class=\"flex items-center p-2 bg-white rounded-full shadow hover:text-gray-700 text-md\"\n                            title=\"Clear\"\n                            type=\"reset\"\n                        >\n                            <svg\n                                xmlns=\"http://www.w3.org/2000/svg\"\n                                fill=\"none\"\n                                viewBox=\"0 0 24 24\"\n                                stroke-width=\"1.5\"\n                                stroke=\"currentColor\"\n                                class=\"w-4 h-4\"\n                            >\n                                <path\n                                    stroke-linecap=\"round\"\n                                    stroke-linejoin=\"round\"\n                                    d=\"M12 9.75L14.25 12m0 0l2.25 2.25M14.25 12l2.25-2.25M14.25 12L12 14.25m-2.58 4.92l-6.375-6.375a1.125 1.125 0 010-1.59L9.42 4.83c.211-.211.498-.33.796-.33H19.5a2.25 2.25 0 012.25 2.25v10.5a2.25 2.25 0 01-2.25 2.25h-9.284c-.298 0-.585-.119-.796-.33z\"\n                                />\n                            </svg>\n                        </button>\n                    </div>\n                </div>\n                <div class=\"mt-6\">\n                    <div class=\"w-full space-y-6\">\n                        <div class=\"w-full\">\n                            <div class=\"relative\">\n                                <input\n                                    type=\"text\"\n                                    class=\"rounded-lg flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-transparent\"\n                                    required\n                                    placeholder=\"Time ID\"\n                                    name=\"id\"\n                                    readonly\n                                />\n                            </div>\n                        </div>\n                        <div class=\"w-full\">\n                            <div class=\"relative\">\n                                <input\n                                    type=\"text\"\n                                    class=\"rounded-lg flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-transparent\"\n                                    required\n                                    placeholder=\"Time\"\n                                    name=\"timeStr\"\n                                    readonly\n                                />\n                            </div>\n                        </div>\n                        <div class=\"w-full\">\n                            <div class=\"relative\">\n                                <input\n                                    type=\"text\"\n                                    class=\"rounded-lg flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-transparent\"\n                                    required\n                                    placeholder=\"PS\"\n                                    name=\"psName\"\n                                />\n                            </div>\n                        </div>\n\n                        <div class=\"w-full\">\n                            <div class=\"relative\">\n                                <input\n                                    type=\"text\"\n                                    class=\"rounded-lg flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-transparent\"\n                                    required\n                                    placeholder=\"Corridore (Numero)\"\n                                    name=\"runnerNum\"\n                                    pattern=\"[0-9]+\"\n                                />\n                            </div>\n                        </div>\n\n                        <div class=\"w-full\">\n\n                            <button\n                                class=\"w-full px-4 py-2 text-base font-semibold text-white bg-gray-500 rounded-lg shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-200\"\n                                type=\"submit\"\n                            >\n                                Assegna\n                            </button>\n\n                        </div>\n                    </div>\n                </div>\n            </div>\n        </form>\n\n    </div>\n</div>";
 },"useData":true});
 
@@ -7640,7 +7778,7 @@ module.exports = (Handlebars["default"] || Handlebars).template({"1":function(co
 var Handlebars = __webpack_require__(/*! ../../../node_modules/handlebars/runtime.js */ "./node_modules/handlebars/runtime.js");
 function __default(obj) { return obj && (obj.__esModule ? obj["default"] : obj); }
 module.exports = (Handlebars["default"] || Handlebars).template({"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
-    return "<div class=\"lg:flex w-full items-start\">\n    <div class=\"w-full lg:w-auto lg:pr-4 grow\">\n        <c1-table\n            labels=\"ID,Nome,Gap,Start,Ordine\"\n            keys=\"id,name,gap,start,order\"\n            filterKey=\"name\"\n            orderBy=\"name\"\n            ref=\"table\"\n        ></c1-table>\n    </div>\n    <div class=\"w-full lg:w-80\">\n\n        <form class=\"bg-white rounded-lg shadow\" ref=\"createPs\">\n            <div class=\"px-6 py-4\">\n                <div class=\"relative mt-6\">\n                    <div class=\"relative flex items-center justify-between text-base leading-5 font-semibold\">\n                        <span class=\"text-gray-500\">\n                            Nuova PS\n                        </span>\n                        <button\n                            class=\"flex items-center p-2 bg-white rounded-full shadow hover:text-gray-700 text-md\"\n                            title=\"Clear\"\n                            type=\"reset\"\n                        >\n                            <svg\n                                xmlns=\"http://www.w3.org/2000/svg\"\n                                fill=\"none\"\n                                viewBox=\"0 0 24 24\"\n                                stroke-width=\"1.5\"\n                                stroke=\"currentColor\"\n                                class=\"w-4 h-4\"\n                            >\n                                <path\n                                    stroke-linecap=\"round\"\n                                    stroke-linejoin=\"round\"\n                                    d=\"M12 9.75L14.25 12m0 0l2.25 2.25M14.25 12l2.25-2.25M14.25 12L12 14.25m-2.58 4.92l-6.375-6.375a1.125 1.125 0 010-1.59L9.42 4.83c.211-.211.498-.33.796-.33H19.5a2.25 2.25 0 012.25 2.25v10.5a2.25 2.25 0 01-2.25 2.25h-9.284c-.298 0-.585-.119-.796-.33z\"\n                                />\n                            </svg>\n                        </button>\n                    </div>\n                </div>\n                <div class=\"mt-6\">\n                    <div class=\"w-full space-y-6\">\n                        <div class=\"w-full\">\n                            <div class=\"relative\">\n                                <input\n                                    type=\"text\"\n                                    class=\"rounded-lg flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-transparent\"\n                                    required\n                                    placeholder=\"Nome\"\n                                    name=\"name\"\n                                />\n                            </div>\n                        </div>\n                        <div class=\"w-full\">\n                            <div class=\"relative\">\n                                <input\n                                    type=\"datetime-local\"\n                                    class=\"rounded-lg flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-transparent\"\n                                    required\n                                    placeholder=\"Start\"\n                                    name=\"start\"\n                                />\n                            </div>\n                        </div>\n                        <div class=\"w-full\">\n                            <div class=\"relative\">\n                                <input\n                                    type=\"text\"\n                                    class=\"rounded-lg flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-transparent\"\n                                    placeholder=\"Gap\"\n                                    required\n                                    name=\"gap\"\n                                    pattern=\"[0-9]+\"\n                                />\n                            </div>\n                        </div>\n                        <div class=\"w-full\">\n                            <div class=\"relative\">\n                                <select\n                                    class=\"w-full block px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500\"\n                                    name=\"order\"\n                                    required\n                                >\n                                    <option value=\"asc\">\n                                        Crescente\n                                    </option>\n                                    <option value=\"desc\">\n                                        Decrescente\n                                    </option>\n                                </select>\n                            </div>\n                        </div>\n                        <div class=\"w-full\">\n\n                            <button\n                                class=\"w-full px-4 py-2 text-base font-semibold text-white bg-gray-500 rounded-lg shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-200\"\n                                type=\"submit\"\n                            >\n                                Crea\n                            </button>\n\n                        </div>\n                    </div>\n                </div>\n            </div>\n        </form>\n\n        <form class=\"bg-white rounded-lg shadow\" ref=\"uploadPs\">\n            <div class=\"px-6 py-4\">\n                <div class=\"relative mt-6\">\n                    <div class=\"relative flex items-center justify-between text-base leading-5 font-semibold\">\n                        <span class=\"text-gray-500\">\n                            Carica PS\n                        </span>\n                        <button\n                            class=\"flex items-center p-2 bg-white rounded-full shadow hover:text-gray-700 text-md\"\n                            title=\"Clear\"\n                            type=\"reset\"\n                        >\n                            <svg\n                                xmlns=\"http://www.w3.org/2000/svg\"\n                                fill=\"none\"\n                                viewBox=\"0 0 24 24\"\n                                stroke-width=\"1.5\"\n                                stroke=\"currentColor\"\n                                class=\"w-4 h-4\"\n                            >\n                                <path\n                                    stroke-linecap=\"round\"\n                                    stroke-linejoin=\"round\"\n                                    d=\"M12 9.75L14.25 12m0 0l2.25 2.25M14.25 12l2.25-2.25M14.25 12L12 14.25m-2.58 4.92l-6.375-6.375a1.125 1.125 0 010-1.59L9.42 4.83c.211-.211.498-.33.796-.33H19.5a2.25 2.25 0 012.25 2.25v10.5a2.25 2.25 0 01-2.25 2.25h-9.284c-.298 0-.585-.119-.796-.33z\"\n                                />\n                            </svg>\n                        </button>\n                    </div>\n                </div>\n                <div class=\"mt-6\">\n                    <div class=\"w-full space-y-6\">\n                        <div class=\"w-full\">\n                            <div class=\"relative\">\n                                <input\n                                    type=\"file\"\n                                    class=\"rounded-lg flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-transparent\"\n                                    placeholder=\"File\"\n                                    required\n                                    name=\"file\"\n                                />\n                            </div>\n                        </div>\n                        <div class=\"w-full\">\n\n                            <button\n                                class=\"w-full px-4 py-2 text-base font-semibold text-white bg-gray-500 rounded-lg shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-200\"\n                                type=\"submit\"\n                            >\n                                Carica\n                            </button>\n\n                        </div>\n                    </div>\n                </div>\n            </div>\n        </form>\n\n        <div class=\"bg-white rounded-lg shadow\">\n            <div class=\"px-6 py-4\">\n                <div class=\"w-full\">\n                    <button\n                        class=\"w-full px-4 py-2 text-base font-semibold text-white bg-gray-500 rounded-lg shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-200\"\n                        type=\"button\"\n                        ref=\"download\"\n                    >\n                        Scarica CSV\n                    </button>\n                </div>\n            </div>\n        </div>\n    </div>\n</div>";
+    return "<div class=\"lg:flex w-full items-start\">\n    <div class=\"w-full lg:w-auto lg:pr-4 grow\">\n        <c1-table\n            labels=\"Nome,Gap,Start,Ordine\"\n            keys=\"name,gap,start,order\"\n            types=\"bolder,as-is,date-time,as-is\"\n            filterKey=\"name\"\n            orderBy=\"name\"\n            ref=\"table\"\n        ></c1-table>\n    </div>\n    <div class=\"w-full lg:w-80\">\n\n        <form class=\"bg-white rounded-lg shadow\" ref=\"createPs\">\n            <div class=\"px-6 py-4\">\n                <div class=\"relative mt-6\">\n                    <div class=\"relative flex items-center justify-between text-base leading-5 font-semibold\">\n                        <span class=\"text-gray-500\">\n                            Nuova PS\n                        </span>\n                        <button\n                            class=\"flex items-center p-2 bg-white rounded-full shadow hover:text-gray-700 text-md\"\n                            title=\"Clear\"\n                            type=\"reset\"\n                        >\n                            <svg\n                                xmlns=\"http://www.w3.org/2000/svg\"\n                                fill=\"none\"\n                                viewBox=\"0 0 24 24\"\n                                stroke-width=\"1.5\"\n                                stroke=\"currentColor\"\n                                class=\"w-4 h-4\"\n                            >\n                                <path\n                                    stroke-linecap=\"round\"\n                                    stroke-linejoin=\"round\"\n                                    d=\"M12 9.75L14.25 12m0 0l2.25 2.25M14.25 12l2.25-2.25M14.25 12L12 14.25m-2.58 4.92l-6.375-6.375a1.125 1.125 0 010-1.59L9.42 4.83c.211-.211.498-.33.796-.33H19.5a2.25 2.25 0 012.25 2.25v10.5a2.25 2.25 0 01-2.25 2.25h-9.284c-.298 0-.585-.119-.796-.33z\"\n                                />\n                            </svg>\n                        </button>\n                    </div>\n                </div>\n                <div class=\"mt-6\">\n                    <div class=\"w-full space-y-6\">\n                        <div class=\"w-full\">\n                            <div class=\"relative\">\n                                <input\n                                    type=\"text\"\n                                    class=\"rounded-lg flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-transparent\"\n                                    required\n                                    placeholder=\"Nome\"\n                                    name=\"name\"\n                                />\n                            </div>\n                        </div>\n                        <div class=\"w-full\">\n                            <div class=\"relative\">\n                                <input\n                                    type=\"datetime-local\"\n                                    class=\"rounded-lg flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-transparent\"\n                                    required\n                                    placeholder=\"Start\"\n                                    name=\"start\"\n                                />\n                            </div>\n                        </div>\n                        <div class=\"w-full\">\n                            <div class=\"relative\">\n                                <input\n                                    type=\"text\"\n                                    class=\"rounded-lg flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-transparent\"\n                                    placeholder=\"Gap\"\n                                    required\n                                    name=\"gap\"\n                                    pattern=\"[0-9]+\"\n                                />\n                            </div>\n                        </div>\n                        <div class=\"w-full\">\n                            <div class=\"relative\">\n                                <select\n                                    class=\"w-full block px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500\"\n                                    name=\"order\"\n                                    required\n                                >\n                                    <option value=\"asc\">\n                                        Crescente\n                                    </option>\n                                    <option value=\"desc\">\n                                        Decrescente\n                                    </option>\n                                </select>\n                            </div>\n                        </div>\n                        <div class=\"w-full\">\n\n                            <button\n                                class=\"w-full px-4 py-2 text-base font-semibold text-white bg-gray-500 rounded-lg shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-200\"\n                                type=\"submit\"\n                            >\n                                Crea\n                            </button>\n\n                        </div>\n                    </div>\n                </div>\n            </div>\n        </form>\n\n        <form class=\"bg-white rounded-lg shadow\" ref=\"uploadPs\">\n            <div class=\"px-6 py-4\">\n                <div class=\"relative mt-6\">\n                    <div class=\"relative flex items-center justify-between text-base leading-5 font-semibold\">\n                        <span class=\"text-gray-500\">\n                            Carica PS\n                        </span>\n                        <button\n                            class=\"flex items-center p-2 bg-white rounded-full shadow hover:text-gray-700 text-md\"\n                            title=\"Clear\"\n                            type=\"reset\"\n                        >\n                            <svg\n                                xmlns=\"http://www.w3.org/2000/svg\"\n                                fill=\"none\"\n                                viewBox=\"0 0 24 24\"\n                                stroke-width=\"1.5\"\n                                stroke=\"currentColor\"\n                                class=\"w-4 h-4\"\n                            >\n                                <path\n                                    stroke-linecap=\"round\"\n                                    stroke-linejoin=\"round\"\n                                    d=\"M12 9.75L14.25 12m0 0l2.25 2.25M14.25 12l2.25-2.25M14.25 12L12 14.25m-2.58 4.92l-6.375-6.375a1.125 1.125 0 010-1.59L9.42 4.83c.211-.211.498-.33.796-.33H19.5a2.25 2.25 0 012.25 2.25v10.5a2.25 2.25 0 01-2.25 2.25h-9.284c-.298 0-.585-.119-.796-.33z\"\n                                />\n                            </svg>\n                        </button>\n                    </div>\n                </div>\n                <div class=\"mt-6\">\n                    <div class=\"w-full space-y-6\">\n                        <div class=\"w-full\">\n                            <div class=\"relative\">\n                                <input\n                                    type=\"file\"\n                                    class=\"rounded-lg flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-transparent\"\n                                    placeholder=\"File\"\n                                    required\n                                    name=\"file\"\n                                />\n                            </div>\n                        </div>\n                        <div class=\"w-full\">\n\n                            <button\n                                class=\"w-full px-4 py-2 text-base font-semibold text-white bg-gray-500 rounded-lg shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-200\"\n                                type=\"submit\"\n                            >\n                                Carica\n                            </button>\n\n                        </div>\n                    </div>\n                </div>\n            </div>\n        </form>\n\n        <div class=\"bg-white rounded-lg shadow\">\n            <div class=\"px-6 py-4\">\n                <div class=\"w-full\">\n                    <button\n                        class=\"w-full px-4 py-2 text-base font-semibold text-white bg-gray-500 rounded-lg shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-200\"\n                        type=\"button\"\n                        ref=\"download\"\n                    >\n                        Scarica CSV\n                    </button>\n                </div>\n            </div>\n        </div>\n    </div>\n</div>";
 },"useData":true});
 
 /***/ }),
@@ -7654,7 +7792,7 @@ module.exports = (Handlebars["default"] || Handlebars).template({"compiler":[8,"
 var Handlebars = __webpack_require__(/*! ../../../node_modules/handlebars/runtime.js */ "./node_modules/handlebars/runtime.js");
 function __default(obj) { return obj && (obj.__esModule ? obj["default"] : obj); }
 module.exports = (Handlebars["default"] || Handlebars).template({"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
-    return "<div class=\"lg:flex w-full items-start\">\n    <div class=\"w-full lg:w-auto lg:pr-4 grow\">\n        <c1-table\n            labels=\"Nome,Num,Categoria,Team\"\n            keys=\"name,number,category,team\"\n            filterKey=\"name\"\n            orderBy=\"number\"\n            ref=\"table\"\n        ></c1-table>\n    </div>\n    <div class=\"w-full lg:w-80\">\n\n        <form class=\"bg-white rounded-lg shadow\" ref=\"createRunner\">\n            <div class=\"px-6 py-4\">\n                <div class=\"relative mt-6\">\n                    <div class=\"relative flex items-center justify-between text-base leading-5 font-semibold\">\n                        <span class=\"text-gray-500\">\n                            Nuovo Corridore\n                        </span>\n                        <button\n                            class=\"flex items-center p-2 bg-white rounded-full shadow hover:text-gray-700 text-md\"\n                            title=\"Clear\"\n                            type=\"reset\"\n                        >\n                            <svg\n                                xmlns=\"http://www.w3.org/2000/svg\"\n                                fill=\"none\"\n                                viewBox=\"0 0 24 24\"\n                                stroke-width=\"1.5\"\n                                stroke=\"currentColor\"\n                                class=\"w-4 h-4\"\n                            >\n                                <path\n                                    stroke-linecap=\"round\"\n                                    stroke-linejoin=\"round\"\n                                    d=\"M12 9.75L14.25 12m0 0l2.25 2.25M14.25 12l2.25-2.25M14.25 12L12 14.25m-2.58 4.92l-6.375-6.375a1.125 1.125 0 010-1.59L9.42 4.83c.211-.211.498-.33.796-.33H19.5a2.25 2.25 0 012.25 2.25v10.5a2.25 2.25 0 01-2.25 2.25h-9.284c-.298 0-.585-.119-.796-.33z\"\n                                />\n                            </svg>\n\n                        </button>\n                    </div>\n                </div>\n                <div class=\"mt-6\">\n                    <div class=\"w-full space-y-6\">\n                        <div class=\"w-full\">\n                            <div class=\"relative\">\n                                <input\n                                    type=\"text\"\n                                    class=\"rounded-lg flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-transparent\"\n                                    required\n                                    placeholder=\"Nome\"\n                                    name=\"name\"\n                                />\n                            </div>\n                        </div>\n                        <div class=\"w-full\">\n                            <div class=\"relative\">\n                                <input\n                                    type=\"text\"\n                                    class=\"rounded-lg flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-transparent\"\n                                    placeholder=\"Numero\"\n                                    required\n                                    name=\"number\"\n                                    pattern=\"[0-9]+\"\n                                />\n                            </div>\n                        </div>\n                        <div class=\"w-full\">\n                            <div class=\"relative\">\n                                <input\n                                    type=\"text\"\n                                    class=\"rounded-lg flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-transparent\"\n                                    placeholder=\"Categoria\"\n                                    required\n                                    name=\"category\"\n                                />\n                            </div>\n                        </div>\n                        <div class=\"w-full\">\n                            <div class=\"relative\">\n                                <input\n                                    type=\"text\"\n                                    class=\"rounded-lg flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-transparent\"\n                                    required\n                                    placeholder=\"Team\"\n                                    name=\"team\"\n                                />\n                            </div>\n                        </div>\n                        <div class=\"w-full\">\n                            <div class=\"relative\">\n                                <input\n                                    type=\"text\"\n                                    class=\"rounded-lg flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-transparent\"\n                                    required\n                                    placeholder=\"Codice FCI\"\n                                    name=\"fci\"\n                                />\n                            </div>\n                        </div>\n                        <div class=\"w-full\">\n                            <div class=\"relative\">\n                                <input\n                                    type=\"text\"\n                                    class=\"rounded-lg flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-transparent\"\n                                    required\n                                    placeholder=\"Codice UCI\"\n                                    name=\"uci\"\n                                />\n                            </div>\n                        </div>\n                        <div class=\"w-full\">\n                            <div class=\"relative\">\n                                <input\n                                    type=\"text\"\n                                    class=\"rounded-lg flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-transparent\"\n                                    required\n                                    placeholder=\"Società\"\n                                    name=\"soc\"\n                                />\n                            </div>\n                        </div>\n                        <div class=\"w-full\">\n                            <div class=\"relative\">\n                                <input\n                                    type=\"text\"\n                                    class=\"rounded-lg flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-transparent\"\n                                    required\n                                    placeholder=\"Nazionalità\"\n                                    name=\"naz\"\n                                />\n                            </div>\n                        </div>\n                        <div class=\"w-full\">\n\n                            <button\n                                class=\"w-full px-4 py-2 text-base font-semibold text-white bg-gray-500 rounded-lg shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-200\"\n                                type=\"submit\"\n                            >\n                                Crea\n                            </button>\n\n                        </div>\n                    </div>\n                </div>\n            </div>\n        </form>\n\n        <form class=\"bg-white rounded-lg shadow\" ref=\"uploadRunner\">\n            <div class=\"px-6 py-4\">\n                <div class=\"relative mt-6\">\n                    <div class=\"relative flex items-center justify-between text-base leading-5 font-semibold\">\n                        <span class=\"text-gray-500\">\n                            Carica Corridori\n                        </span>\n                        <button\n                            class=\"flex items-center p-2 bg-white rounded-full shadow hover:text-gray-700 text-md\"\n                            title=\"Clear\"\n                            type=\"reset\"\n                        >\n                            <svg\n                                xmlns=\"http://www.w3.org/2000/svg\"\n                                fill=\"none\"\n                                viewBox=\"0 0 24 24\"\n                                stroke-width=\"1.5\"\n                                stroke=\"currentColor\"\n                                class=\"w-4 h-4\"\n                            >\n                                <path\n                                    stroke-linecap=\"round\"\n                                    stroke-linejoin=\"round\"\n                                    d=\"M12 9.75L14.25 12m0 0l2.25 2.25M14.25 12l2.25-2.25M14.25 12L12 14.25m-2.58 4.92l-6.375-6.375a1.125 1.125 0 010-1.59L9.42 4.83c.211-.211.498-.33.796-.33H19.5a2.25 2.25 0 012.25 2.25v10.5a2.25 2.25 0 01-2.25 2.25h-9.284c-.298 0-.585-.119-.796-.33z\"\n                                />\n                            </svg>\n                        </button>\n                    </div>\n                </div>\n                <div class=\"mt-6\">\n                    <div class=\"w-full space-y-6\">\n                        <div class=\"w-full\">\n                            <div class=\"relative\">\n                                <input\n                                    type=\"file\"\n                                    class=\"rounded-lg flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-transparent\"\n                                    placeholder=\"File\"\n                                    required\n                                    name=\"file\"\n                                />\n                            </div>\n                        </div>\n                        <div class=\"w-full\">\n\n                            <button\n                                class=\"w-full px-4 py-2 text-base font-semibold text-white bg-gray-500 rounded-lg shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-200\"\n                                type=\"submit\"\n                            >\n                                Carica\n                            </button>\n\n                        </div>\n                    </div>\n                </div>\n            </div>\n        </form>\n\n        <div class=\"bg-white rounded-lg shadow\">\n            <div class=\"px-6 py-4\">\n                <div class=\"w-full\">\n                    <button\n                        class=\"w-full px-4 py-2 text-base font-semibold text-white bg-gray-500 rounded-lg shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-200\"\n                        type=\"button\"\n                        ref=\"download\"\n                    >\n                        Scarica CSV\n                    </button>\n                </div>\n            </div>\n        </div>\n    </div>\n</div>";
+    return "<div class=\"lg:flex w-full items-start\">\n    <div class=\"w-full lg:w-auto lg:pr-4 grow\">\n        <c1-table\n            labels=\"Num,Nome,Categoria,Team,Naz\"\n            keys=\"number,name,category,team,naz\"\n            types=\"bolder,as-is,as-is,as-is,as-is\"\n            filterKey=\"name\"\n            orderBy=\"number\"\n            ref=\"table\"\n        ></c1-table>\n    </div>\n    <div class=\"w-full lg:w-80\">\n\n        <form class=\"bg-white rounded-lg shadow\" ref=\"createRunner\">\n            <div class=\"px-6 py-4\">\n                <div class=\"relative mt-6\">\n                    <div class=\"relative flex items-center justify-between text-base leading-5 font-semibold\">\n                        <span class=\"text-gray-500\">\n                            Nuovo Corridore\n                        </span>\n                        <button\n                            class=\"flex items-center p-2 bg-white rounded-full shadow hover:text-gray-700 text-md\"\n                            title=\"Clear\"\n                            type=\"reset\"\n                        >\n                            <svg\n                                xmlns=\"http://www.w3.org/2000/svg\"\n                                fill=\"none\"\n                                viewBox=\"0 0 24 24\"\n                                stroke-width=\"1.5\"\n                                stroke=\"currentColor\"\n                                class=\"w-4 h-4\"\n                            >\n                                <path\n                                    stroke-linecap=\"round\"\n                                    stroke-linejoin=\"round\"\n                                    d=\"M12 9.75L14.25 12m0 0l2.25 2.25M14.25 12l2.25-2.25M14.25 12L12 14.25m-2.58 4.92l-6.375-6.375a1.125 1.125 0 010-1.59L9.42 4.83c.211-.211.498-.33.796-.33H19.5a2.25 2.25 0 012.25 2.25v10.5a2.25 2.25 0 01-2.25 2.25h-9.284c-.298 0-.585-.119-.796-.33z\"\n                                />\n                            </svg>\n\n                        </button>\n                    </div>\n                </div>\n                <div class=\"mt-6\">\n                    <div class=\"w-full space-y-6\">\n                        <div class=\"w-full\">\n                            <div class=\"relative\">\n                                <input\n                                    type=\"text\"\n                                    class=\"rounded-lg flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-transparent\"\n                                    required\n                                    placeholder=\"Nome\"\n                                    name=\"name\"\n                                />\n                            </div>\n                        </div>\n                        <div class=\"w-full\">\n                            <div class=\"relative\">\n                                <input\n                                    type=\"text\"\n                                    class=\"rounded-lg flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-transparent\"\n                                    placeholder=\"Numero\"\n                                    required\n                                    name=\"number\"\n                                    pattern=\"[0-9]+\"\n                                />\n                            </div>\n                        </div>\n                        <div class=\"w-full\">\n                            <div class=\"relative\">\n                                <input\n                                    type=\"text\"\n                                    class=\"rounded-lg flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-transparent\"\n                                    placeholder=\"Categoria\"\n                                    required\n                                    name=\"category\"\n                                />\n                            </div>\n                        </div>\n                        <div class=\"w-full\">\n                            <div class=\"relative\">\n                                <input\n                                    type=\"text\"\n                                    class=\"rounded-lg flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-transparent\"\n                                    required\n                                    placeholder=\"Team\"\n                                    name=\"team\"\n                                />\n                            </div>\n                        </div>\n                        <div class=\"w-full\">\n                            <div class=\"relative\">\n                                <input\n                                    type=\"text\"\n                                    class=\"rounded-lg flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-transparent\"\n                                    required\n                                    placeholder=\"Codice FCI\"\n                                    name=\"fci\"\n                                />\n                            </div>\n                        </div>\n                        <div class=\"w-full\">\n                            <div class=\"relative\">\n                                <input\n                                    type=\"text\"\n                                    class=\"rounded-lg flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-transparent\"\n                                    required\n                                    placeholder=\"Codice UCI\"\n                                    name=\"uci\"\n                                />\n                            </div>\n                        </div>\n                        <div class=\"w-full\">\n                            <div class=\"relative\">\n                                <input\n                                    type=\"text\"\n                                    class=\"rounded-lg flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-transparent\"\n                                    required\n                                    placeholder=\"Società\"\n                                    name=\"soc\"\n                                />\n                            </div>\n                        </div>\n                        <div class=\"w-full\">\n                            <div class=\"relative\">\n                                <input\n                                    type=\"text\"\n                                    class=\"rounded-lg flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-transparent\"\n                                    required\n                                    placeholder=\"Nazionalità\"\n                                    name=\"naz\"\n                                />\n                            </div>\n                        </div>\n                        <div class=\"w-full\">\n\n                            <button\n                                class=\"w-full px-4 py-2 text-base font-semibold text-white bg-gray-500 rounded-lg shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-200\"\n                                type=\"submit\"\n                            >\n                                Crea\n                            </button>\n\n                        </div>\n                    </div>\n                </div>\n            </div>\n        </form>\n\n        <form class=\"bg-white rounded-lg shadow\" ref=\"uploadRunner\">\n            <div class=\"px-6 py-4\">\n                <div class=\"relative mt-6\">\n                    <div class=\"relative flex items-center justify-between text-base leading-5 font-semibold\">\n                        <span class=\"text-gray-500\">\n                            Carica Corridori\n                        </span>\n                        <button\n                            class=\"flex items-center p-2 bg-white rounded-full shadow hover:text-gray-700 text-md\"\n                            title=\"Clear\"\n                            type=\"reset\"\n                        >\n                            <svg\n                                xmlns=\"http://www.w3.org/2000/svg\"\n                                fill=\"none\"\n                                viewBox=\"0 0 24 24\"\n                                stroke-width=\"1.5\"\n                                stroke=\"currentColor\"\n                                class=\"w-4 h-4\"\n                            >\n                                <path\n                                    stroke-linecap=\"round\"\n                                    stroke-linejoin=\"round\"\n                                    d=\"M12 9.75L14.25 12m0 0l2.25 2.25M14.25 12l2.25-2.25M14.25 12L12 14.25m-2.58 4.92l-6.375-6.375a1.125 1.125 0 010-1.59L9.42 4.83c.211-.211.498-.33.796-.33H19.5a2.25 2.25 0 012.25 2.25v10.5a2.25 2.25 0 01-2.25 2.25h-9.284c-.298 0-.585-.119-.796-.33z\"\n                                />\n                            </svg>\n                        </button>\n                    </div>\n                </div>\n                <div class=\"mt-6\">\n                    <div class=\"w-full space-y-6\">\n                        <div class=\"w-full\">\n                            <div class=\"relative\">\n                                <input\n                                    type=\"file\"\n                                    class=\"rounded-lg flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-transparent\"\n                                    placeholder=\"File\"\n                                    required\n                                    name=\"file\"\n                                />\n                            </div>\n                        </div>\n                        <div class=\"w-full\">\n\n                            <button\n                                class=\"w-full px-4 py-2 text-base font-semibold text-white bg-gray-500 rounded-lg shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-200\"\n                                type=\"submit\"\n                            >\n                                Carica\n                            </button>\n\n                        </div>\n                    </div>\n                </div>\n            </div>\n        </form>\n\n        <div class=\"bg-white rounded-lg shadow\">\n            <div class=\"px-6 py-4\">\n                <div class=\"w-full\">\n                    <button\n                        class=\"w-full px-4 py-2 text-base font-semibold text-white bg-gray-500 rounded-lg shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-200\"\n                        type=\"button\"\n                        ref=\"download\"\n                    >\n                        Scarica CSV\n                    </button>\n                </div>\n            </div>\n        </div>\n    </div>\n</div>";
 },"useData":true});
 
 /***/ }),
@@ -7695,10 +7833,10 @@ module.exports = (Handlebars["default"] || Handlebars).template({"1":function(co
         return undefined
     };
 
-  return "<div class=\"lg:flex w-full items-start\">\n    <div class=\"w-full lg:w-auto lg:pr-4 grow\">\n        <c1-table\n            labels=\"Pos,Num,Nome,Categoria,Team,Penalità,Tempo\"\n            keys=\"pos,number,name,category,team,pen,diff\"\n            filterKey=\"name\"\n            orderBy=\"pos\"\n            actionDisabled=\"true\"\n            ref=\"table\"\n        ></c1-table>\n    </div>\n    <div class=\"w-full lg:w-80\">\n        <form class=\"bg-white rounded-lg shadow\" ref=\"selectCategories\">\n\n            <div class=\"px-6 py-4\">\n                <div class=\"relative mb-4\">\n                    <div class=\"relative flex items-center justify-between text-base leading-5 font-semibold\">\n                        <span class=\"text-gray-500\">\n                            Seleziona Categorie\n                        </span>\n                        <button\n                            class=\"flex items-center p-2 bg-white rounded-full shadow hover:text-gray-700 text-md\"\n                            title=\"Clear\"\n                            type=\"reset\"\n                        >\n                            <svg\n                                xmlns=\"http://www.w3.org/2000/svg\"\n                                fill=\"none\"\n                                viewBox=\"0 0 24 24\"\n                                stroke-width=\"1.5\"\n                                stroke=\"currentColor\"\n                                class=\"w-4 h-4\"\n                            >\n                                <path\n                                    stroke-linecap=\"round\"\n                                    stroke-linejoin=\"round\"\n                                    d=\"M12 9.75L14.25 12m0 0l2.25 2.25M14.25 12l2.25-2.25M14.25 12L12 14.25m-2.58 4.92l-6.375-6.375a1.125 1.125 0 010-1.59L9.42 4.83c.211-.211.498-.33.796-.33H19.5a2.25 2.25 0 012.25 2.25v10.5a2.25 2.25 0 01-2.25 2.25h-9.284c-.298 0-.585-.119-.796-.33z\"\n                                ></path>\n                            </svg>\n\n                        </button>\n                    </div>\n                </div>\n                <div class=\"w-full space-y-6\">\n                    <div class=\"w-full\">\n"
-    + ((stack1 = lookupProperty(helpers,"each").call(alias1,(depth0 != null ? lookupProperty(depth0,"categories") : depth0),{"name":"each","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":46,"column":24},"end":{"line":60,"column":33}}})) != null ? stack1 : "")
+  return "<div class=\"lg:flex w-full items-start\">\n    <div class=\"w-full lg:w-auto lg:pr-4 grow\">\n        <c1-table\n            labels=\"Pos,Num,Nome,Categoria,Team,Pen,Tempo\"\n            keys=\"pos,number,name,category,team,pen,diff\"\n            types=\"pos,bolder,as-is,as-is,as-is,penalty,diff\"\n            filterKey=\"name\"\n            orderBy=\"pos\"\n            actionDisabled=\"true\"\n            ref=\"table\"\n        ></c1-table>\n    </div>\n    <div class=\"w-full lg:w-80\">\n        <form class=\"bg-white rounded-lg shadow\" ref=\"selectCategories\">\n\n            <div class=\"px-6 py-4\">\n                <div class=\"relative mb-4\">\n                    <div class=\"relative flex items-center justify-between text-base leading-5 font-semibold\">\n                        <span class=\"text-gray-500\">\n                            Seleziona Categorie\n                        </span>\n                        <button\n                            class=\"flex items-center p-2 bg-white rounded-full shadow hover:text-gray-700 text-md\"\n                            title=\"Clear\"\n                            type=\"reset\"\n                        >\n                            <svg\n                                xmlns=\"http://www.w3.org/2000/svg\"\n                                fill=\"none\"\n                                viewBox=\"0 0 24 24\"\n                                stroke-width=\"1.5\"\n                                stroke=\"currentColor\"\n                                class=\"w-4 h-4\"\n                            >\n                                <path\n                                    stroke-linecap=\"round\"\n                                    stroke-linejoin=\"round\"\n                                    d=\"M12 9.75L14.25 12m0 0l2.25 2.25M14.25 12l2.25-2.25M14.25 12L12 14.25m-2.58 4.92l-6.375-6.375a1.125 1.125 0 010-1.59L9.42 4.83c.211-.211.498-.33.796-.33H19.5a2.25 2.25 0 012.25 2.25v10.5a2.25 2.25 0 01-2.25 2.25h-9.284c-.298 0-.585-.119-.796-.33z\"\n                                ></path>\n                            </svg>\n\n                        </button>\n                    </div>\n                </div>\n                <div class=\"w-full space-y-6\">\n                    <div class=\"w-full\">\n"
+    + ((stack1 = lookupProperty(helpers,"each").call(alias1,(depth0 != null ? lookupProperty(depth0,"categories") : depth0),{"name":"each","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":47,"column":24},"end":{"line":61,"column":33}}})) != null ? stack1 : "")
     + "                    </div>\n                </div>\n                <div class=\"mt-6\">\n                    <div class=\"w-full space-y-6\">\n                        <div class=\"w-full\">\n                            <button\n                                class=\"w-full px-4 py-2 text-base font-semibold text-white bg-gray-500 rounded-lg shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-200\"\n                            >\n                                Applica\n                            </button>\n                        </div>\n                    </div>\n                </div>\n            </div>\n        </form>\n\n        <form class=\"bg-white rounded-lg shadow\" ref=\"selectTeams\">\n\n            <div class=\"px-6 py-4\">\n                <div class=\"relative mb-4\">\n                    <div class=\"relative flex items-center justify-between text-base leading-5 font-semibold\">\n                        <span class=\"text-gray-500\">\n                            Seleziona Team\n                        </span>\n                        <button\n                            class=\"flex items-center p-2 bg-white rounded-full shadow hover:text-gray-700 text-md\"\n                            title=\"Clear\"\n                            type=\"reset\"\n                        >\n                            <svg\n                                xmlns=\"http://www.w3.org/2000/svg\"\n                                fill=\"none\"\n                                viewBox=\"0 0 24 24\"\n                                stroke-width=\"1.5\"\n                                stroke=\"currentColor\"\n                                class=\"w-4 h-4\"\n                            >\n                                <path\n                                    stroke-linecap=\"round\"\n                                    stroke-linejoin=\"round\"\n                                    d=\"M12 9.75L14.25 12m0 0l2.25 2.25M14.25 12l2.25-2.25M14.25 12L12 14.25m-2.58 4.92l-6.375-6.375a1.125 1.125 0 010-1.59L9.42 4.83c.211-.211.498-.33.796-.33H19.5a2.25 2.25 0 012.25 2.25v10.5a2.25 2.25 0 01-2.25 2.25h-9.284c-.298 0-.585-.119-.796-.33z\"\n                                ></path>\n                            </svg>\n\n                        </button>\n                    </div>\n                </div>\n                <div class=\"w-full space-y-6\">\n                    <div class=\"w-full\">\n                        <select\n                            class=\"font-semibold w-full block px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500\"\n                            name=\"selectTeam\"\n                        >\n                            <option value=\"\">\n                                Tutti i Team\n                            </option>\n"
-    + ((stack1 = lookupProperty(helpers,"each").call(alias1,(depth0 != null ? lookupProperty(depth0,"teams") : depth0),{"name":"each","hash":{},"fn":container.program(3, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":117,"column":28},"end":{"line":121,"column":37}}})) != null ? stack1 : "")
+    + ((stack1 = lookupProperty(helpers,"each").call(alias1,(depth0 != null ? lookupProperty(depth0,"teams") : depth0),{"name":"each","hash":{},"fn":container.program(3, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":118,"column":28},"end":{"line":122,"column":37}}})) != null ? stack1 : "")
     + "                        </select>\n                    </div>\n                </div>\n                <div class=\"mt-6\">\n                    <div class=\"w-full space-y-6\">\n                        <div class=\"w-full\">\n                            <button\n                                class=\"w-full px-4 py-2 text-base font-semibold text-white bg-gray-500 rounded-lg shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-200\"\n                            >\n                                Applica\n                            </button>\n                        </div>\n                    </div>\n                </div>\n            </div>\n        </form>\n\n        <div class=\"bg-white rounded-lg shadow\">\n            <div class=\"px-6 py-4\">\n                <div class=\"w-full\">\n                    <button\n                        class=\"w-full px-4 py-2 text-base font-semibold text-white bg-gray-500 rounded-lg shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-200\"\n                        type=\"button\"\n                        ref=\"download\"\n                    >\n                        Scarica CSV\n                    </button>\n                </div>\n                <div class=\"w-full pt-4\">\n                    <button\n                        class=\"w-full px-4 py-2 text-base font-semibold text-white bg-gray-500 rounded-lg shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-200\"\n                        type=\"button\"\n                        ref=\"print\"\n                    >\n                        Stampa\n                    </button>\n                </div>\n            </div>\n        </div>\n\n        <form class=\"bg-white rounded-lg shadow mt-4\" ref=\"uploadPsScore\">\n            <div class=\"px-6 py-4\">\n                <div class=\"relative mt-6\">\n                    <div class=\"relative flex items-center justify-between text-base leading-5 font-semibold\">\n                        <span class=\"text-gray-500\">\n                            Carica PS Score\n                        </span>\n                        <button\n                            class=\"flex items-center p-2 bg-white rounded-full shadow hover:text-gray-700 text-md\"\n                            title=\"Clear\"\n                            type=\"reset\"\n                        >\n                            <svg\n                                xmlns=\"http://www.w3.org/2000/svg\"\n                                fill=\"none\"\n                                viewBox=\"0 0 24 24\"\n                                stroke-width=\"1.5\"\n                                stroke=\"currentColor\"\n                                class=\"w-4 h-4\"\n                            >\n                                <path\n                                    stroke-linecap=\"round\"\n                                    stroke-linejoin=\"round\"\n                                    d=\"M12 9.75L14.25 12m0 0l2.25 2.25M14.25 12l2.25-2.25M14.25 12L12 14.25m-2.58 4.92l-6.375-6.375a1.125 1.125 0 010-1.59L9.42 4.83c.211-.211.498-.33.796-.33H19.5a2.25 2.25 0 012.25 2.25v10.5a2.25 2.25 0 01-2.25 2.25h-9.284c-.298 0-.585-.119-.796-.33z\"\n                                />\n                            </svg>\n                        </button>\n                    </div>\n                </div>\n                <div class=\"mt-6\">\n                    <div class=\"w-full space-y-6\">\n                        <div class=\"w-full\">\n                            <div class=\"relative\">\n                                <input\n                                    type=\"file\"\n                                    class=\"rounded-lg flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-transparent\"\n                                    placeholder=\"File\"\n                                    required\n                                    name=\"file\"\n                                />\n                            </div>\n                        </div>\n                        <div class=\"w-full\">\n\n                            <button\n                                class=\"w-full px-4 py-2 text-base font-semibold text-white bg-gray-500 rounded-lg shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-200\"\n                                type=\"submit\"\n                            >\n                                Carica\n                            </button>\n\n                        </div>\n                    </div>\n                </div>\n            </div>\n        </form>\n    </div>\n</div>";
 },"useData":true});
 
@@ -7740,10 +7878,10 @@ module.exports = (Handlebars["default"] || Handlebars).template({"1":function(co
         return undefined
     };
 
-  return "<div class=\"lg:flex w-full items-start\">\n    <div class=\"w-full lg:w-auto lg:pr-4 grow\">\n        <c1-table\n            labels=\"Pos,Num,Naz,Nome,Categoria,Team,Tempo\"\n            keys=\"pos,number,naz,name,category,team,diff\"\n            filterKey=\"name\"\n            orderBy=\"pos\"\n            actionDisabled=\"true\"\n            ref=\"table\"\n        ></c1-table>\n    </div>\n    <div class=\"w-full lg:w-80\">\n        <form class=\"bg-white rounded-lg shadow\" ref=\"selectCategories\">\n\n            <div class=\"px-6 py-4\">\n                <div class=\"relative mb-4\">\n                    <div class=\"relative flex items-center justify-between text-base leading-5 font-semibold\">\n                        <span class=\"text-gray-500\">\n                            Seleziona categorie\n                        </span>\n                        <button\n                            class=\"flex items-center p-2 bg-white rounded-full shadow hover:text-gray-700 text-md\"\n                            title=\"Clear\"\n                            type=\"reset\"\n                        >\n                            <svg\n                                xmlns=\"http://www.w3.org/2000/svg\"\n                                fill=\"none\"\n                                viewBox=\"0 0 24 24\"\n                                stroke-width=\"1.5\"\n                                stroke=\"currentColor\"\n                                class=\"w-4 h-4\"\n                            >\n                                <path\n                                    stroke-linecap=\"round\"\n                                    stroke-linejoin=\"round\"\n                                    d=\"M12 9.75L14.25 12m0 0l2.25 2.25M14.25 12l2.25-2.25M14.25 12L12 14.25m-2.58 4.92l-6.375-6.375a1.125 1.125 0 010-1.59L9.42 4.83c.211-.211.498-.33.796-.33H19.5a2.25 2.25 0 012.25 2.25v10.5a2.25 2.25 0 01-2.25 2.25h-9.284c-.298 0-.585-.119-.796-.33z\"\n                                ></path>\n                            </svg>\n\n                        </button>\n                    </div>\n                </div>\n                <div class=\"w-full space-y-6\">\n                    <div class=\"w-full\">\n"
-    + ((stack1 = lookupProperty(helpers,"each").call(alias1,(depth0 != null ? lookupProperty(depth0,"categories") : depth0),{"name":"each","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":46,"column":24},"end":{"line":60,"column":33}}})) != null ? stack1 : "")
+  return "<div class=\"lg:flex w-full items-start\">\n    <div class=\"w-full lg:w-auto lg:pr-4 grow\">\n        <c1-table\n            labels=\"Pos,Num,Nome,Categoria,Team,Tempo\"\n            keys=\"pos,number,name,category,team,diff\"\n            types=\"pos,bolder,as-is,as-is,as-is,diff\"\n            filterKey=\"name\"\n            orderBy=\"pos\"\n            actionDisabled=\"true\"\n            ref=\"table\"\n        ></c1-table>\n    </div>\n    <div class=\"w-full lg:w-80\">\n        <form class=\"bg-white rounded-lg shadow\" ref=\"selectCategories\">\n\n            <div class=\"px-6 py-4\">\n                <div class=\"relative mb-4\">\n                    <div class=\"relative flex items-center justify-between text-base leading-5 font-semibold\">\n                        <span class=\"text-gray-500\">\n                            Seleziona categorie\n                        </span>\n                        <button\n                            class=\"flex items-center p-2 bg-white rounded-full shadow hover:text-gray-700 text-md\"\n                            title=\"Clear\"\n                            type=\"reset\"\n                        >\n                            <svg\n                                xmlns=\"http://www.w3.org/2000/svg\"\n                                fill=\"none\"\n                                viewBox=\"0 0 24 24\"\n                                stroke-width=\"1.5\"\n                                stroke=\"currentColor\"\n                                class=\"w-4 h-4\"\n                            >\n                                <path\n                                    stroke-linecap=\"round\"\n                                    stroke-linejoin=\"round\"\n                                    d=\"M12 9.75L14.25 12m0 0l2.25 2.25M14.25 12l2.25-2.25M14.25 12L12 14.25m-2.58 4.92l-6.375-6.375a1.125 1.125 0 010-1.59L9.42 4.83c.211-.211.498-.33.796-.33H19.5a2.25 2.25 0 012.25 2.25v10.5a2.25 2.25 0 01-2.25 2.25h-9.284c-.298 0-.585-.119-.796-.33z\"\n                                ></path>\n                            </svg>\n\n                        </button>\n                    </div>\n                </div>\n                <div class=\"w-full space-y-6\">\n                    <div class=\"w-full\">\n"
+    + ((stack1 = lookupProperty(helpers,"each").call(alias1,(depth0 != null ? lookupProperty(depth0,"categories") : depth0),{"name":"each","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":47,"column":24},"end":{"line":61,"column":33}}})) != null ? stack1 : "")
     + "                    </div>\n                </div>\n                <div class=\"mt-6\">\n                    <div class=\"w-full space-y-6\">\n                        <div class=\"w-full\">\n                            <button\n                                class=\"w-full px-4 py-2 text-base font-semibold text-white bg-gray-500 rounded-lg shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-200\"\n                            >\n                                Applica\n                            </button>\n                        </div>\n                    </div>\n                </div>\n            </div>\n        </form>\n\n        <form class=\"bg-white rounded-lg shadow\" ref=\"selectTeams\">\n\n            <div class=\"px-6 py-4\">\n                <div class=\"relative mb-4\">\n                    <div class=\"relative flex items-center justify-between text-base leading-5 font-semibold\">\n                        <span class=\"text-gray-500\">\n                            Seleziona Team\n                        </span>\n                        <button\n                            class=\"flex items-center p-2 bg-white rounded-full shadow hover:text-gray-700 text-md\"\n                            title=\"Clear\"\n                            type=\"reset\"\n                        >\n                            <svg\n                                xmlns=\"http://www.w3.org/2000/svg\"\n                                fill=\"none\"\n                                viewBox=\"0 0 24 24\"\n                                stroke-width=\"1.5\"\n                                stroke=\"currentColor\"\n                                class=\"w-4 h-4\"\n                            >\n                                <path\n                                    stroke-linecap=\"round\"\n                                    stroke-linejoin=\"round\"\n                                    d=\"M12 9.75L14.25 12m0 0l2.25 2.25M14.25 12l2.25-2.25M14.25 12L12 14.25m-2.58 4.92l-6.375-6.375a1.125 1.125 0 010-1.59L9.42 4.83c.211-.211.498-.33.796-.33H19.5a2.25 2.25 0 012.25 2.25v10.5a2.25 2.25 0 01-2.25 2.25h-9.284c-.298 0-.585-.119-.796-.33z\"\n                                ></path>\n                            </svg>\n\n                        </button>\n                    </div>\n                </div>\n                <div class=\"w-full space-y-6\">\n                    <div class=\"w-full\">\n                        <select\n                            class=\"font-semibold w-full block px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500\"\n                            name=\"selectTeam\"\n                        >\n                            <option value=\"\">\n                                Tutti i Team\n                            </option>\n"
-    + ((stack1 = lookupProperty(helpers,"each").call(alias1,(depth0 != null ? lookupProperty(depth0,"teams") : depth0),{"name":"each","hash":{},"fn":container.program(3, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":117,"column":28},"end":{"line":121,"column":37}}})) != null ? stack1 : "")
+    + ((stack1 = lookupProperty(helpers,"each").call(alias1,(depth0 != null ? lookupProperty(depth0,"teams") : depth0),{"name":"each","hash":{},"fn":container.program(3, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":118,"column":28},"end":{"line":122,"column":37}}})) != null ? stack1 : "")
     + "                        </select>\n                    </div>\n                </div>\n                <div class=\"mt-6\">\n                    <div class=\"w-full space-y-6\">\n                        <div class=\"w-full\">\n                            <button\n                                class=\"w-full px-4 py-2 text-base font-semibold text-white bg-gray-500 rounded-lg shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-200\"\n                            >\n                                Applica\n                            </button>\n                        </div>\n                    </div>\n                </div>\n            </div>\n        </form>\n\n        <div class=\"bg-white rounded-lg shadow\">\n            <div class=\"px-6 py-4\">\n                <div class=\"w-full\">\n                    <button\n                        class=\"w-full px-4 py-2 text-base font-semibold text-white bg-gray-500 rounded-lg shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-200\"\n                        type=\"button\"\n                        ref=\"download\"\n                    >\n                        Scarica CSV\n                    </button>\n                </div>\n                <div class=\"w-full pt-4\">\n                    <button\n                        class=\"w-full px-4 py-2 text-base font-semibold text-white bg-gray-500 rounded-lg shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-200\"\n                        type=\"button\"\n                        ref=\"print\"\n                    >\n                        Stampa\n                    </button>\n                </div>\n            </div>\n        </div>\n    </div>\n</div>";
 },"useData":true});
 
