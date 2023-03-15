@@ -37,7 +37,7 @@ module.exports = {
         /////////////////// OTHERS
         new CompressionPlugin(),
         new MiniCssExtractPlugin({
-            filename: 'style-[contenthash].css',
+            filename: 'style[contenthash].css',
             experimentalUseImportModule: false,
         }),
     ],
