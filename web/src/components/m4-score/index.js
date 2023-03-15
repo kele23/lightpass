@@ -74,7 +74,7 @@ class M4Score extends Component {
             (event) => {
                 event.preventDefault();
                 const data = formToJSON(event.target);
-                this.teams = data.selectTeam ? [data.selectTeam] : null;
+                this.teams = data.selectTeam ? [data.selectTeam] : [];
                 this.table.reload();
             },
             'selectTeams'
