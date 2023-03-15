@@ -5,7 +5,7 @@
 #include <AsyncElegantOTA.h>
 #include <ESPmDNS.h>
 
-const char *ssid = "LightpassV2-S2";
+const char *ssid = "LightpassV2-TMP";
 const char *password = "anatra12";
 
 struct Inter
