@@ -112,7 +112,7 @@ class C1Table extends Component {
                     break;
                 case 'diff':
                     data = data
-                        ? `<span class="underline font-bold">${dateToDiffTimeStr(item[key], true)}</span>`
+                        ? `<span class="font-bold">${dateToDiffTimeStr(item[key], true)}</span>`
                         : null;
                     break;
                 case 'bolder':
