@@ -13,8 +13,9 @@ module.exports = {
     entry: path.resolve(src, 'index.js'),
     output: {
         path: dist,
-        filename: 'bundle-[contenthash].js',
+        filename: 'bundle[contenthash].js',
         clean: true,
+        hashDigestLength: 8
     },
 
     devServer: {
