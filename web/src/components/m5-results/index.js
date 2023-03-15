@@ -67,10 +67,11 @@ class M5Results extends Component {
         );
 
         this._addListener(
-            'click',
+            'submit',
             (event) => {
                 event.preventDefault();
-                this._print();
+                const data = formToJSON(event.target);
+                this._print(data);
             },
             'print'
         );
@@ -99,16 +100,18 @@ class M5Results extends Component {
         window.open(encodeURI(csvContent));
     }
 
-    async _print() {
-        const title = `<h1 class="text-3xl font-bold mb-4 mt-8">Risultati</h1>`;
+    async _print(data) {
+        const title = `<h1 class="text-3xl font-bold mb-4 mt-8">${data.title || 'Risultati'}</h1>`;
         let subtitle = '';
-        if (this.categories.length > 0) {
-            subtitle += `<p class="mt-2 text-lg mb-4">Categorie: <b class="text-xl">${this.categories.join(
-                ' - '
-            )}</b></p>`;
-        }
-        if (this.teams.length > 0) {
-            subtitle += `<p class="mt-2 text-lg mb-4">Team: <b class="text-xl">${this.teams.join(' - ')}</b></p>`;
+        if (!data.subtitle) {
+            if (this.categories.length > 0)
+                subtitle += `<p class="mt-2 text-lg mb-4">Categorie: <b class="text-xl">${this.categories.join(
+                    ' - '
+                )}</b></p>`;
+            if (this.teams.length > 0)
+                subtitle += `<p class="mt-2 text-lg mb-4">Team: <b class="text-xl">${this.teams.join(' - ')}</b></p>`;
+        } else {
+            subtitle += `<p class="mt-2 text-lg mb-4">${data.subtitle}</p>`;
         }
         printTable(title, subtitle, this._ref('printTable').innerHTML);
     }

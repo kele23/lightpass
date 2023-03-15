@@ -13,7 +13,7 @@ module.exports = {
     entry: path.resolve(src, 'index.js'),
     output: {
         path: dist,
-        filename: 'bundle.js',
+        filename: 'bundle-[contenthash].js',
         clean: true,
     },
 
@@ -36,7 +36,7 @@ module.exports = {
         /////////////////// OTHERS
         new CompressionPlugin(),
         new MiniCssExtractPlugin({
-            filename: 'style.css',
+            filename: 'style-[contenthash].css',
             experimentalUseImportModule: false,
         }),
     ],

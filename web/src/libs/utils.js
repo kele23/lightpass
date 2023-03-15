@@ -1,5 +1,8 @@
 ///////////////////////////////////////////////////
 //////////// PROMISIFY EVENT
+
+import { doc } from 'prettier';
+
 ///////////////////////////////////////////////////
 export const buildWaitForEvent = (eventName) => (node) =>
     new Promise((resolve, reject) => {
@@ -383,12 +386,14 @@ export const dateToDiffTimeStr = (ms, withMs = false) => {
 };
 
 export const printTable = (title, subtitle, htmlTable) => {
+    const stylesheet = document.querySelector('link[rel=stylesheet]');
+
     const printWindow = window.open('', '', 'height=800,width=1000');
     printWindow.document.write(`
         <html>
             <head>
                 <title>Print</title>
-                <link rel="stylesheet" type="text/css" href="style.css">
+                <link rel="stylesheet" type="text/css" href="${stylesheet.getAttribute('href')}">
                 <style>
                     @page { margin: 0; }
                     body {

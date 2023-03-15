@@ -123,6 +123,8 @@ class M1Dashboard extends Component {
             const penalty = await C4Penalty.openAndWait('default');
             if (penalty == -1) return;
             this.dbManager.setPenalty(id, penalty);
+            await this.takeTable.reload();
+            await this.scoreTable.reload();
         }
     }
 
