@@ -101,6 +101,7 @@ class M3Runners extends Component {
     }
 
     async deleteRow(id) {
+        await this.dbManager.cleanTakeByRunner({ race: this.raceId, runner: id });
         await this.dbManager.deleteRunner({ id });
         return true;
     }

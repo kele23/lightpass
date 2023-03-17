@@ -142,6 +142,10 @@ class DBManager {
         return await this.db.take.where({ race: parseInt(race), ps: parseInt(ps) }).toArray();
     }
 
+    async getAllTakeByRunner(race, runner) {
+        return await this.db.take.where({ race: parseInt(race), runner: parseInt(runner) }).toArray();
+    }
+
     async createTake({ time, ps, runner, race, pen = 0 }) {
         return await this.db.take.add({
             time: parseInt(time),
@@ -166,6 +170,14 @@ class DBManager {
 
     async cleanTakeByPs({ race, ps }) {
         const array = await this.db.take.where({ race: parseInt(race), ps: parseInt(ps) }).toArray();
+        const ids = array.map((item) => {
+            return item.id;
+        });
+        await this.db.take.bulkDelete(ids);
+    }
+
+    async cleanTakeByRunner({ race, runner }) {
+        const array = await this.db.take.where({ race: parseInt(race), runner: parseInt(runner) }).toArray();
         const ids = array.map((item) => {
             return item.id;
         });
@@ -381,6 +393,21 @@ class DBManager {
     async getGlobalScore(race, categories, teams) {
         let runners = await this.getAllRunner(race);
         if (!runners) return [];
+
+        // sort runners by number for uniformity
+        runners = runners.sort((a, b) => {
+
+            if (a.number == b.number) {
+                return 0;
+            }
+
+            if (a.number < b.number) {
+                return -1;
+            }
+            if (a.number > b.number) {
+                return 1;
+            }
+        });
 
         //filter category
         if (categories && categories.length > 0) {

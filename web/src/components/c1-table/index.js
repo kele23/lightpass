@@ -108,13 +108,18 @@ class C1Table extends Component {
                         item[key] && item[key] != 0 ? `${Math.sign(item[key]) > 0 ? '+' : '-'}${item[key]} sec` : null;
                     break;
                 case 'time':
-                    data = item[key] ? `<span title="${dateToStr(item[key], true)}">${dateToTime(item[key], true)}</span>` : null;
+                    data = item[key]
+                        ? `<span title="${dateToStr(item[key], true)}">${dateToTime(item[key], true)}</span>`
+                        : null;
                     break;
                 case 'diff':
                     data = data ? `<span class="font-bold">${dateToDiffTimeStr(item[key], true)}</span>` : null;
                     break;
                 case 'bolder':
                     data = '<span class="font-bold">' + data + '</span>';
+                    break;
+                case 'smaller':
+                    data = data ? '<span class="text-xs">' + data + '</span>' : null;
                     break;
                 case 'pos':
                     data =

@@ -17,7 +17,7 @@
 
         <div ref="scoreTableDiv" class="mt-8 {{#unless selectedPs}}hidden{{/unless}}">
             <c1-table tabindex="0"
-                labels="Num,Nome,Start,End,Penalità,Tempo,Stato"
+                labels="Num,Nome,Start,End,Pen,Tempo,Stato"
                 keys="assigned,assignedName,start,assignedTime,pen,diff,status"
                 types="bolder,as-is,time,time,penalty,diff,as-is"
                 filterKey="assignedName,assigned"
@@ -31,7 +31,7 @@
 
         <div class="mt-8">
             <c1-table tabindex="0"
-                labels="Num,Nome,PS,End,Penalità"
+                labels="Num,Nome,PS,End,Pen"
                 keys="assigned,assignedName,assignedPs,assignedTime,pen"
                 types="bolder,as-is,as-is,date-time,penalty"
                 filterKey="assignedName,assigned"
@@ -107,18 +107,11 @@
                 </div>
                 <div class="mt-6">
                     <div class="w-full space-y-6">
-                        <div class="w-full">
-                            <div class="relative">
-                                <input
-                                    type="text"
-                                    class="rounded-lg flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-transparent"
-                                    required
-                                    placeholder="Time ID"
-                                    name="id"
-                                    readonly
-                                />
-                            </div>
-                        </div>
+                        <input
+                            type="hidden"
+                            required
+                            name="id"
+                        />
                         <div class="w-full">
                             <div class="relative">
                                 <input

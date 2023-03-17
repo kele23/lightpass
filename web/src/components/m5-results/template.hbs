@@ -1,7 +1,7 @@
 <div class="lg:flex w-full items-start">
     <div class="w-full lg:w-auto lg:pr-4 grow">
         <c1-table
-            labels="Pos,Num,Nome,Categoria,Team,Tempo"
+            labels="Pos,Num,Nome,Cat,Team,Tempo"
             keys="pos,number,name,category,team,diff"
             types="pos,bolder,as-is,as-is,as-is,diff"
             filterKey="name,number"
@@ -12,9 +12,9 @@
 
         <c1-table
             class="hidden"
-            labels="Pos,Num,Nome,Categoria,Team,UCI,FCI,Soc,Naz,Tempo"
+            labels="Pos,Num,Nome,Cat,Team,UCI,FCI,Soc,Naz,Tempo"
             keys="pos,number,name,category,team,uci,fci,soc,naz,diff"
-            types="pos,bolder,as-is,as-is,as-is,as-is,as-is,as-is,as-is,diff"
+            types="pos,bolder,smaller,smaller,smaller,smaller,smaller,smaller,smaller,diff"
             filterKey="name,number"
             orderBy="pos"
             actionDisabled="true"

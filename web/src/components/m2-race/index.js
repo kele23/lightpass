@@ -109,7 +109,10 @@ class M2Race extends Component {
     }
 
     async deleteRow(id) {
+        await this.dbManager.cleanTakeByPs({ race: this.raceId, ps: id });
         await this.dbManager.deletePS({ id });
+
+        this._emit('psChange', true);
         return true;
     }
 
