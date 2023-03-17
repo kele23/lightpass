@@ -260,7 +260,7 @@ class DBManager {
             }
         }
 
-        return result.slice(Math.max(0, firstTakeIndex - 3));
+        return result.slice(Math.max(0, firstTakeIndex - 5));
     }
 
     async getAllCategories(race) {

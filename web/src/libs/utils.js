@@ -337,7 +337,7 @@ export const readFileAsync = (file) => {
 export const dateToStr = (ms, withMs = false) => {
     if (!ms) return;
     const date = new Date(ms);
-    const str = date.toLocaleString();
+    const str = date.toLocaleString('it-IT');
     if (withMs) {
         return str + ' ' + String(date.getMilliseconds()).padStart(3, '0');
     }
