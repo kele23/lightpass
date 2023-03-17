@@ -116,7 +116,7 @@ class C1Table extends Component {
                     data = data ? `<span class="font-bold">${dateToDiffTimeStr(item[key], true)}</span>` : null;
                     break;
                 case 'bolder':
-                    data = '<span class="font-bold">' + data + '</span>';
+                    data = data ? '<span class="font-bold">' + data + '</span>' : null;
                     break;
                 case 'smaller':
                     data = data ? '<span class="text-xs">' + data + '</span>' : null;
