@@ -137,6 +137,9 @@ class M1Dashboard extends Component {
         // check focus
         if (this.assignTime.contains(document.activeElement)) return;
 
+        // check focus on modals
+        if (document.activeElement.closest('[data-modal=true]')) return;
+
         // configure form
         this._setTime(time);
     }

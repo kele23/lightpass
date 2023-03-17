@@ -1,3 +1,4 @@
+import C5CustomTime from '../components/c5-customtime';
 import { getDBManager } from './db-manager';
 import { getStoreManager } from './store-manager';
 
@@ -62,7 +63,9 @@ class EventService {
 
     _addFakeListeners() {
         document.body.addEventListener('keypress', (e) => {
-            if (e.code == 'BracketRight' || e.code == 'NumpadAdd') this._sendEvent(new Date());
+            if (e.code == 'BracketRight' || e.code == 'NumpadAdd')
+                if (e.shiftKey) this._customTime();
+                else this._sendEvent(new Date());
         });
     }
 
@@ -92,6 +95,11 @@ class EventService {
         const timeData = await this.dbManager.getTimeJoin(time);
         const custom = new CustomEvent('take-event', { detail: { time: timeData } });
         document.body.dispatchEvent(custom);
+    }
+
+    async _customTime() {
+        const takedDate = await C5CustomTime.openAndWait('default');
+        if (takedDate) this._sendEvent(takedDate);
     }
 }
 

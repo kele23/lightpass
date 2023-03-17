@@ -1,6 +1,6 @@
 <tr data-id="{{id}}" class="odd:bg-white even:bg-slate-50">
     {{#each data}}
-        <td class="px-2 py-3 text-sm border-b border-gray-200">
+        <td class="px-2 py-2 text-sm border-b border-gray-200 print:py-0">
             <p class="text-gray-900 whitespace-no-wrap print:text-xs">
                 {{#equals key "status"}}
                     {{#equals data "next"}}
@@ -28,7 +28,7 @@
         </td>
     {{/each}}
     {{#unless actionDisabled}}
-        <td class="px-2 py-3 text-sm border-b border-gray-200">
+        <td class="px-2 py-2 text-sm border-b border-gray-200 print:py-0">
             <div class="flex flew-row justify-end">
                 {{#if editEnabled}}
                     <button

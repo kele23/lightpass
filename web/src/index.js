@@ -13,6 +13,7 @@ import M4Score from './components/m4-score';
 import C3Confirm from './components/c3-confirm';
 import M5Results from './components/m5-results';
 import C4Penalty from './components/c4-penalty';
+import C5CustomTime from './components/c5-customtime';
 
 (async () => {
     // layout
@@ -30,6 +31,7 @@ import C4Penalty from './components/c4-penalty';
     customElements.define('c2-nav', C2Nav);
     customElements.define('c3-confirm', C3Confirm);
     customElements.define('c4-penalty', C4Penalty);
+    customElements.define('c5-customtime', C5CustomTime);
 
     //start event service
     getEventService().start();
