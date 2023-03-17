@@ -55,7 +55,7 @@ void configureEvents()
 void IRAM_ATTR isr()
 {
     unsigned long current = millis();
-    if (current - inter.time > 300)
+    if (!inter.rised && (current - inter.time) > 300)
     {
         inter.time = current;
         inter.rised = true;
