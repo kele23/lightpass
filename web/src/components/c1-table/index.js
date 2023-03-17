@@ -97,7 +97,11 @@ class C1Table extends Component {
         for (let i = 0; i < this.keys.length; i++) {
             const key = this.keys[i];
             const type = this.types[i] || 'as-is';
+
             let data = item[key];
+            if (key.indexOf('/') > 0) {
+                data = key.split('/').map((k) => item[k]);
+            }
 
             switch (type) {
                 case 'date-time':
@@ -119,11 +123,26 @@ class C1Table extends Component {
                     data = data ? '<span class="font-bold">' + data + '</span>' : null;
                     break;
                 case 'smaller':
-                    data = data ? '<span class="text-xs">' + data + '</span>' : null;
+                    data = data ? '<span class="text-xs print:text-2xs">' + data + '</span>' : null;
+                    break;
+                case 'p-a':
+                    if (data[1])
+                        data = `<span class="text-xs print:text-2xs" title="${dateToStr(data[0], true)} / ${dateToStr(
+                            data[1],
+                            true
+                        )}">${dateToTime(data[0])} / ${dateToTime(data[1], true)}</span>`;
+                    else
+                        data = `<span class="text-xs print:text-2xs" title="${dateToStr(
+                            data[0],
+                            true
+                        )} / NA">${dateToTime(data[0])} / NA</span>`;
+                    break;
+                case 'print-smaller':
+                    data = data ? '<span class="print:text-2xs">' + data + '</span>' : null;
                     break;
                 case 'pos':
                     data =
-                        '<span class="font-bold inline-block rounded-md min-w-[42px] px-2 bg-white border text-center text-red-700 text-base">' +
+                        '<span class="font-bold inline-block rounded-md min-w-[42px] px-2 print:px-1 bg-white border text-center text-red-700 text-base print:text-sm">' +
                         data +
                         '</span>';
             }
