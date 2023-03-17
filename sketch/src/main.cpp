@@ -32,7 +32,7 @@ void configureServer()
     // Route to files
     AsyncStaticWebHandler *handler = &server.serveStatic("/", SPIFFS, "/");
     handler->setDefaultFile("index.html");
-    handler->setCacheControl("max-age=300");
+    handler->setCacheControl("max-age=86400");
 }
 
 /**
