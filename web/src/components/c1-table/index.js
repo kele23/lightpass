@@ -18,7 +18,6 @@ class C1Table extends Component {
     async _init() {
         // static props
         const labels = this.getAttribute('labels').split(',');
-        const filterKey = this.getAttribute('filterKey');
         const title = this.getAttribute('title');
         const hideCount = this.getAttribute('hideCount');
 
@@ -30,6 +29,7 @@ class C1Table extends Component {
         this.types = this.getAttribute('types').split(',');
         this.orderBy = this.getAttribute('orderBy');
         this.orderDir = this.getAttribute('orderDir') || 'asc';
+        this.filterKey = this.getAttribute('filterKey')?.split(',') || null;
 
         // get rows and generate
         const parent = this._parent();
@@ -39,7 +39,7 @@ class C1Table extends Component {
         const data = {
             labels,
             rowsHtmls,
-            filterKey,
+            filterKey: this.filterKey,
             title,
             hideCount,
             actionDisabled: this.actionDisabled,
@@ -84,7 +84,7 @@ class C1Table extends Component {
                 'submit',
                 (event) => {
                     event.preventDefault();
-                    this.currentFilter = formToJSON(event.target);
+                    this.currentFilter = formToJSON(event.target)['filter'];
                     const rowsHtmlsJoin = this._generateRows().join('');
                     this.tableBody.innerHTML = rowsHtmlsJoin;
                 },
@@ -111,9 +111,7 @@ class C1Table extends Component {
                     data = dateToTime(item[key], true);
                     break;
                 case 'diff':
-                    data = data
-                        ? `<span class="font-bold">${dateToDiffTimeStr(item[key], true)}</span>`
-                        : null;
+                    data = data ? `<span class="font-bold">${dateToDiffTimeStr(item[key], true)}</span>` : null;
                     break;
                 case 'bolder':
                     data = '<span class="font-bold">' + data + '</span>';
@@ -133,14 +131,14 @@ class C1Table extends Component {
     _generateRows() {
         let finalRows = this.rows;
         // filter data
-        if (this.currentFilter) {
-            for (const key of Object.keys(this.currentFilter)) {
-                finalRows = finalRows.filter((item) => {
-                    var regex = new RegExp(this.currentFilter[key], 'i');
+        if (this.currentFilter && this.filterKey) {
+            const regex = new RegExp(this.currentFilter, 'i');
+            finalRows = finalRows.filter((item) => {
+                for (const key of this.filterKey) {
                     if (regex.test(item[key])) return true;
-                    return false;
-                });
-            }
+                }
+                return false;
+            });
         }
 
         // order data
