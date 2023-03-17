@@ -18,6 +18,7 @@ class M5Results extends Component {
         // load raceId
         const selectedRace = getStoreManager().get('selectedRace');
         this.raceId = selectedRace.race;
+        this.tableVersion = '';
 
         this.categories = [];
         this.teams = [];
@@ -33,7 +34,9 @@ class M5Results extends Component {
         this.appendChild(htmlDoc.body.firstElementChild);
 
         //get table
-        this.table = this._ref('table');
+        this.resultsTable = this._ref('results');
+        this.uciTable = this._ref('uciResults');
+        this.currentTable = this.resultsTable;
 
         this._addListener(
             'click',
@@ -50,7 +53,8 @@ class M5Results extends Component {
                 event.preventDefault();
                 const data = formToJSON(event.target);
                 this.categories = Object.keys(data);
-                this.table.reload();
+                this.resultsTable.reload();
+                this.uciTable.reload();
             },
             'selectCategories'
         );
@@ -61,9 +65,28 @@ class M5Results extends Component {
                 event.preventDefault();
                 const data = formToJSON(event.target);
                 this.teams = data.selectTeam ? [data.selectTeam] : [];
-                this.table.reload();
+                this.resultsTable.reload();
+                this.uciTable.reload();
             },
             'selectTeams'
+        );
+
+        this._addListener(
+            'change',
+            (event) => {
+                event.preventDefault();
+                const value = event.target.value;
+                if (value == 'uci') {
+                    this.currentTable = this.uciTable;
+                    this.uciTable.classList.remove('hidden');
+                    this.resultsTable.classList.add('hidden');
+                } else {
+                    this.currentTable = this.resultsTable;
+                    this.uciTable.classList.add('hidden');
+                    this.resultsTable.classList.remove('hidden');
+                }
+            },
+            'tableVersion'
         );
 
         this._addListener(
@@ -113,7 +136,9 @@ class M5Results extends Component {
         } else {
             subtitle += `<p class="mt-2 text-lg mb-4">${data.subtitle}</p>`;
         }
-        printTable(title, subtitle, this._ref('printTable').innerHTML);
+
+        const table = this.currentTable.querySelector('[ref=printTable]');
+        printTable(title, subtitle, table.innerHTML);
     }
 }
 

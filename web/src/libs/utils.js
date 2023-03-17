@@ -388,7 +388,7 @@ export const dateToDiffTimeStr = (ms, withMs = false) => {
 export const printTable = (title, subtitle, htmlTable) => {
     const stylesheet = document.querySelector('link[rel=stylesheet]');
 
-    const printWindow = window.open('', '', 'height=800,width=1000');
+    const printWindow = window.open('', '', 'height=1000,width=800');
     printWindow.document.write(`
         <html>
             <head>

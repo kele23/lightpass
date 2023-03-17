@@ -7,10 +7,43 @@
             filterKey="name,number"
             orderBy="pos"
             actionDisabled="true"
-            ref="table"
+            ref="results"
+        ></c1-table>
+
+        <c1-table
+            class="hidden"
+            labels="Pos,Num,Nome,Categoria,Team,UCI,FCI,Soc,Naz,Tempo"
+            keys="pos,number,name,category,team,uci,fci,soc,naz,diff"
+            types="pos,bolder,as-is,as-is,as-is,as-is,as-is,as-is,as-is,diff"
+            filterKey="name,number"
+            orderBy="pos"
+            actionDisabled="true"
+            ref="uciResults"
         ></c1-table>
     </div>
-    <div class="w-full lg:w-80">
+    <div class="w-full lg:w-80 shrink-0 grow-0">
+
+        <div class="bg-white rounded-lg shadow transition-colors mb-4">
+
+            <div class="px-6 py-4">
+                <div class="w-full space-y-6">
+                    <div class="w-full">
+                        <select
+                            class="font-semibold w-full block px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                            ref="tableVersion"
+                        >
+                            <option value="">
+                                Versione Standard
+                            </option>
+                            <option value="uci">
+                                Versione UCI
+                            </option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <form class="bg-white rounded-lg shadow" ref="selectCategories">
 
             <div class="px-6 py-4">
@@ -186,21 +219,6 @@
                             placeholder="Sottotitolo"
                             name="subtitle"
                         />
-                    </div>
-                </div>
-                <div class="w-full mt-4">
-                    <div class="relative">
-                        <input
-                            id="checkbox--uci"
-                            name="uci"
-                            type="checkbox"
-                            value="true"
-                            class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                        />
-                        <label
-                            for="checkbox--uci"
-                            class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-                        >Versione UCI</label>
                     </div>
                 </div>
                 <div class="mt-6">
