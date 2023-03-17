@@ -5,8 +5,8 @@
     "main": "index.js",
     "scripts": {
         "serve": "webpack-dev-server --config webpack.conf.js --progress",
-        "build": "webpack --config webpack.conf.js && cp -v ./dist/* ../sketch/data && cp -v ./dist/* ../docs",
-        "analyze": "webpack --config webpack.conf.js --profile --json > ./stats.json && webpack-bundle-analyzer ./stats.json -h 0.0.0.0"
+        "build": "webpack --config webpack.build.conf.js && cp -v ./dist/* ../sketch/data && cp -v ./dist/* ../docs",
+        "analyze": "webpack --config webpack.build.conf.js --profile --json > ./stats.json && webpack-bundle-analyzer ./stats.json -h 0.0.0.0"
     },
     "author": "",
     "license": "ISC",

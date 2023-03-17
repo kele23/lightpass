@@ -8,8 +8,7 @@ const dist = path.resolve(__dirname, './dist');
 
 module.exports = {
     target: ['web'],
-    mode: 'development',
-    devtool: 'source-map',
+    mode: 'production',
 
     entry: path.resolve(src, 'index.js'),
     output: {
