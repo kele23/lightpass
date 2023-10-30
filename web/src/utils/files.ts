@@ -1,14 +1,12 @@
 ///////////////////////////////////// FILE READ
-export const readFileAsync = (file) => {
+export const readFileAsync = (file: File) => {
     return new Promise((resolve, reject) => {
         let reader = new FileReader();
-
         reader.onload = () => {
-            resolve(reader.result);
+            resolve(reader.result as ArrayBuffer);
         };
 
         reader.onerror = reject;
-
         reader.readAsArrayBuffer(file);
     });
 };
