@@ -1,57 +1,21 @@
 #include <Arduino.h>
-#include "WiFi.h"
-#include "ESPAsyncWebServer.h"
-#include "SPIFFS.h"
-#include <AsyncElegantOTA.h>
-#include <ESPmDNS.h>
+#include <WebManager.h>
+#include <BleManager.h>
 
-const char *ssid = "LightpassV2-TMP";
-const char *password = "anatra12";
+#define PIN 16
 
+BleManager bleManager;
+WebManager webManager;
+
+///// INTERRUPT
 struct Inter
 {
-    const uint8_t PIN;
     bool rised;
     unsigned long time;
 };
 
-Inter inter = {34, false, millis()};
+Inter inter;
 
-// server
-AsyncWebServer server(80);
-AsyncEventSource events("/events");
-
-/**
- * Configure the server
- */
-void configureServer()
-{
-
-    AsyncElegantOTA.begin(&server); // Start ElegantOTA
-
-    // Route to files
-    AsyncStaticWebHandler *handler = &server.serveStatic("/", SPIFFS, "/");
-    handler->setDefaultFile("index.html");
-    handler->setCacheControl("max-age=86400");
-}
-
-/**
- * Configure server events
- */
-void configureEvents()
-{
-    events.onConnect([](AsyncEventSourceClient *client)
-                     { 
-                    char mystr[40];
-                    sprintf(mystr,"%lu", millis());
-                    client->send(mystr, "init-event", millis(), 1000); });
-
-    server.addHandler(&events);
-}
-
-/**
- * Interrupt service routine
- */
 void IRAM_ATTR isr()
 {
     unsigned long current = millis();
@@ -69,10 +33,13 @@ void IRAM_ATTR isr()
 void setup()
 {
     Serial.begin(115200);
-
-    // begin input
-    pinMode(inter.PIN, INPUT_PULLUP);
-    attachInterrupt(inter.PIN, isr, RISING);
+    Serial.println(
+"  _      _____ _____ _    _ _______ _____         _____ _____ \n"
+" | |    |_   _/ ____| |  | |__   __|  __ \\ /\\    / ____/ ____|\n"
+" | |      | || |  __| |__| |  | |  | |__) /  \\  | (___| (___  \n"
+" | |      | || | |_ |  __  |  | |  |  ___/ /\\ \\  \\___ \\___ \\ \n"
+" | |____ _| || |__| | |  | |  | |  | |  / ____ \\ ____) |___) |\n"
+" |______|_____\\_____|_|  |_|  |_|  |_| /_/    \\_\\_____/_____/ \n");
 
     // begin data storage
     if (!SPIFFS.begin(true))
@@ -80,22 +47,27 @@ void setup()
         return;
     }
 
-    // start wifi
-    WiFi.softAP(ssid, password);
-
-    // lightpass mDNS
-    if (!MDNS.begin("lightpass"))
+    uint32_t chipId = 0;
+    for (int i = 0; i < 17; i = i + 8)
     {
-        return;
+        chipId |= ((ESP.getEfuseMac() >> (40 - i)) & 0xff) << i;
     }
 
-    // print ip
-    Serial.println(WiFi.softAPIP());
+    String chipIdStr = String(chipId, HEX);
+    chipIdStr.toUpperCase();
 
-    // Start server
-    configureServer();
-    configureEvents();
-    server.begin();
+    // input
+    inter = Inter({false, millis()});
+    pinMode(PIN, INPUT_PULLUP);
+    attachInterrupt(digitalPinToInterrupt(PIN), isr, FALLING);
+
+    // bluetooth
+    bleManager.setup("Lightpass ESP32 (" + chipIdStr + ")");
+
+    // web - wifi
+    webManager.setup("Lightpass ESP32 (" + chipIdStr + ")", String("anatra12"));
+
+    Serial.println("PG - Started");
 }
 
 void loop()
@@ -103,12 +75,8 @@ void loop()
 
     if (inter.rised)
     {
-        Serial.printf("Rised at %lu\n", inter.time);
-
-        char mystr[40];
-        sprintf(mystr, "%lu", inter.time);
-        events.send(mystr, "take-event", millis());
-
+        bleManager.addTime(inter.time);
+        Serial.printf("PG - New time %lu\n", inter.time);
         inter.rised = false;
     }
 }
