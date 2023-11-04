@@ -8,6 +8,12 @@ void WebManager::setup(String defaultSSID, String defaultPasswd)
     if (!connectWifi(config.ssid, config.password))
         createAP(defaultSSID, defaultPasswd);
 
+    // mDNS
+    if (!MDNS.begin("lightpass"))
+    {
+        Serial.println("PG - Error setting up MDNS responder!");
+    }
+
     server = new AsyncWebServer(80);
 
     // Start ElegantOTA

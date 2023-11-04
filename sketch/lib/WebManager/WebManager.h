@@ -4,6 +4,7 @@
 #include <ESPmDNS.h>
 #include <ArduinoJson.h>
 #include "SPIFFS.h"
+#include <ESPmDNS.h>
 
 struct Config
 {
