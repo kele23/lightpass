@@ -1,47 +1,50 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
-import { useDB } from '../composable/useDB';
-import { IDItem } from '../interfaces/db';
+import { IDItem } from '../interfaces/db.js';
 import X001Table from './X001Table.vue';
-import X200Widget from './X200Widget.vue';
 
 /////////////////////////////////////////////////////
-const {
-    db,
-    id,
-    p2pConnected,
-    p2pConnectTo,
-    p2pDoPull,
-    p2pDoPush,
-    p2pDoSync,
-    clientDoPull,
-    clientDoPush,
-    clientDoSync,
-} = useDB();
+import { SyncHttpClient } from '@kele23/levelshare-httpclient';
+import { SyncP2PPeerJS } from '@kele23/levelshare-peerjs';
+import { ref, shallowRef, watch } from 'vue';
+import { db } from '../services/db.js';
+import X200Widget from './X200Widget.vue';
 
-const peerInput = ref<HTMLInputElement>();
-const change = ref(1);
-const rows = ref([] as IDItem[]);
+const rows = shallowRef();
+const httpClient = new SyncHttpClient(db, 'http://localk:3000');
+const p2pClient = new SyncP2PPeerJS(db);
+
+const p2pInput = ref<HTMLInputElement | null>(null);
+
+const reset = ref(1);
 
 watch(
-    [change],
+    [reset],
     async () => {
-        const iterator = db.iterator({ valueEncoding: 'utf-8' });
+        const iterator = db.iterator({ keyEncoding: 'utf-8', valueEncoding: 'utf-8' });
         const tmp = [] as IDItem[];
         for await (const [key, value] of iterator) {
-            if (key.indexOf('binary') >= 0) continue;
-
             const row = {
                 _id: key,
                 value,
             } as IDItem;
-
             tmp.push(row);
         }
-        return (rows.value = tmp);
+        rows.value = tmp;
     },
     { immediate: true }
 );
+
+const sync = async () => {
+    await httpClient.sync();
+    reset.value++;
+};
+
+const syncP2P = async () => {
+    const id = p2pInput.value?.value;
+    if (!id) return;
+    await p2pClient.sync({ peerId: id, continuous: false, iterval: 0 });
+    reset.value++;
+};
 </script>
 
 <template>
@@ -59,37 +62,19 @@ watch(
         </div>
 
         <div class="flex gap-4">
-            <X200Widget v-if="!p2pConnected">
-                <div>P2P</div>
-                <div>
-                    {{ id }}
-                </div>
-                <div class="w-full">
-                    <input
-                        ref="peerInput"
-                        type="text"
-                        class="input-bordered input w-full max-w-xs"
-                        placeholder="Other PEER ID"
-                        name="otherPeer"
-                    />
-                </div>
-                <div class="mt-4 w-full">
-                    <button class="btn-primary btn" type="button" @click="p2pConnectTo(peerInput?.value!)">
-                        Connect
-                    </button>
-                </div>
-            </X200Widget>
-            <X200Widget v-if="p2pConnected">
-                <div>P2P</div>
-                <button class="btn-primary btn mr-4" type="button" @click="p2pDoPull">PULL</button>
-                <button class="btn-primary btn mr-4" type="button" @click="p2pDoPush">PUSH</button>
-                <button class="btn-primary btn" type="button" @click="p2pDoSync">SYNC</button>
+            <X200Widget>
+                <div>Sync HTTP</div>
+                <button class="btn-primary btn mr-4 mt-4" type="button" @click="sync">Sync</button>
             </X200Widget>
             <X200Widget>
-                <div>Client</div>
-                <button class="btn-primary btn mr-4" type="button" @click="clientDoPull">PULL</button>
-                <button class="btn-primary btn mr-4" type="button" @click="clientDoPush">PUSH</button>
-                <button class="btn-primary btn" type="button" @click="clientDoSync">SYNC</button>
+                <div>Sync P2P</div>
+                <input
+                    type="text"
+                    placeholder="Insert other peer id"
+                    class="input-bordered input mt-4 w-full max-w-xs"
+                    ref="p2pInput"
+                />
+                <button class="btn-primary btn mr-4 mt-4" type="button" @click="syncP2P">Sync</button>
             </X200Widget>
         </div>
     </div>

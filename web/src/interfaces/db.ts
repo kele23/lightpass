@@ -33,6 +33,7 @@ export interface Take extends IDItem {
     runner: string;
     ps: string;
     type: TakeType;
+    pen?: number;
 }
 
 export interface Runner extends IDItem {

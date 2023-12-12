@@ -1,9 +1,9 @@
 import { ref, watch } from 'vue';
-import { PS } from '../interfaces/db';
-import { cleanKey, getPsLevel, getTakesLevel } from '../services/db';
-import { _t } from '../services/dictionary';
-import useToasterStore from '../stores/toaster';
-import { useRace } from './useRace';
+import { PS } from '../interfaces/db.ts';
+import { cleanKey, getPsLevel, getTakesLevel } from '../services/db.ts';
+import { _t } from '../services/dictionary.ts';
+import useToasterStore from '../stores/toaster.ts';
+import { useRace } from './useRace.ts';
 
 export function usePS() {
     const toasterStore = useToasterStore();

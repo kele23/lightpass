@@ -1,9 +1,8 @@
-import { LevelLogged } from '@kele23/level-sync';
 import { AbstractLevel } from 'abstract-level';
-import { Level } from 'level';
-import { PS, Runner, Take, TakeType, Time } from '../interfaces/db';
+import { ShareLevel } from '@kele23/levelshare';
+import { PS, Runner, Take, TakeType, Time } from '../interfaces/db.ts';
 
-export const db = new LevelLogged(new Level<string, any>('./db'));
+export const db = new ShareLevel('./db');
 export const lightpassLevel = db.sublevel<string, any>(`lightpass`, { valueEncoding: 'json' });
 export const timesLevel = lightpassLevel.sublevel<string, Time>(`times`, { valueEncoding: 'json' });
 

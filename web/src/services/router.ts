@@ -7,11 +7,13 @@ import M004Score from '../components/M004Score.vue';
 import M005GlobalScore from '../components/M005GlobalScore.vue';
 import M006Device from '../components/M006Device.vue';
 import M900DbView from '../components/M900DbView.vue';
+import M901NotFound from '../components/M901NotFound.vue';
 import L001Main from '../components/L001Main.vue';
 import { useStoreRace } from '../stores/race';
 import { _t } from './dictionary';
 
 const routes = [
+    { path: '/:pathMatch(.*)*', component: M901NotFound, meta: { title: _t('Not Found') } },
     {
         path: '/',
         component: L001Main,

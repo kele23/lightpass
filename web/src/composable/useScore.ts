@@ -1,9 +1,9 @@
 import { MaybeRefOrGetter, ref, toValue, watch } from 'vue';
-import { PS } from '../interfaces/db';
-import { Score } from '../interfaces/score';
-import { getTakesLevel } from '../services/db';
-import { useRace } from './useRace';
-import { calculateScore, scoreSorter } from '../utils/score';
+import { PS } from '../interfaces/db.ts';
+import { Score } from '../interfaces/score.ts';
+import { getTakesLevel } from '../services/db.ts';
+import { useRace } from './useRace.ts';
+import { calculateScore, scoreSorter } from '../utils/score.ts';
 
 export function useScore(selectedPS: MaybeRefOrGetter<PS | undefined>) {
     const { currentRace } = useRace();

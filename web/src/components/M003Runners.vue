@@ -3,10 +3,10 @@ import { BackspaceIcon } from '@heroicons/vue/24/solid';
 import { useConfirmDialog } from '@vueuse/core';
 // @ts-ignore
 import { parse } from 'papaparse';
-import { useRunners } from '../composable/useRunners';
-import { Runner } from '../interfaces/db';
-import { _t } from '../services/dictionary';
-import { readFileAsync } from '../utils/files';
+import { useRunners } from '../composable/useRunners.ts';
+import { Runner } from '../interfaces/db.ts';
+import { _t } from '../services/dictionary.ts';
+import { readFileAsync } from '../utils/files.ts';
 import L002MainInternal from './L002MainInternal.vue';
 import X001Table from './X001Table.vue';
 import X200Widget from './X200Widget.vue';
@@ -53,10 +53,9 @@ async function uploadCsv(event: SubmitEvent) {
     //add item
     const rows = results.data as object[];
     for (const row of rows) {
-        // @ts-expect-error
         await addRunner({
             ...row,
-        });
+        } as Runner);
     }
     //reset
     form.reset();
@@ -169,7 +168,7 @@ async function uploadCsv(event: SubmitEvent) {
             <X200Widget>
                 <form @submit.prevent="uploadCsv($event as SubmitEvent)">
                     <div class="flex items-center justify-between">
-                        <span class="font-bold"> {{ _t('Assign') }} </span>
+                        <span class="font-bold"> {{ _t('Upload Runners') }} </span>
                         <button class="btn" title="Clear" type="reset">
                             <BackspaceIcon class="h-6 w-6" />
                         </button>

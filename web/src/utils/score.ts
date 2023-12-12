@@ -1,6 +1,6 @@
-import { Order, PS, Race, Runner, Take, TakeType } from '../interfaces/db';
-import { GlobalScore, Score } from '../interfaces/score';
-import { getPsLevel, getRunnersLevel, getTakesLevel } from '../services/db';
+import { Order, PS, Race, Runner, Take, TakeType } from '../interfaces/db.ts';
+import { GlobalScore, Score } from '../interfaces/score.ts';
+import { getPsLevel, getRunnersLevel, getTakesLevel } from '../services/db.ts';
 
 export async function calculateScore(ps: PS, currentRace: Race): Promise<Score[]> {
     const takesLevel = getTakesLevel(currentRace._id!);
@@ -55,6 +55,12 @@ export async function calculateScore(ps: PS, currentRace: Race): Promise<Score[]
         lastRunner = runner;
     }
 
+    // sort and write pos
+    const tmpSorted = [...tmp].sort(scoreSorter);
+    for (let i = 0; i < tmpSorted.length; i++) {
+        tmpSorted[i].pos = tmpSorted[i].diff ? i + 1 : undefined;
+    }
+
     return tmp;
 }
 
@@ -99,6 +105,12 @@ export async function calculateGlobalScore(race: Race): Promise<GlobalScore[]> {
                 }
             }
         }
+    }
+
+    // sort and write pos
+    const tmpSorted = [...result].sort(scoreSorter);
+    for (let i = 0; i < tmpSorted.length; i++) {
+        tmpSorted[i].pos = tmpSorted[i].diff ? i + 1 : undefined;
     }
 
     return result;

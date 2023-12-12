@@ -1,7 +1,7 @@
 import { ref, watch } from 'vue';
-import { GlobalScore } from '../interfaces/score';
-import { calculateGlobalScore, scoreSorter } from '../utils/score';
-import { useRace } from './useRace';
+import { GlobalScore } from '../interfaces/score.ts';
+import { calculateGlobalScore, scoreSorter } from '../utils/score.ts';
+import { useRace } from './useRace.ts';
 
 export function useGlobalScore() {
     const { currentRace } = useRace();

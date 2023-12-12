@@ -1,19 +1,21 @@
 <script setup lang="ts">
 import { useRouteParams } from '@vueuse/router';
 import { ref, watch } from 'vue';
-import { useRace } from '../composable/useRace';
-import { useScore } from '../composable/useScore';
-import { PS } from '../interfaces/db';
-import { getPsLevel } from '../services/db';
-import { _t } from '../services/dictionary';
+import { useRace } from '../composable/useRace.ts';
+import { useScore } from '../composable/useScore.ts';
+import { PS } from '../interfaces/db.ts';
+import { getPsLevel } from '../services/db.ts';
+import { _t } from '../services/dictionary.ts';
 import L002MainInternal from './L002MainInternal.vue';
 import X001Table from './X001Table.vue';
 import X201WidgetDownloadCsv from './X201WidgetDownloadCsv.vue';
+import X202WidgetPrint from './X202WidgetPrint.vue';
 
 const { currentRace } = useRace();
 const selectedPS = ref<PS>();
 const psParam = useRouteParams('ps');
 const { score } = useScore(selectedPS);
+const table = ref();
 
 watch(
     [psParam, currentRace],
@@ -39,15 +41,18 @@ watch(
                 <b class="text-3xl">{{ _t('Score') }} {{ selectedPS?.name }}</b>
             </h1>
             <X001Table
+                ref="table"
                 :data="score"
                 :show-pos="true"
                 :actionDisabled="true"
-                :labels="['Number', 'Name', 'Start', 'End', 'Diff']"
-                :keys="['number', 'name', 'start', 'end', 'diff']"
-                :format="['string', 'string', 'date', 'datems', 'diff']"
+                :filterKey="['number', 'name']"
+                :labels="['Pos', 'Number', 'Name', 'Cat', 'Team', 'Start', 'End', 'Diff']"
+                :keys="['pos', 'number', 'name', 'category', 'team', 'start', 'end', 'diff']"
+                :format="['pos', 'bolder', 'string', 'string', 'string', 'onlyTimeMs', 'onlyTimeMs', 'diff']"
             />
         </template>
         <template #sidebar>
+            <X202WidgetPrint :table="table?.tableEl" />
             <X201WidgetDownloadCsv :data="score" />
         </template>
     </L002MainInternal>

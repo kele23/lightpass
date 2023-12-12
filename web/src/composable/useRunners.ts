@@ -1,9 +1,9 @@
 import { onUnmounted, ref, watch } from 'vue';
-import { Runner } from '../interfaces/db';
-import { cleanKey, getRunnersLevel, getTakesLevel } from '../services/db';
-import { _t } from '../services/dictionary';
-import useToasterStore from '../stores/toaster';
-import { useRace } from './useRace';
+import { Runner } from '../interfaces/db.ts';
+import { cleanKey, getRunnersLevel, getTakesLevel } from '../services/db.ts';
+import { _t } from '../services/dictionary.ts';
+import useToasterStore from '../stores/toaster.ts';
+import { useRace } from './useRace.ts';
 
 export function useRunners() {
     const toasterStore = useToasterStore();

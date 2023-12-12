@@ -7,6 +7,7 @@ export interface Score {
     category: string;
     team: string;
     ps: string;
+    pos?: number;
 }
 
 export interface GlobalScore {
@@ -15,4 +16,5 @@ export interface GlobalScore {
     diff?: number;
     category: string;
     team: string;
+    pos?: number;
 }

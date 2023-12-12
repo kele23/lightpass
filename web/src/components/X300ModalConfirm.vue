@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useEventListener } from '@vueuse/core';
 import { computed, ref, watch } from 'vue';
-import { _t } from '../services/dictionary';
+import { _t } from '../services/dictionary.ts';
 const modalRef = ref<HTMLDialogElement>();
 
 const props = defineProps<{

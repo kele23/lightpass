@@ -1,26 +1,47 @@
 <script setup lang="ts">
-import { MinusCircleIcon, PencilSquareIcon } from '@heroicons/vue/24/solid';
-import { IDItem } from '../interfaces/db';
-import { _t } from '../services/dictionary';
-import { date, datems, diff } from '../utils/formats';
+import { PencilSquareIcon, XCircleIcon } from '@heroicons/vue/24/solid';
+import { IDItem } from '../interfaces/db.ts';
+import { _t } from '../services/dictionary.ts';
+import { date, datems, diff, onlyTimeMs, onlyTime } from '../utils/formats.ts';
+import { computed, ref } from 'vue';
+
+const tableEl = ref<HTMLElement>();
 
 defineEmits<{
     (e: 'removeClick', _id: string): void;
     (e: 'editClick', _id: string): void;
 }>();
 
+defineExpose({
+    tableEl,
+});
+
 const props = defineProps<{
     title?: string;
     hideCount?: boolean;
-    filterKey?: string;
+    filterKey?: string | string[];
     data: IDItem[];
     labels: string[];
     keys: string[];
-    showPos?: boolean;
     format?: (string | ((data: any) => string))[];
     actionDisabled?: boolean;
     editEnabled?: boolean;
 }>();
+
+const filterValue = ref<string>('');
+const filteredData = computed(() => {
+    const key = props.filterKey;
+    if (!key || !filterValue.value) return props.data;
+
+    const regex = new RegExp(`.*${filterValue.value}.*`, 'i');
+    return props.data.filter((item) => {
+        if (typeof key == 'string') return item[key]?.match(regex);
+        for (const k of key) {
+            if (item[k]?.match(regex)) return true;
+        }
+        return false;
+    });
+});
 
 function format(data: any, formatIndex: number) {
     if (!props.format) return data;
@@ -34,11 +55,31 @@ function format(data: any, formatIndex: number) {
             case 'datems': {
                 return datems(data);
             }
+            case 'onlyTime': {
+                return onlyTime(data);
+            }
+            case 'onlyTimeMs': {
+                return onlyTimeMs(data);
+            }
             case 'pInt': {
                 return parseInt(data);
             }
             case 'diff': {
                 return diff(data);
+            }
+            case 'bolder': {
+                return `<b>${data}</b>`;
+            }
+            case 'pIntBolder': {
+                return `<b>${parseInt(data)}</b>`;
+            }
+            case 'uppercase': {
+                return `<span class="uppercase">${data}</span>`;
+            }
+            case 'pos': {
+                return data
+                    ? `<span class="font-bold inline-block rounded-md min-w-[42px] px-2 print:px-1 bg-base-100 text-error border text-center text-red-700 text-base print:text-sm">${data}</b>`
+                    : undefined;
             }
             default:
                 return data;
@@ -46,6 +87,11 @@ function format(data: any, formatIndex: number) {
     } else {
         return ff(data);
     }
+}
+
+function filter(event: SubmitEvent) {
+    const formData = new FormData(event.target as HTMLFormElement);
+    filterValue.value = formData.get('filter') as string;
 }
 </script>
 
@@ -55,32 +101,24 @@ function format(data: any, formatIndex: number) {
             <div class="flex flex-row items-center">
                 <h2 v-if="title" class="mr-4 text-lg font-semibold">{{ title }}</h2>
                 <div v-if="!hideCount" class="btn-circle btn pointer-events-none">
-                    {{ data.length }}
+                    {{ filteredData.length }}
                 </div>
             </div>
-            <form v-if="filterKey" class="mt-4 mb-0 flex flex-col md:mt-0 md:flex-row">
-                <div class="relative">
-                    <input
-                        type="text"
-                        class="input-bordered input w-full max-w-xs"
-                        name="filter"
-                        placeholder="Filtra..."
-                    />
-                </div>
-                <button class="btn" type="submit">Filtra</button>
+            <form v-if="filterKey" class="join mt-4 mb-0" @submit.prevent="filter($event as SubmitEvent)">
+                <input
+                    type="text"
+                    class="input-bordered input join-item w-full max-w-xs"
+                    name="filter"
+                    placeholder="Filtra..."
+                />
+                <button class="join-item btn" type="submit">Filtra</button>
             </form>
         </div>
         <div class="overflow-x-auto py-4">
             <div class="inline-block min-w-full overflow-hidden rounded-lg shadow">
-                <table class="min-w-full table-auto leading-normal">
+                <table class="min-w-full table-auto leading-normal" ref="tableEl">
                     <thead>
                         <tr class="bg-accent text-accent-content">
-                            <th
-                                v-if="showPos"
-                                class="px-2 py-3 text-left text-sm font-semibold uppercase print:px-1 print:text-xs"
-                            >
-                                {{ _t('POS') }}
-                            </th>
                             <th
                                 v-for="label in labels"
                                 :key="label"
@@ -95,44 +133,45 @@ function format(data: any, formatIndex: number) {
                                 scope="col"
                                 class="px-2 py-3 text-right text-sm font-semibold uppercase print:px-1 print:text-xs"
                             >
-                                Azioni
+                                {{ _t('Actions') }}
                             </th>
                         </tr>
                     </thead>
                     <tbody ref="tbody">
                         <tr
-                            v-for="(item, index) in data"
+                            v-for="item in filteredData"
                             :key="item._id"
-                            class="group h-16 odd:bg-base-300 even:bg-base-200"
+                            class="group h-12 odd:bg-base-300 even:bg-base-200"
                         >
-                            <td v-if="showPos" class="px-2 py-2 text-sm print:py-0 print:px-1">
-                                {{ index + 1 }}
+                            <td v-for="(key, index) in keys" :key="key" class="px-2 py-1 text-sm print:py-0 print:px-1">
+                                <p
+                                    class="whitespace-no-wrap break-all print:text-xs"
+                                    v-html="format(item[key], index)"
+                                ></p>
                             </td>
-                            <td v-for="(key, index) in keys" :key="key" class="px-2 py-2 text-sm print:py-0 print:px-1">
-                                <p class="whitespace-no-wrap break-all print:text-xs">{{ format(item[key], index) }}</p>
-                            </td>
-                            <td v-if="!actionDisabled" class="px-2 py-2 text-sm print:py-0 print:px-1">
+
+                            <td v-if="!actionDisabled" class="px-2 py-1 text-sm print:py-0 print:px-1">
                                 <div class="flew-row flex justify-end gap-2">
                                     <button
                                         v-if="editEnabled"
-                                        class="btn group-odd:bg-base-200 group-even:bg-base-300"
+                                        class="btn-primary btn-sm btn"
                                         title="Modifica"
                                         @click="$emit('editClick', item._id!)"
                                     >
                                         <PencilSquareIcon class="h-4 w-4 text-left" />
                                     </button>
                                     <button
-                                        class="btn group-odd:bg-base-200 group-even:bg-base-300"
+                                        class="btn-warning btn-sm btn"
                                         title="Cancella"
                                         @click="$emit('removeClick', item._id!)"
                                     >
-                                        <MinusCircleIcon class="h-4 w-4 text-left" />
+                                        <XCircleIcon class="h-4 w-4 text-left" />
                                     </button>
                                 </div>
                             </td>
                         </tr>
                         <tr v-if="data.length == 0" class="bg-base-300">
-                            <td :colspan="keys.length + (actionDisabled ? 0 : 1) + (showPos ? 1 : 0)">
+                            <td :colspan="keys.length + (actionDisabled ? 0 : 1)">
                                 <div class="py-4 text-center text-xl">{{ _t('No items') }}</div>
                             </td>
                         </tr>

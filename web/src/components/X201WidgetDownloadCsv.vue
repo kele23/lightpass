@@ -2,7 +2,7 @@
 // @ts-ignore
 import Papa from 'papaparse';
 import X200Widget from './X200Widget.vue';
-import { IDItem } from '../interfaces/db';
+import { IDItem } from '../interfaces/db.ts';
 
 const props = defineProps<{
     data: IDItem[];

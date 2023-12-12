@@ -1,6 +1,6 @@
 import { ref, watch, watchEffect } from 'vue';
-import { Time } from '../interfaces/db';
-import { timesLevel } from '../services/db';
+import { Time } from '../interfaces/db.ts';
+import { timesLevel } from '../services/db.ts';
 
 export function useTimes() {
     const times = ref([] as Time[]);
@@ -48,5 +48,12 @@ export function useTimes() {
 
     return {
         times,
+        async getTime(_id: string): Promise<Time> {
+            const time = await timesLevel.get(_id);
+            return {
+                _id,
+                ...time,
+            } as Time;
+        },
     };
 }

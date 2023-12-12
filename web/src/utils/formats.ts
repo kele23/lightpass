@@ -12,6 +12,20 @@ export const date = (data: any) => {
     return date.toLocaleString();
 };
 
+export const onlyTime = (data: any) => {
+    if (!data) return '';
+
+    const date = new Date(data);
+    return date.toLocaleTimeString();
+};
+
+export const onlyTimeMs = (data: any) => {
+    if (!data) return '';
+
+    const date = new Date(data);
+    return date.toLocaleTimeString() + ' ' + String(date.getMilliseconds()).padStart(3, '0');
+};
+
 export const diff = (data: any) => {
     if (!data) return;
 

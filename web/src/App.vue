@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useEventListener } from '@vueuse/core';
 import X401Toaster from './components/X401Toaster.vue';
-import { addTime } from './services/db';
+import { addTime } from './services/db.ts';
 
 
 

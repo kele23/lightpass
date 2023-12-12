@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { Race } from '../interfaces/db';
+import { Race } from '../interfaces/db.ts';
 
 export type RaceStoreState = {
     race?: Race;

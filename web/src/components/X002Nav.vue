@@ -8,15 +8,15 @@ import {
     SignalIcon,
     UsersIcon,
 } from '@heroicons/vue/24/solid';
-import { usePS } from '../composable/usePS';
-import { useRace } from '../composable/useRace';
-import { _t } from '../services/dictionary';
-import { useBLESensor } from '../composable/useBLESensor';
+import { usePS } from '../composable/usePS.ts';
+import { useRace } from '../composable/useRace.ts';
+import { _t } from '../services/dictionary.ts';
+import { useLightpassSensor } from '../composable/useLightpassSensor.ts';
 
 /////////////////////////////////////////////////////
 const { pss } = usePS();
 const { races, currentRace, setCurrentRace } = useRace();
-const { isConnected } = useBLESensor();
+const { isConnected } = useLightpassSensor();
 </script>
 
 <template>
@@ -87,3 +87,4 @@ const { isConnected } = useBLESensor();
         </ul>
     </div>
 </template>
+../composable/useLightpassSensor

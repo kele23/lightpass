@@ -1,19 +1,21 @@
 <script setup lang="ts">
 import { AtSymbolIcon, Bars3Icon, SignalIcon } from '@heroicons/vue/24/solid';
-import { useBLESensor } from '../composable/useBLESensor';
-import { useRace } from '../composable/useRace';
-import { _t } from '../services/dictionary';
+import { useLightpassSensor } from '../composable/useLightpassSensor.ts';
+import { useRace } from '../composable/useRace.ts';
+import { _t } from '../services/dictionary.ts';
 import X002Nav from './X002Nav.vue';
 
 const { currentRace } = useRace();
-const { isConnected, device, requestDevice } = useBLESensor();
+const { isConnected, device, requestDevice } = useLightpassSensor();
 </script>
 
 <template>
     <div class="drawer xl:drawer-open">
         <input id="main-drawer" type="checkbox" class="drawer-toggle" />
         <div class="drawer-content flex flex-col">
-            <header class="sticky top-0 z-10 flex h-16 w-full items-center justify-between bg-base-200 px-4 shadow">
+            <header
+                class="sticky top-0 z-10 flex h-16 w-full items-center justify-between bg-base-200 px-4 shadow "
+            >
                 <router-link to="/" class="btn-ghost btn gap-1 bg-base-300">
                     <AtSymbolIcon class="h-4 w-4" /> {{ currentRace?.name }}
                 </router-link>
@@ -49,7 +51,8 @@ const { isConnected, device, requestDevice } = useBLESensor();
         </div>
         <div class="drawer-side z-20">
             <label for="main-drawer" class="drawer-overlay"></label>
-            <X002Nav />
+            <X002Nav class="" />
         </div>
     </div>
 </template>
+../composable/useLightpassSensor

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
-import { useRace } from '../composable/useRace';
-import { _t } from '../services/dictionary';
+import { useRace } from '../composable/useRace.ts';
+import { _t } from '../services/dictionary.ts';
 
 /////////////////////////////////////////////////////
 const { races, addRace, setCurrentRace } = useRace();

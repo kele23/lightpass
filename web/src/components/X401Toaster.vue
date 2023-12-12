@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import useToasterStore, { TToastStatus } from '../stores/toaster';
+import useToasterStore, { TToastStatus } from '../stores/toaster.ts';
 
 const toastClassMap: Record<TToastStatus, string> = {
     error: 'alert-error',

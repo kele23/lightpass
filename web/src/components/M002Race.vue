@@ -3,14 +3,15 @@ import { BackspaceIcon } from '@heroicons/vue/24/solid';
 import { useConfirmDialog } from '@vueuse/core';
 // @ts-ignore
 import { parse } from 'papaparse';
-import { usePS } from '../composable/usePS';
-import { Order, PS } from '../interfaces/db';
-import { _t } from '../services/dictionary';
-import { readFileAsync } from '../utils/files';
+import { usePS } from '../composable/usePS.ts';
+import { Order, PS } from '../interfaces/db.ts';
+import { _t } from '../services/dictionary.ts';
+import { readFileAsync } from '../utils/files.ts';
 import L002MainInternal from './L002MainInternal.vue';
 import X001Table from './X001Table.vue';
 import X201WidgetDownloadCsv from './X201WidgetDownloadCsv.vue';
 import X300ModalConfirm from './X300ModalConfirm.vue';
+import X200Widget from './X200Widget.vue';
 
 /////////////////////////////////////////////////////
 const { pss, addPS, removePS, cleanPS } = usePS();
@@ -81,104 +82,77 @@ async function uploadCsv(event: SubmitEvent) {
             />
         </template>
         <template #sidebar>
-            <form
-                class="w-80 rounded-lg bg-base-200 shadow transition-colors"
-                @submit.prevent="createPS($event as SubmitEvent)"
-            >
-                <div class="px-6 py-4">
-                    <div class="relative mt-6">
-                        <div class="relative flex items-center justify-between text-base font-semibold leading-5">
-                            <span class=""> Nuova PS </span>
-                            <button class="btn" title="Clear" type="reset">
-                                <BackspaceIcon class="h-6 w-6" />
-                            </button>
-                        </div>
+            <X200Widget>
+                <form @submit.prevent="createPS($event as SubmitEvent)">
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold"> {{ _t('New PS') }} </span>
+                        <button class="btn" title="Clear" type="reset">
+                            <BackspaceIcon class="h-6 w-6" />
+                        </button>
                     </div>
                     <div class="mt-6">
-                        <div class="w-full space-y-6">
-                            <div class="w-full">
-                                <div class="relative">
-                                    <input
-                                        type="text"
-                                        class="input-bordered input w-full max-w-xs"
-                                        required
-                                        placeholder="Nome"
-                                        name="name"
-                                    />
-                                </div>
-                            </div>
-                            <div class="w-full">
-                                <div class="relative">
-                                    <input
-                                        type="datetime-local"
-                                        class="input-bordered input w-full max-w-xs"
-                                        required
-                                        placeholder="Start"
-                                        name="start"
-                                    />
-                                </div>
-                            </div>
-                            <div class="w-full">
-                                <div class="relative">
-                                    <input
-                                        type="text"
-                                        class="input-bordered input w-full max-w-xs"
-                                        placeholder="Gap"
-                                        required
-                                        name="gap"
-                                        pattern="[0-9]+"
-                                    />
-                                </div>
-                            </div>
-                            <div class="w-full">
-                                <div class="relative">
-                                    <select class="select-bordered select w-full max-w-xs" name="order" required>
-                                        <option value="asc">Crescente</option>
-                                        <option value="desc">Decrescente</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="w-full">
-                                <button class="btn-primary btn" type="submit">Crea</button>
-                            </div>
-                        </div>
+                        <input
+                            type="text"
+                            class="input-bordered input w-full max-w-xs"
+                            required
+                            placeholder="Nome"
+                            name="name"
+                        />
                     </div>
-                </div>
-            </form>
+                    <div class="mt-6">
+                        <input
+                            type="datetime-local"
+                            class="input-bordered input w-full max-w-xs"
+                            required
+                            placeholder="Start"
+                            name="start"
+                        />
+                    </div>
+                    <div class="mt-6">
+                        <input
+                            type="text"
+                            class="input-bordered input w-full max-w-xs"
+                            placeholder="Gap"
+                            required
+                            name="gap"
+                            pattern="[0-9]+"
+                        />
+                    </div>
+                    <div class="mt-6">
+                        <select class="select-bordered select w-full max-w-xs" name="order" required>
+                            <option value="asc">Crescente</option>
+                            <option value="desc">Decrescente</option>
+                        </select>
+                    </div>
 
-            <form
-                class="w-80 rounded-lg bg-base-200 shadow transition-colors"
-                @submit.prevent="uploadCsv($event as SubmitEvent)"
-            >
-                <div class="px-6 py-4">
-                    <div class="relative mt-6">
-                        <div class="relative flex items-center justify-between text-base font-semibold leading-5">
-                            <span class=""> Carica PS </span>
-                            <button class="btn" title="Clear" type="reset">
-                                <BackspaceIcon class="h-6 w-6" />
-                            </button>
-                        </div>
+                    <div class="mt-6 w-full">
+                        <button class="btn-primary btn" type="submit">Crea</button>
                     </div>
-                    <div class="mt-6">
-                        <div class="w-full space-y-6">
-                            <div class="w-full">
-                                <div class="relative">
-                                    <input
-                                        type="file"
-                                        class="file-input-bordered file-input w-full max-w-xs"
-                                        placeholder="File"
-                                        required
-                                        name="file"
-                                    />
-                                </div>
-                            </div>
-                            <div class="w-full">
-                                <button class="btn-primary btn" type="submit">Carica</button>
-                            </div>
-                        </div>
+                </form>
+            </X200Widget>
+
+            <X200Widget>
+                <form @submit.prevent="uploadCsv($event as SubmitEvent)">
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold"> {{ _t('Upload Race') }} </span>
+                        <button class="btn" title="Clear" type="reset">
+                            <BackspaceIcon class="h-6 w-6" />
+                        </button>
                     </div>
-                </div>
-            </form>
+                    <div class="mt-4 w-full space-y-6">
+                        <input
+                            type="file"
+                            class="file-input-bordered file-input w-full max-w-xs"
+                            placeholder="File"
+                            required
+                            name="file"
+                        />
+                    </div>
+                    <div class="mt-6 w-full">
+                        <button class="btn-primary btn" type="submit">Carica</button>
+                    </div>
+                </form>
+            </X200Widget>
 
             <X201WidgetDownloadCsv :data="pss" />
         </template>

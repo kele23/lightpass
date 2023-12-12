@@ -1,10 +1,10 @@
 import { computedAsync } from '@vueuse/core';
 import { ref, watch, watchEffect } from 'vue';
-import { Race } from '../interfaces/db';
-import { cleanKey, lightpassLevel } from '../services/db';
-import { _t } from '../services/dictionary';
-import { useStoreRace } from '../stores/race';
-import useToasterStore from '../stores/toaster';
+import { Race } from '../interfaces/db.ts';
+import { cleanKey, lightpassLevel } from '../services/db.ts';
+import { _t } from '../services/dictionary.ts';
+import { useStoreRace } from '../stores/race.ts';
+import useToasterStore from '../stores/toaster.ts';
 
 export function useRace() {
     const toasterStore = useToasterStore();

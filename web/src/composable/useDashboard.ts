@@ -1,16 +1,17 @@
-import { ref, watch } from 'vue';
-import { PS, Take } from '../interfaces/db';
-import { getPsLevel, getTakesLevel } from '../services/db';
-import { _t } from '../services/dictionary';
-import useToasterStore from '../stores/toaster';
-import { useRace } from './useRace';
+import { Ref, ref, watch } from 'vue';
+import { Take } from '../interfaces/db.ts';
+import { Score } from '../interfaces/score.ts';
+import { getPsLevel, getTakesLevel } from '../services/db.ts';
+import useToasterStore from '../stores/toaster.ts';
+import { calculateScore } from '../utils/score.ts';
+import { useRace } from './useRace.ts';
 
-export function useTakes() {
+export function useDashboard(selectedPs: Ref<string | undefined>) {
     const toasterStore = useToasterStore();
     const { currentRace } = useRace();
-    const selectedPs = ref<PS>();
     const reset = ref(0);
     const takes = ref([] as Take[]);
+    const score = ref([] as Score[]);
 
     function onDbChange() {
         reset.value++;
@@ -44,7 +45,7 @@ export function useTakes() {
 
         let options = { reverse: true } as object;
         if (selectedPs.value) {
-            options = { gte: selectedPs.value._id, lt: selectedPs.value._id + '~', reverse: true };
+            options = { gte: selectedPs.value, lt: selectedPs.value + '~', reverse: true };
         }
 
         // get from DB
@@ -66,28 +67,43 @@ export function useTakes() {
         takes.value = tmp;
     });
 
+    watch([reset, selectedPs], async () => {
+        if (!currentRace || !currentRace.value) return;
+        if (!selectedPs || !selectedPs.value) return;
+
+        const psLevel = getPsLevel(currentRace.value._id!);
+
+        let ps = undefined;
+        try {
+            const tmp = await psLevel.get(selectedPs.value);
+            ps = {
+                _id: selectedPs.value,
+                ...tmp,
+            };
+        } catch (e) {
+            return;
+        }
+
+        let limitedScore = [] as Score[];
+        const tmp = await calculateScore(ps, currentRace.value);
+        let index = 0;
+        for (let i = tmp.length - 1; i >= 0; i--) {
+            if (tmp[i].end) {
+                index = i;
+                break;
+            }
+        }
+
+        for (let i = -3; i < 5; i++) {
+            if (index + i < 0 || index + i >= tmp.length) continue;
+            limitedScore.push(tmp[index + i]);
+        }
+
+        score.value = limitedScore.reverse();
+    });
+
     return {
         takes,
-        selectedPs,
-        async selectPs(_id: string | undefined) {
-            if (!currentRace || !currentRace.value) {
-                toasterStore.error({ text: _t('No race selected') });
-                throw `No race selected`;
-            }
-
-            if (!_id) {
-                selectedPs.value = undefined;
-                return;
-            }
-
-            const psLevel = getPsLevel(currentRace.value._id!);
-            try {
-                const ps = await psLevel.get(_id);
-                selectedPs.value = { ...ps, _id };
-            } catch (e) {
-                toasterStore.error({ text: _t('PS {0} not found', _id) });
-                throw `PS ${_id} not found`;
-            }
-        },
+        score,
     };
 }
