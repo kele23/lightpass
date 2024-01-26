@@ -1,9 +1,9 @@
 import { MaybeRefOrGetter, ref, toValue, watch } from 'vue';
 import { PS } from '../interfaces/db.ts';
 import { Score } from '../interfaces/score.ts';
-import { getTakesLevel } from '../services/db.ts';
-import { useRace } from './useRace.ts';
+import { emitter } from '../services/db.ts';
 import { calculateScore, scoreSorter } from '../utils/score.ts';
+import { useRace } from './useRace.ts';
 
 export function useScore(selectedPS: MaybeRefOrGetter<PS | undefined>) {
     const { currentRace } = useRace();
@@ -18,16 +18,11 @@ export function useScore(selectedPS: MaybeRefOrGetter<PS | undefined>) {
         currentRace,
         (_c, _o, onCleanup) => {
             if (!currentRace || !currentRace.value) return;
-            const takesLevel = getTakesLevel(currentRace.value._id!);
-            takesLevel.on('put', onDbChange);
-            takesLevel.on('del', onDbChange);
-            takesLevel.on('batch', onDbChange);
+            emitter.on('db:change', onDbChange);
             reset.value++;
 
             onCleanup(() => {
-                takesLevel.off('put', onDbChange);
-                takesLevel.off('del', onDbChange);
-                takesLevel.off('batch', onDbChange);
+                emitter.off('put', onDbChange);
             });
         },
         { immediate: true }

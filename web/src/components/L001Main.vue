@@ -1,21 +1,23 @@
 <script setup lang="ts">
-import { AtSymbolIcon, Bars3Icon, SignalIcon } from '@heroicons/vue/24/solid';
+import { AtSymbolIcon, Bars3Icon, SignalIcon, UserIcon } from '@heroicons/vue/24/solid';
 import { useLightpassSensor } from '../composable/useLightpassSensor.ts';
+import { useLogin } from '../composable/useLogin.ts';
 import { useRace } from '../composable/useRace.ts';
-import { _t } from '../services/dictionary.ts';
 import X002Nav from './X002Nav.vue';
+import { useDBSync } from '../composable/useDBSync.ts';
+import { format } from 'date-fns';
 
+const { lastSync } = useDBSync();
+const { loginPopup, isLogged, loading } = useLogin();
 const { currentRace } = useRace();
-const { isConnected, device, requestDevice } = useLightpassSensor();
+const { isConnected, requestDevice } = useLightpassSensor();
 </script>
 
 <template>
     <div class="drawer xl:drawer-open">
         <input id="main-drawer" type="checkbox" class="drawer-toggle" />
         <div class="drawer-content flex flex-col">
-            <header
-                class="sticky top-0 z-10 flex h-16 w-full items-center justify-between bg-base-200 px-4 shadow "
-            >
+            <header class="sticky top-0 z-10 flex h-16 w-full items-center justify-between bg-base-200 px-4 shadow">
                 <router-link to="/" class="btn-ghost btn gap-1 bg-base-300">
                     <AtSymbolIcon class="h-4 w-4" /> {{ currentRace?.name }}
                 </router-link>
@@ -23,14 +25,20 @@ const { isConnected, device, requestDevice } = useLightpassSensor();
                     <Bars3Icon class="h-6 w-6"
                 /></label>
 
-                <div class="flex h-full grow items-center justify-end px-3" v-if="isConnected">
-                    <router-link to="/device" class="btn-ghost btn-primary btn gap-1 bg-base-300">
-                        <SignalIcon class="h-6 w-6" /> {{ device?.name }}
-                    </router-link>
+                <div class="flex gap-2">
+                    <button v-if="lastSync">{{ format(lastSync, "HH:mm:ss") }}</button>
+                    <button
+                        class="btn-ghost btn-primary btn gap-1 bg-base-300"
+                        :disabled="loading"
+                        @click="loginPopup = !loginPopup"
+                    >
+                        <UserIcon class="h-6 w-6" v-bind:class="isLogged && 'text-primary'" v-if="!loading" />
+                        <span class="loading loading-spinner loading-sm" v-if="loading"></span>
+                    </button>
+                    <button class="btn-ghost btn-primary btn gap-1 bg-base-300" @click="requestDevice()">
+                        <SignalIcon class="h-6 w-6" v-bind:class="isConnected && 'text-primary'" />
+                    </button>
                 </div>
-                <button class="btn-ghost btn-primary btn gap-1 bg-base-300" @click="requestDevice()" v-else>
-                    {{ _t('Connect') }}
-                </button>
             </header>
             <div class="px-4 py-4 pb-24">
                 <div class="relative">
@@ -55,4 +63,3 @@ const { isConnected, device, requestDevice } = useLightpassSensor();
         </div>
     </div>
 </template>
-../composable/useLightpassSensor

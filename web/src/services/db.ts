@@ -1,10 +1,23 @@
 import { AbstractLevel } from 'abstract-level';
 import { ShareLevel } from '@kele23/levelshare';
 import { PS, Runner, Take, TakeType, Time } from '../interfaces/db.ts';
+import mitt from 'mitt';
 
-export const db = new ShareLevel('./db');
+export const db = new ShareLevel({ location: './db' });
 export const lightpassLevel = db.sublevel<string, any>(`lightpass`, { valueEncoding: 'json' });
 export const timesLevel = lightpassLevel.sublevel<string, Time>(`times`, { valueEncoding: 'json' });
+
+/////////////////////////////////////////////////////////////////////// EMITTER
+//@ts-ignore
+export const emitter = mitt();
+
+const emit = () => {
+    emitter.emit('db:change');
+};
+
+db.on('put', emit);
+db.on('del', emit);
+db.on('batch', emit);
 
 const map = new Map<string, AbstractLevel<any, string, any>>();
 /////////////////////////////////////////////////////////////////////// LEVELS

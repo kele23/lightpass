@@ -1,6 +1,6 @@
 import { ref, watch, watchEffect } from 'vue';
 import { Time } from '../interfaces/db.ts';
-import { timesLevel } from '../services/db.ts';
+import { emitter, timesLevel } from '../services/db.ts';
 
 export function useTimes() {
     const times = ref([] as Time[]);
@@ -11,14 +11,10 @@ export function useTimes() {
     };
 
     watchEffect((onCleanup) => {
-        timesLevel.on('put', onDbChange);
-        timesLevel.on('del', onDbChange);
-        timesLevel.on('batch', onDbChange);
+        emitter.on('db:change', onDbChange);
 
         onCleanup(() => {
-            timesLevel.off('put', onDbChange);
-            timesLevel.off('del', onDbChange);
-            timesLevel.off('batch', onDbChange);
+            emitter.off('put', onDbChange);
         });
     });
 

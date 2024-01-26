@@ -9,8 +9,8 @@ import M006Device from '../components/M006Device.vue';
 import M900DbView from '../components/M900DbView.vue';
 import M901NotFound from '../components/M901NotFound.vue';
 import L001Main from '../components/L001Main.vue';
-import { useStoreRace } from '../stores/race';
-import { _t } from './dictionary';
+import { useStoreRace } from '../stores/race.ts';
+import { _t } from './dictionary.ts';
 
 const routes = [
     { path: '/:pathMatch(.*)*', component: M901NotFound, meta: { title: _t('Not Found') } },

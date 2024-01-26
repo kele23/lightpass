@@ -1,6 +1,6 @@
 import { ref, watch } from 'vue';
 import { PS } from '../interfaces/db.ts';
-import { cleanKey, getPsLevel, getTakesLevel } from '../services/db.ts';
+import { cleanKey, emitter, getPsLevel, getTakesLevel } from '../services/db.ts';
 import { _t } from '../services/dictionary.ts';
 import useToasterStore from '../stores/toaster.ts';
 import { useRace } from './useRace.ts';
@@ -19,16 +19,11 @@ export function usePS() {
         currentRace,
         (_c, _o, onCleanup) => {
             if (!currentRace || !currentRace.value) return;
-            const psLevel = getPsLevel(currentRace.value._id!);
-            psLevel.on('put', onDbChange);
-            psLevel.on('del', onDbChange);
-            psLevel.on('batch', onDbChange);
+            emitter.on('db:change', onDbChange);
             reset.value++;
 
             onCleanup(() => {
-                psLevel.off('put', onDbChange);
-                psLevel.off('del', onDbChange);
-                psLevel.off('batch', onDbChange);
+                emitter.off('put', onDbChange);
             });
         },
         { immediate: true }

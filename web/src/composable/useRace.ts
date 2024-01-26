@@ -1,7 +1,7 @@
 import { computedAsync } from '@vueuse/core';
 import { ref, watch, watchEffect } from 'vue';
 import { Race } from '../interfaces/db.ts';
-import { cleanKey, lightpassLevel } from '../services/db.ts';
+import { cleanKey, emitter, lightpassLevel } from '../services/db.ts';
 import { _t } from '../services/dictionary.ts';
 import { useStoreRace } from '../stores/race.ts';
 import useToasterStore from '../stores/toaster.ts';
@@ -27,14 +27,10 @@ export function useRace() {
     };
 
     watchEffect((onCleanup) => {
-        lightpassLevel.on('put', onDbChange);
-        lightpassLevel.on('del', onDbChange);
-        lightpassLevel.on('batch', onDbChange);
+        emitter.on('db:change', onDbChange);
 
         onCleanup(() => {
-            lightpassLevel.off('put', onDbChange);
-            lightpassLevel.off('del', onDbChange);
-            lightpassLevel.off('batch', onDbChange);
+            emitter.off('put', onDbChange);
         });
     });
 

@@ -1,6 +1,6 @@
-import { onUnmounted, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
 import { Runner } from '../interfaces/db.ts';
-import { cleanKey, getRunnersLevel, getTakesLevel } from '../services/db.ts';
+import { cleanKey, emitter, getRunnersLevel, getTakesLevel } from '../services/db.ts';
 import { _t } from '../services/dictionary.ts';
 import useToasterStore from '../stores/toaster.ts';
 import { useRace } from './useRace.ts';
@@ -19,16 +19,11 @@ export function useRunners() {
         currentRace,
         (_c, _o, onCleanup) => {
             if (!currentRace || !currentRace.value) return;
-            const runnersLevel = getRunnersLevel(currentRace.value._id!);
-            runnersLevel.on('put', onDbChange);
-            runnersLevel.on('del', onDbChange);
-            runnersLevel.on('batch', onDbChange);
+            emitter.on('db:change', onDbChange);
             reset.value++;
 
             onCleanup(() => {
-                runnersLevel.off('put', onDbChange);
-                runnersLevel.off('del', onDbChange);
-                runnersLevel.off('batch', onDbChange);
+                emitter.off('put', onDbChange);
             });
         },
         { immediate: true }

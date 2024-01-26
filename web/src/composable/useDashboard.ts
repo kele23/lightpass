@@ -1,13 +1,11 @@
 import { Ref, ref, watch } from 'vue';
 import { Take } from '../interfaces/db.ts';
 import { Score } from '../interfaces/score.ts';
-import { getPsLevel, getTakesLevel } from '../services/db.ts';
-import useToasterStore from '../stores/toaster.ts';
+import { emitter, getPsLevel, getTakesLevel } from '../services/db.ts';
 import { calculateScore } from '../utils/score.ts';
 import { useRace } from './useRace.ts';
 
 export function useDashboard(selectedPs: Ref<string | undefined>) {
-    const toasterStore = useToasterStore();
     const { currentRace } = useRace();
     const reset = ref(0);
     const takes = ref([] as Take[]);
@@ -23,16 +21,11 @@ export function useDashboard(selectedPs: Ref<string | undefined>) {
             selectedPs.value = undefined; // reset selectedPS on currentRaceChange
 
             if (!currentRace || !currentRace.value) return;
-            const takesLevel = getTakesLevel(currentRace.value._id!);
-            takesLevel.on('put', onDbChange);
-            takesLevel.on('del', onDbChange);
-            takesLevel.on('batch', onDbChange);
+            emitter.on('db:change', onDbChange);
             reset.value++;
 
             onCleanup(() => {
-                takesLevel.off('put', onDbChange);
-                takesLevel.off('del', onDbChange);
-                takesLevel.off('batch', onDbChange);
+                emitter.off('put', onDbChange);
             });
         },
         { immediate: true }
