@@ -71,7 +71,7 @@ void setup()
     Serial.begin(115200);
 
     // begin input
-    pinMode(inter.PIN, INPUT_PULLUP);
+    pinMode(inter.PIN, INPUT_PULLDOWN);
     attachInterrupt(inter.PIN, isr, RISING);
 
     // begin data storage
