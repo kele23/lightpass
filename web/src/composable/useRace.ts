@@ -1,103 +1,81 @@
-import { computedAsync } from '@vueuse/core';
-import { ref, watch, watchEffect } from 'vue';
-import { Race } from '../interfaces/db.ts';
-import { cleanKey, emitter, lightpassLevel } from '../services/db.ts';
+import { effect, ref, shallowRef } from 'vue';
+import { IDItem, PS, PartialRace, Race, Runner, Take } from '../interfaces/db.ts';
+import { cleanKey } from '../services/utils.ts';
 import { _t } from '../services/dictionary.ts';
-import { useStoreRace } from '../stores/race.ts';
 import useToasterStore from '../stores/toaster.ts';
+import PouchDB from 'pouchdb';
+
+export const racesDB = new PouchDB<Race>('lightpass_races');
+export const currentRace = ref<Race>();
+export const races = ref<Race[]>([]);
+export const raceDB = shallowRef<PouchDB.Database<IDItem | PS | Runner | Take>>();
+
+const addRace = async (pRace: PartialRace) => {
+    const toasterStore = useToasterStore();
+    const _id = cleanKey(pRace.name);
+
+    let found = undefined;
+    try {
+        found = await racesDB.get(_id);
+    } catch (ignored) {}
+
+    if (found) {
+        toasterStore.error({ text: _t('Race <b>{0}</b> already exist', pRace.name) });
+        throw `Race ${_id} already exist`;
+    }
+
+    const race: Race = {
+        _id,
+        ...pRace,
+    };
+
+    const newRace = await racesDB.put(race);
+    return { ...race, _rev: newRace.rev } as Race;
+};
+
+const removeRace = async (_id: string) => {
+    const found = await racesDB.get(_id);
+    if (found) {
+        racesDB.remove(found);
+    }
+};
+
+const setCurrentRace = async (_id: string) => {
+    const found = await racesDB.get(_id);
+    if (found) {
+        raceDB.value = new PouchDB<IDItem | PS | Runner | Take>(`lightpass_race_${_id}`);
+        currentRace.value = found;
+    }
+};
+
+effect(async () => {
+    let tmp = [] as Race[];
+
+    const docs = await racesDB.allDocs<Race>({ include_docs: true });
+    for (const doc of docs.rows) {
+        tmp.push(doc.doc!);
+    }
+
+    // finish
+    races.value = tmp;
+});
+
+// listen to race change
+racesDB
+    .changes<Race>({
+        since: 'now',
+        live: true,
+        include_docs: true,
+    })
+    .on('change', (changes) => {
+        if (changes.deleted) {
+            races.value = races.value.filter((item) => item._id != changes.id);
+        } else if (changes.doc) {
+            races.value = [...races.value, changes.doc];
+            console.log('>>>>>>> New race ', changes.doc.name);
+        }
+    });
 
 export function useRace() {
-    const toasterStore = useToasterStore();
-    const store = useStoreRace();
-    const races = ref([] as Race[]);
-    const reset = ref(0);
-
-    const currentRace = computedAsync(async () => {
-        let _id = store.race?._id;
-        if (!_id) return undefined;
-        const value = await lightpassLevel.get(_id);
-        return {
-            _id,
-            ...value,
-        } as Race;
-    });
-
-    const onDbChange = () => {
-        reset.value++;
-    };
-
-    watchEffect((onCleanup) => {
-        emitter.on('db:change', onDbChange);
-
-        onCleanup(() => {
-            emitter.off('put', onDbChange);
-        });
-    });
-
-    watch(
-        currentRace,
-        () => {
-            reset.value++;
-        },
-        { immediate: true }
-    );
-
-    watch(reset, async () => {
-        let tmp = [] as Race[];
-        try {
-            //filter
-            const iterator = lightpassLevel.keys();
-            let keys = [] as string[];
-            for await (const key of iterator) {
-                if (key.indexOf('!') >= 0) continue;
-                keys.push(key);
-            }
-
-            for (const key of keys) {
-                const value = await lightpassLevel.get(key);
-                tmp.push({
-                    _id: key,
-                    ...value,
-                } as Race);
-            }
-        } catch (err) {
-            console.error(err);
-        }
-
-        // finish
-        races.value = tmp;
-    });
-
-    return {
-        currentRace,
-        races,
-        async addRace(name: string) {
-            const _id = cleanKey(name);
-
-            const [found] = await lightpassLevel.getMany([_id]);
-            if (found) {
-                toasterStore.error({ text: _t('Race <b>{0}</b> already exist', name) });
-                throw `Race ${_id} already exist`;
-            }
-
-            await lightpassLevel.put(_id, { name });
-            return {
-                _id,
-                name,
-            } as Race;
-        },
-        async removeRace(_id: string) {
-            await lightpassLevel.del(_id);
-        },
-        async setCurrentRace(_id: string | undefined) {
-            if (!_id) store.setCurrentRace(undefined);
-            else {
-                const value = await lightpassLevel.get(_id);
-                store.setCurrentRace({
-                    _id,
-                    ...value,
-                });
-            }
-        },
-    };
+    return { races, currentRace, addRace, removeRace, setCurrentRace };
 }

@@ -1,14 +1,10 @@
 <script setup lang="ts">
 import { AtSymbolIcon, Bars3Icon, SignalIcon, UserIcon } from '@heroicons/vue/24/solid';
 import { useLightpassSensor } from '../composable/useLightpassSensor.ts';
-import { useLogin } from '../composable/useLogin.ts';
 import { useRace } from '../composable/useRace.ts';
 import X002Nav from './X002Nav.vue';
-import { useDBSync } from '../composable/useDBSync.ts';
 import { format } from 'date-fns';
 
-const { lastSync } = useDBSync();
-const { loginPopup, isLogged, loading } = useLogin();
 const { currentRace } = useRace();
 const { isConnected, requestDevice } = useLightpassSensor();
 </script>
@@ -18,27 +14,27 @@ const { isConnected, requestDevice } = useLightpassSensor();
         <input id="main-drawer" type="checkbox" class="drawer-toggle" />
         <div class="drawer-content flex flex-col">
             <header class="sticky top-0 z-10 flex h-16 w-full items-center justify-between bg-base-200 px-4 shadow">
-                <router-link to="/" class="btn-ghost btn gap-1 bg-base-300">
+                <router-link to="/" class="btn btn-ghost gap-1 bg-base-300">
                     <AtSymbolIcon class="h-4 w-4" /> {{ currentRace?.name }}
                 </router-link>
-                <label for="main-drawer" class="btn-primary drawer-button btn-square btn xl:hidden">
+                <label for="main-drawer" class="btn btn-square btn-primary drawer-button xl:hidden">
                     <Bars3Icon class="h-6 w-6"
                 /></label>
 
-                <div class="flex gap-2">
-                    <button v-if="lastSync">{{ format(lastSync, "HH:mm:ss") }}</button>
+                <!-- <div class="flex gap-2">
+                    <button v-if="lastSync">{{ format(lastSync, 'HH:mm:ss') }}</button>
                     <button
-                        class="btn-ghost btn-primary btn gap-1 bg-base-300"
+                        class="btn btn-primary btn-ghost gap-1 bg-base-300"
                         :disabled="loading"
                         @click="loginPopup = !loginPopup"
                     >
                         <UserIcon class="h-6 w-6" v-bind:class="isLogged && 'text-primary'" v-if="!loading" />
                         <span class="loading loading-spinner loading-sm" v-if="loading"></span>
                     </button>
-                    <button class="btn-ghost btn-primary btn gap-1 bg-base-300" @click="requestDevice()">
+                    <button class="btn btn-primary btn-ghost gap-1 bg-base-300" @click="requestDevice()">
                         <SignalIcon class="h-6 w-6" v-bind:class="isConnected && 'text-primary'" />
                     </button>
-                </div>
+                </div> -->
             </header>
             <div class="px-4 py-4 pb-24">
                 <div class="relative">

@@ -100,18 +100,18 @@ function filter(event: SubmitEvent) {
         <div class="flex flex-col justify-between md:flex-row md:items-center">
             <div class="flex flex-row items-center">
                 <h2 v-if="title" class="mr-4 text-lg font-semibold">{{ title }}</h2>
-                <div v-if="!hideCount" class="btn-circle btn pointer-events-none">
+                <div v-if="!hideCount" class="btn btn-circle pointer-events-none">
                     {{ filteredData.length }}
                 </div>
             </div>
-            <form v-if="filterKey" class="join mt-4 mb-0" @submit.prevent="filter($event as SubmitEvent)">
+            <form v-if="filterKey" class="join mb-0 mt-4" @submit.prevent="filter($event as SubmitEvent)">
                 <input
                     type="text"
-                    class="input-bordered input join-item w-full max-w-xs"
+                    class="input join-item input-bordered w-full max-w-xs"
                     name="filter"
                     placeholder="Filtra..."
                 />
-                <button class="join-item btn" type="submit">Filtra</button>
+                <button class="btn join-item" type="submit">Filtra</button>
             </form>
         </div>
         <div class="overflow-x-auto py-4">
@@ -143,25 +143,25 @@ function filter(event: SubmitEvent) {
                             :key="item._id"
                             class="group h-12 odd:bg-base-300 even:bg-base-200"
                         >
-                            <td v-for="(key, index) in keys" :key="key" class="px-2 py-1 text-sm print:py-0 print:px-1">
+                            <td v-for="(key, index) in keys" :key="key" class="px-2 py-1 text-sm print:px-1 print:py-0">
                                 <p
                                     class="whitespace-no-wrap break-all print:text-xs"
                                     v-html="format(item[key], index)"
                                 ></p>
                             </td>
 
-                            <td v-if="!actionDisabled" class="px-2 py-1 text-sm print:py-0 print:px-1">
+                            <td v-if="!actionDisabled" class="px-2 py-1 text-sm print:px-1 print:py-0">
                                 <div class="flew-row flex justify-end gap-2">
                                     <button
                                         v-if="editEnabled"
-                                        class="btn-primary btn-sm btn"
+                                        class="btn btn-primary btn-sm"
                                         title="Modifica"
                                         @click="$emit('editClick', item._id!)"
                                     >
                                         <PencilSquareIcon class="h-4 w-4 text-left" />
                                     </button>
                                     <button
-                                        class="btn-warning btn-sm btn"
+                                        class="btn btn-warning btn-sm"
                                         title="Cancella"
                                         @click="$emit('removeClick', item._id!)"
                                     >

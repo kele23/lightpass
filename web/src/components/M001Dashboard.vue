@@ -1,101 +1,101 @@
 <script setup lang="ts">
 import { BackspaceIcon } from '@heroicons/vue/24/solid';
-import { ref, watch } from 'vue';
-import { usePS } from '../composable/usePS.ts';
-import { useRace } from '../composable/useRace.ts';
-import { useRunners } from '../composable/useRunners.ts';
-import { useDashboard } from '../composable/useDashboard.ts';
-import { useTimes } from '../composable/useTimes.ts';
-import { TakeType } from '../interfaces/db.ts';
-import { addTake, removeTake, removeTime } from '../services/db.ts';
-import { _t } from '../services/dictionary.ts';
-import useToasterStore from '../stores/toaster.ts';
-import { jsonToForm } from '../utils/form-to-json.ts';
-import { datems } from '../utils/formats.ts';
-import L002MainInternal from './L002MainInternal.vue';
-import X001Table from './X001Table.vue';
-import X200Widget from './X200Widget.vue';
-import X300ModalConfirm from './X300ModalConfirm.vue';
-import { useConfirmDialog } from '@vueuse/core';
+// import { ref, watch } from 'vue';
+// import { usePS } from '../composable/usePS.ts';
+// import { useRace } from '../composable/useRace.ts';
+// import { useRunners } from '../composable/useRunners.ts';
+// import { useDashboard } from '../composable/useDashboard.ts';
+// import { useTimes } from '../composable/useTimes.ts';
+// import { TakeType } from '../interfaces/db.ts';
+// import { addTake, removeTake, removeTime } from '../services/db.ts';
+// import { _t } from '../services/dictionary.ts';
+// import useToasterStore from '../stores/toaster.ts';
+// import { jsonToForm } from '../utils/form-to-json.ts';
+// import { datems } from '../utils/formats.ts';
+// import L002MainInternal from './L002MainInternal.vue';
+// import X001Table from './X001Table.vue';
+// import X200Widget from './X200Widget.vue';
+// import X300ModalConfirm from './X300ModalConfirm.vue';
+// import { useConfirmDialog } from '@vueuse/core';
 
-const toasterStore = useToasterStore();
-const { currentRace } = useRace();
-const { times, getTime } = useTimes();
-const { pss } = usePS();
-const { runners } = useRunners();
-const selectedPs = ref<string>();
-const { takes, score } = useDashboard(selectedPs);
-const numberInput = ref<HTMLElement>();
+// const toasterStore = useToasterStore();
+// const { currentRace } = useRace();
+// const { times, getTime } = useTimes();
+// const { pss } = usePS();
+// const { runners } = useRunners();
+// const selectedPs = ref<string>();
+// const { takes, score } = useDashboard(selectedPs);
+// const numberInput = ref<HTMLElement>();
 
-const { isRevealed: isTakeDelRevealed, reveal: revealTakeDel, confirm: confirmTakeDel } = useConfirmDialog();
-const { isRevealed: isTimeDelRevealed, reveal: revealTimeDel, confirm: confirmTimeDel } = useConfirmDialog();
+// const { isRevealed: isTakeDelRevealed, reveal: revealTakeDel, confirm: confirmTakeDel } = useConfirmDialog();
+// const { isRevealed: isTimeDelRevealed, reveal: revealTimeDel, confirm: confirmTimeDel } = useConfirmDialog();
 
-const assignTime = ref<HTMLFormElement>();
-const type = ref<TakeType>(TakeType.end);
+// const assignTime = ref<HTMLFormElement>();
+// const type = ref<TakeType>(TakeType.end);
 
-function changePs(event: Event) {
-    selectedPs.value = (event.target as HTMLInputElement)?.value;
-}
+// function changePs(event: Event) {
+//     selectedPs.value = (event.target as HTMLInputElement)?.value;
+// }
 
-watch([type, selectedPs], () => {
-    assignTime.value?.reset();
-});
+// watch([type, selectedPs], () => {
+//     assignTime.value?.reset();
+// });
 
-async function populateAssign(_id: string) {
-    if (!assignTime.value) return;
+// async function populateAssign(_id: string) {
+//     if (!assignTime.value) return;
 
-    const timeId = _id;
-    const raceId = currentRace.value?._id;
-    const psId = selectedPs.value;
+//     const timeId = _id;
+//     const raceId = currentRace.value?._id;
+//     const psId = selectedPs.value;
 
-    const time = await getTime(_id);
+//     const time = await getTime(_id);
 
-    // compile form
-    const formData = {
-        timeId,
-        raceId,
-        psId,
-        timeStr: datems(time.time),
-        type: type.value,
-    };
-    jsonToForm(assignTime.value, formData);
+//     // compile form
+//     const formData = {
+//         timeId,
+//         raceId,
+//         psId,
+//         timeStr: datems(time.time),
+//         type: type.value,
+//     };
+//     jsonToForm(assignTime.value, formData);
 
-    numberInput.value?.focus();
-}
+//     numberInput.value?.focus();
+// }
 
-async function submitTake(event: SubmitEvent) {
-    const form = event.target as HTMLFormElement;
-    const formData = new FormData(form);
-    if (!formData.get('timeId')) return;
+// async function submitTake(event: SubmitEvent) {
+//     const form = event.target as HTMLFormElement;
+//     const formData = new FormData(form);
+//     if (!formData.get('timeId')) return;
 
-    try {
-        await addTake(
-            formData.get('raceId')!.toString(),
-            formData.get('timeId')!.toString(),
-            formData.get('psId')!.toString(),
-            formData.get('runnerId')!.toString(),
-            parseInt(formData.get('type')!.toString()) == TakeType.start ? TakeType.start : TakeType.end
-        );
-        assignTime.value?.reset();
-    } catch (e) {
-        toasterStore.error({ text: _t('Take already exists') });
-    }
-}
+//     try {
+//         await addTake(
+//             formData.get('raceId')!.toString(),
+//             formData.get('timeId')!.toString(),
+//             formData.get('psId')!.toString(),
+//             formData.get('runnerId')!.toString(),
+//             parseInt(formData.get('type')!.toString()) == TakeType.start ? TakeType.start : TakeType.end
+//         );
+//         assignTime.value?.reset();
+//     } catch (e) {
+//         toasterStore.error({ text: _t('Take already exists') });
+//     }
+// }
 
-const delTake = async (id: string) => {
-    const { data, isCanceled } = await revealTakeDel();
-    if (!isCanceled && data) {
-        const raceId = currentRace.value?._id;
-        await removeTake(raceId!, id);
-    }
-};
+// const delTake = async (id: string) => {
+//     const { data, isCanceled } = await revealTakeDel();
+//     if (!isCanceled && data) {
+//         const raceId = currentRace.value?._id;
+//         await removeTake(raceId!, id);
+//     }
+// };
 
-const delTime = async (id: string) => {
-    const { data, isCanceled } = await revealTimeDel();
-    if (!isCanceled && data) {
-        await removeTime(id);
-    }
-};
+// const delTime = async (id: string) => {
+//     const { data, isCanceled } = await revealTimeDel();
+//     if (!isCanceled && data) {
+//         await removeTime(id);
+//     }
+// };
 </script>
 
 <template>
@@ -116,7 +116,7 @@ const delTime = async (id: string) => {
                 @editClick="(_id) => populateAssign(_id)"
             />
 
-            <X001Table
+            <!-- <X001Table
                 v-if="selectedPs"
                 :data="score"
                 title="Partial score"
@@ -125,7 +125,7 @@ const delTime = async (id: string) => {
                 :labels="['Number', 'Name', 'Start', 'End', 'Diff', 'Pos']"
                 :keys="['number', 'name', 'start', 'end', 'diff', 'pos']"
                 :format="['bolder', 'string', 'onlyTimeMs', 'onlyTimeMs', 'diff', 'pos']"
-            />
+            /> -->
 
             <X001Table
                 :title="_t('Takes')"
@@ -236,4 +236,3 @@ const delTime = async (id: string) => {
 </template>
 
 <style></style>
-../composable/useDashboard

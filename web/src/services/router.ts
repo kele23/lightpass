@@ -6,11 +6,10 @@ import M003Runners from '../components/M003Runners.vue';
 import M004Score from '../components/M004Score.vue';
 import M005GlobalScore from '../components/M005GlobalScore.vue';
 import M006Device from '../components/M006Device.vue';
-import M900DbView from '../components/M900DbView.vue';
 import M901NotFound from '../components/M901NotFound.vue';
 import L001Main from '../components/L001Main.vue';
-import { useStoreRace } from '../stores/race.ts';
 import { _t } from './dictionary.ts';
+import { useRace } from '../composable/useRace.ts';
 
 const routes = [
     { path: '/:pathMatch(.*)*', component: M901NotFound, meta: { title: _t('Not Found') } },
@@ -27,7 +26,6 @@ const routes = [
         ],
     },
     { path: '/entry', component: M000Racer, meta: { title: _t('Entry') } },
-    { path: '/admin/db', component: M900DbView, meta: { title: _t('DB View') } },
 ];
 
 const router = createRouter({
@@ -43,9 +41,14 @@ const router = createRouter({
 });
 
 router.beforeEach((to) => {
-    if (to.path != '/entry' && !to.path.startsWith('/admin')) {
-        const store = useStoreRace();
-        if (!store.race) return { path: '/entry' };
+    if (to.path != '/login') {
+        const { loggedIn } = useLogin();
+        if (!loggedIn.value) return { path: '/login' };
+    }
+
+    if (to.path != '/entry') {
+        const { currentRace } = useRace();
+        if (!currentRace.value) return { path: '/entry' };
     }
 });
 

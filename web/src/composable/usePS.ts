@@ -1,102 +1,122 @@
-import { ref, watch } from 'vue';
-import { PS } from '../interfaces/db.ts';
-import { cleanKey, emitter, getPsLevel, getTakesLevel } from '../services/db.ts';
+import { effect, ref, watch, watchEffect } from 'vue';
+import { IDItem, PS, PartialPS, RACES_TYPES } from '../interfaces/db.ts';
 import { _t } from '../services/dictionary.ts';
+import { createKey, getFiltersForType } from '../services/utils.ts';
 import useToasterStore from '../stores/toaster.ts';
-import { useRace } from './useRace.ts';
+import { raceDB } from './useRace.ts';
 
-export function usePS() {
-    const toasterStore = useToasterStore();
-    const { currentRace } = useRace();
-    const reset = ref(0);
-    const pss = ref([] as PS[]);
+const pss = ref<PS[]>([]);
 
-    const onDbChange = () => {
-        reset.value++;
-    };
+watchEffect((onCleanup) => {
+    let changes = undefined;
+    if (raceDB.value) {
+        changes = raceDB.value
+            .changes<PS>({
+                since: 'now',
+                live: true,
+                include_docs: true,
+            })
+            .on('change', (changes) => {
+                if (!changes.id.startsWith(RACES_TYPES.PS)) return;
 
-    watch(
-        currentRace,
-        (_c, _o, onCleanup) => {
-            if (!currentRace || !currentRace.value) return;
-            emitter.on('db:change', onDbChange);
-            reset.value++;
-
-            onCleanup(() => {
-                emitter.off('put', onDbChange);
+                if (changes.deleted) {
+                    pss.value = pss.value.filter((item) => item._id != changes.id);
+                } else if (changes.doc) {
+                    pss.value = [...pss.value, changes.doc];
+                    console.log('>>>>>>> New PS ', changes.doc.name);
+                }
             });
-        },
-        { immediate: true }
-    );
+    }
 
-    watch(reset, async () => {
-        if (!currentRace || !currentRace.value) return;
+    onCleanup(() => {
+        console.log('cleanup ps listener');
+        changes?.cancel();
+    });
+});
 
-        const psLevel = getPsLevel(currentRace.value._id!);
+effect(async () => {
+    if (!raceDB.value) return;
+    let tmp = [] as PS[];
 
-        // get from DB
-        let tmp = [] as PS[];
-        try {
-            const iterator = psLevel.iterator();
-            for await (const [key, value] of iterator) {
-                const ps = {
-                    _id: key,
-                    ...value,
-                } as PS;
-                tmp.push(ps);
-            }
-        } catch (err) {
-            console.error(err);
-        }
-
-        // finish
-        pss.value = tmp;
+    const docs = await raceDB.value.allDocs<PS>({
+        include_docs: true,
+        ...getFiltersForType(RACES_TYPES.PS),
     });
 
+    for (const doc of docs.rows) {
+        tmp.push(doc.doc!);
+    }
+
+    // finish
+    pss.value = tmp;
+});
+
+const addPS = async (pPs: PartialPS): Promise<PS> => {
+    if (!raceDB.value) throw new Error('Cannot add ps without a race selected');
+
+    const _id = createKey(RACES_TYPES.PS, pPs.name);
+    let found = undefined;
+    try {
+        found = await raceDB.value.get(_id);
+    } catch (ignored) {}
+
+    if (found) {
+        useToasterStore().error({ text: _t('PS <b>{0}</b> already exist', pPs.name) });
+        throw `PS ${_id} already exist`;
+    }
+
+    const ps: PS = {
+        _id,
+        ...pPs,
+    };
+
+    const resp = await raceDB.value.put(ps);
+    return {
+        ...ps,
+        _rev: resp.rev,
+    } as PS;
+};
+
+const removePS = async (_id: string) => {
+    if (!raceDB.value) throw new Error('Cannot remove ps without a race selected');
+
+    const ps = await raceDB.value.get<PS>(_id);
+    if (ps) {
+        await raceDB.value.remove(ps);
+    }
+};
+
+const cleanPSs = async () => {
+    if (!raceDB.value) throw new Error('Cannot clean PSs without a race selected');
+
+    // takes
+    const itemsTakes = await raceDB.value.allDocs<IDItem>({
+        ...getFiltersForType(RACES_TYPES.TAKE),
+    });
+    const toDeleteTakes = itemsTakes.rows.map((item) => ({
+        _id: item.id,
+        _rev: item.doc?._rev,
+        deleted: true,
+    }));
+    await raceDB.value.bulkDocs(toDeleteTakes);
+
+    // pss
+    const itemsPSs = await raceDB.value.allDocs<IDItem>({
+        ...getFiltersForType(RACES_TYPES.PS),
+    });
+    const toDeletePS = itemsPSs.rows.map((item) => ({
+        _id: item.id,
+        _rev: item.doc?._rev,
+        deleted: true,
+    }));
+    await raceDB.value.bulkDocs(toDeletePS);
+};
+
+export function usePS() {
     return {
         pss,
-        async addPS(ps: PS) {
-            if (!currentRace || !currentRace.value) {
-                toasterStore.error({ text: _t('No race selected') });
-                throw `No race selected`;
-            }
-
-            const psLevel = getPsLevel(currentRace.value._id!);
-            const _id = cleanKey(ps.name);
-
-            const [found] = await psLevel.getMany([_id]);
-            if (found) {
-                toasterStore.error({ text: _t('PS <b>{0}</b> already exist', ps.name) });
-                throw `PS ${_id} already exist`;
-            }
-
-            await psLevel.put(_id, ps);
-            return {
-                _id,
-                ...ps,
-            } as PS;
-        },
-        async removePS(_id: string) {
-            if (!currentRace || !currentRace.value) {
-                toasterStore.error({ text: _t('No race selected') });
-                throw `No race selected`;
-            }
-
-            const psLevel = getPsLevel(currentRace.value._id!);
-            const takesLevel = getTakesLevel(currentRace.value._id!);
-            await psLevel.del(_id);
-            await takesLevel.clear({ gte: _id, lt: _id + '~' });
-        },
-        async cleanPS() {
-            if (!currentRace || !currentRace.value) {
-                toasterStore.error({ text: _t('No race selected') });
-                throw `No race selected`;
-            }
-
-            const psLevel = getPsLevel(currentRace.value._id!);
-            const takesLevel = getTakesLevel(currentRace.value._id!);
-            await psLevel.clear();
-            await takesLevel.clear();
-        },
+        addPS,
+        removePS,
+        cleanPSs,
     };
 }

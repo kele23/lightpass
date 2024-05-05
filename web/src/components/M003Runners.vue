@@ -14,7 +14,7 @@ import X201WidgetDownloadCsv from './X201WidgetDownloadCsv.vue';
 import X300ModalConfirm from './X300ModalConfirm.vue';
 
 /////////////////////////////////////////////////////
-const { runners, addRunner, removeRunner, cleanRunner } = useRunners();
+const { runners, addRunner, removeRunner, cleanRunners: cleanRunner } = useRunners();
 const { isRevealed, reveal, confirm } = useConfirmDialog();
 
 const removeRunnerDialog = async (id: string) => {

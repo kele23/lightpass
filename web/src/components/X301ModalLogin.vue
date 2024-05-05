@@ -1,33 +1,30 @@
 <script setup lang="ts">
-import { useMounted } from '@vueuse/core';
-import { ref, watch } from 'vue';
-import { useLogin } from '../composable/useLogin.ts';
+import { ref } from 'vue';
 import { _t } from '../services/dictionary.ts';
 const modalRef = ref<HTMLDialogElement>();
 
-const mounted = useMounted();
-const { loginPopup, login } = useLogin();
+// const mounted = useMounted();
 
-// if logged goes to false, then open modal
-watch([loginPopup, mounted], () => {
-    if (!mounted.value) return;
-    if (!loginPopup.value) return;
+// // if logged goes to false, then open modal
+// watch([loginPopup, mounted], () => {
+//     if (!mounted.value) return;
+//     if (!loginPopup.value) return;
 
-    modalRef.value?.showModal();
-});
+//     modalRef.value?.showModal();
+// });
 
-const loginMethod = async (form: HTMLFormElement) => {
-    const data = new FormData(form);
-    await login({ username: data.get('username') as string, password: data.get('password') as string });
-};
+// const loginMethod = async (form: HTMLFormElement) => {
+//     const data = new FormData(form);
+//     await login({ username: data.get('username') as string, password: data.get('password') as string });
+// };
 </script>
 
 <template>
-    <dialog class="modal" ref="modalRef" v-on:close="loginPopup = false">
+    <dialog class="modal" ref="modalRef">
         <div class="modal-box">
-            <form method="dialog" @submit="loginMethod($event.target as HTMLFormElement)">
+            <form method="dialog">
                 <button
-                    class="btn-ghost btn-sm btn-circle btn absolute right-2 top-2"
+                    class="btn btn-circle btn-ghost btn-sm absolute right-2 top-2"
                     type="button"
                     v-on:click="modalRef?.close()"
                 >
@@ -39,7 +36,7 @@ const loginMethod = async (form: HTMLFormElement) => {
                 <div class="mt-6">
                     <input
                         type="text"
-                        class="input-bordered input w-full"
+                        class="input input-bordered w-full"
                         required
                         autocomplete="username"
                         placeholder="Username"
@@ -49,7 +46,7 @@ const loginMethod = async (form: HTMLFormElement) => {
                 <div class="mt-6">
                     <input
                         type="password"
-                        class="input-bordered input w-full"
+                        class="input input-bordered w-full"
                         placeholder="Password"
                         autocomplete="current-password"
                         required
@@ -58,10 +55,10 @@ const loginMethod = async (form: HTMLFormElement) => {
                 </div>
 
                 <div class="modal-action">
-                    <button class="btn-ghost btn" type="button" v-on:click="modalRef?.close()">
+                    <button class="btn btn-ghost" type="button" v-on:click="modalRef?.close()">
                         {{ _t('Cancel') }}
                     </button>
-                    <button class="btn-primary btn" value="continue">{{ _t('Continue') }}</button>
+                    <button class="btn btn-primary" value="continue">{{ _t('Continue') }}</button>
                 </div>
             </form>
         </div>

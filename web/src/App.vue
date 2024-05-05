@@ -1,13 +1,14 @@
 <script setup lang="ts">
+import { useTimes } from './composable/useTimes';
 import { useEventListener } from '@vueuse/core';
 import X401Toaster from './components/X401Toaster.vue';
-import { addTime } from './services/db.ts';
 import X301ModalLogin from './components/X301ModalLogin.vue';
-import './composable/useDBSync.ts';
+
+const { addTime } = useTimes();
 
 useEventListener('keydown', (e) => {
     if (e.key == '+' && e.altKey) {
-        addTime(new Date().getTime());
+        addTime({ time: new Date().getTime() });
     }
 });
 </script>

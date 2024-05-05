@@ -1,55 +1,61 @@
-import { ref, watch, watchEffect } from 'vue';
-import { Time } from '../interfaces/db.ts';
-import { emitter, timesLevel } from '../services/db.ts';
+import PouchDB from 'pouchdb';
+import { effect, ref } from 'vue';
+import { PartialTime, Time } from '../interfaces/db.ts';
 
-export function useTimes() {
-    const times = ref([] as Time[]);
-    const reset = ref(0);
+const timesDB = new PouchDB<Time>('lightpass_times');
+const times = ref<Time[]>([]);
 
-    const onDbChange = () => {
-        reset.value++;
+const getTime = async (_id: string): Promise<Time> => {
+    const time = await timesDB.get(_id);
+    return time;
+};
+
+const addTime = async (pTime: PartialTime): Promise<Time> => {
+    const _id = pTime.time + '-' + Math.ceil(Math.random() * 1000);
+
+    const timeObj: Time = {
+        _id,
+        time: pTime.time,
     };
 
-    watchEffect((onCleanup) => {
-        emitter.on('db:change', onDbChange);
+    // add new time
+    const resp = await timesDB.put(timeObj);
+    return { ...timeObj, _rev: resp.rev };
+};
 
-        onCleanup(() => {
-            emitter.off('put', onDbChange);
-        });
+const removeTime = async (_id: string) => {
+    const time = await timesDB.get<Time>(_id);
+    await timesDB.remove(time);
+};
+
+effect(async () => {
+    let tmp = [] as Time[];
+
+    const docs = await timesDB.allDocs<Time>({ include_docs: true });
+    for (const doc of docs.rows) {
+        tmp.push(doc.doc!);
+    }
+
+    // finish
+    times.value = tmp;
+});
+
+// listen to times change
+timesDB
+    .changes<Time>({
+        since: 'now',
+        live: true,
+        include_docs: true,
+    })
+    .on('change', (changes) => {
+        if (changes.deleted) {
+            times.value = times.value.filter((item) => item._id != changes.id);
+        } else if (changes.doc) {
+            times.value = [...times.value, changes.doc];
+            console.log('>>>>>>> New time ', new Date(changes.doc.time), changes.doc.time);
+        }
     });
 
-    watch(
-        reset,
-        async () => {
-            let tmp = [] as Time[];
-
-            try {
-                const iterator = timesLevel.iterator();
-                for await (const [key, value] of iterator) {
-                    const time = {
-                        _id: key,
-                        ...value,
-                    } as Time;
-                    tmp.push(time);
-                }
-            } catch (err) {
-                console.error(err);
-            }
-
-            // finish
-            times.value = tmp;
-        },
-        { immediate: true }
-    );
-
-    return {
-        times,
-        async getTime(_id: string): Promise<Time> {
-            const time = await timesLevel.get(_id);
-            return {
-                _id,
-                ...time,
-            } as Time;
-        },
-    };
+export function useTimes() {
+    return { times, addTime, removeTime };
 }

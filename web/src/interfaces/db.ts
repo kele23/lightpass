@@ -1,42 +1,56 @@
-export interface IDItem {
-    _id?: string;
-    [propName: string]: any;
+export const enum RACES_TYPES {
+    RUNNER = 'runner',
+    TAKE = 'take',
+    PS = 'ps',
 }
 
-export interface Race extends IDItem {
+export type IDItem = Record<string, any> & {
+    _id: string;
+    _rev?: string;
+};
+
+export type PartialRace = {
     name: string;
-}
+};
+
+export type Race = PartialRace & IDItem;
 
 export enum Order {
     asc = 'asc',
     desc = 'desc',
 }
 
-export interface PS extends IDItem {
+export type PartialPS = {
     name: string;
     start: number;
     gap: number;
     order: Order;
-}
+};
 
-export interface Time extends IDItem {
+export type PS = IDItem & PartialPS;
+
+export type PartialTime = {
     time: number;
-}
+};
+
+export type Time = IDItem & PartialTime;
 
 export enum TakeType {
     start = 0,
     end = 1,
 }
 
-export interface Take extends IDItem {
+export type PartialTake = {
     time: number;
     runner: string;
     ps: string;
     type: TakeType;
     pen?: number;
-}
+};
 
-export interface Runner extends IDItem {
+export type Take = IDItem & PartialTake;
+
+export type PartialRunner = {
     name: string;
     number: number;
     category: string;
@@ -45,4 +59,6 @@ export interface Runner extends IDItem {
     uci: string;
     soc: string;
     naz: string;
-}
+};
+
+export type Runner = PartialRunner & IDItem;

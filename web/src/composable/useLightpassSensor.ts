@@ -1,6 +1,6 @@
 import { ref, watch } from 'vue';
-import { addTime } from '../services/db.ts';
 import { useBluetooth } from './useBluetooth.ts';
+import { useTimes } from './useTimes.ts';
 
 const LIGHTPASS_SERVICE = 'b5b0c9c5-36b4-474e-8922-1a4676c70002';
 const NOTIFY_CHARACTERISTIC = '5714ff7d-43d5-49f1-8f57-5c0ecbcfd459';
@@ -14,6 +14,7 @@ let baseDate: number;
 let firstTime: number;
 
 async function createConnection() {
+    const { addTime } = useTimes();
     if (!isConnected || !server?.value) return;
 
     const service = await server.value.getPrimaryService(LIGHTPASS_SERVICE);
@@ -28,7 +29,7 @@ async function createConnection() {
                 baseDate = new Date().getTime();
                 firstTime = number;
             }
-            addTime(baseDate + (number - firstTime));
+            addTime({ time: baseDate + (number - firstTime) });
         }
     });
 }
