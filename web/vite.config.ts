@@ -9,10 +9,10 @@ export default defineConfig({
         https: true,
         proxy: {
             '/api/db': {
-                target: 'http://localhost:3000',
+                target: 'http://192.168.68.122:5984/',
                 changeOrigin: true,
                 rewrite: (path) => path.replace(/^\/api\/db/, ''),
             },
         },
-    }
+    },
 });

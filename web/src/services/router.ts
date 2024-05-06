@@ -7,9 +7,11 @@ import M004Score from '../components/M004Score.vue';
 import M005GlobalScore from '../components/M005GlobalScore.vue';
 import M006Device from '../components/M006Device.vue';
 import M901NotFound from '../components/M901NotFound.vue';
+import M902Login from '../components/M902Login.vue';
 import L001Main from '../components/L001Main.vue';
 import { _t } from './dictionary.ts';
 import { useRace } from '../composable/useRace.ts';
+import { useLogin } from '../composable/useLogin.ts';
 
 const routes = [
     { path: '/:pathMatch(.*)*', component: M901NotFound, meta: { title: _t('Not Found') } },
@@ -24,8 +26,13 @@ const routes = [
             { path: 'results/:ps', component: M004Score, meta: { title: _t('PS Results') } },
             { path: 'device', component: M006Device, meta: { title: _t('Device') } },
         ],
+        meta: {
+            auth: true,
+            race: true,
+        },
     },
-    { path: '/entry', component: M000Racer, meta: { title: _t('Entry') } },
+    { path: '/entry', component: M000Racer, meta: { title: _t('Entry'), auth: true } },
+    { path: '/login', component: M902Login, meta: { title: _t('Login') } },
 ];
 
 const router = createRouter({
@@ -40,13 +47,13 @@ const router = createRouter({
     },
 });
 
-router.beforeEach((to) => {
-    if (to.path != '/login') {
-        const { loggedIn } = useLogin();
-        if (!loggedIn.value) return { path: '/login' };
+router.beforeEach(async (to) => {
+    if (to.meta.auth) {
+        const { isLoggedIn } = useLogin();
+        if (!(await isLoggedIn())) return { path: '/login' };
     }
 
-    if (to.path != '/entry') {
+    if (to.meta.race) {
         const { currentRace } = useRace();
         if (!currentRace.value) return { path: '/entry' };
     }

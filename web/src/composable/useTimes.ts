@@ -3,6 +3,8 @@ import { effect, ref } from 'vue';
 import { PartialTime, Time } from '../interfaces/db.ts';
 
 const timesDB = new PouchDB<Time>('lightpass_times');
+timesDB.sync(`${window.location.origin}/api/db/lightpass_times`, { live: true, retry: true });
+
 const times = ref<Time[]>([]);
 
 const getTime = async (_id: string): Promise<Time> => {

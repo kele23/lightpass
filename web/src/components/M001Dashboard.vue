@@ -142,7 +142,7 @@ import { BackspaceIcon } from '@heroicons/vue/24/solid';
                     <label class="label">
                         <span class="label-text">{{ _t('Select PS') }}</span>
                     </label>
-                    <select class="select-bordered select w-full max-w-xs" @change="changePs">
+                    <select class="select select-bordered w-full max-w-xs" @change="changePs">
                         <option value="">{{ _t('All PS') }}</option>
                         <option v-for="ps in pss" :key="ps._id" :value="ps._id" :selected="ps._id == selectedPs">
                             {{ ps.name }}
@@ -154,7 +154,7 @@ import { BackspaceIcon } from '@heroicons/vue/24/solid';
                     <label class="label">
                         <span class="label-text">{{ _t('Time modality') }}</span>
                     </label>
-                    <select class="select-bordered select w-full max-w-xs" v-model="type">
+                    <select class="select select-bordered w-full max-w-xs" v-model="type">
                         <option :value="TakeType.start" :selected="type == TakeType.start">{{ _t('PS Start') }}</option>
                         <option :value="TakeType.end" :selected="type == TakeType.end">{{ _t('PS End') }}</option>
                     </select>
@@ -176,7 +176,7 @@ import { BackspaceIcon } from '@heroicons/vue/24/solid';
                     <div class="mt-6">
                         <input
                             type="text"
-                            class="input-bordered input w-full max-w-xs"
+                            class="input input-bordered w-full max-w-xs"
                             required
                             placeholder="Time"
                             name="timeStr"
@@ -184,7 +184,7 @@ import { BackspaceIcon } from '@heroicons/vue/24/solid';
                         />
                     </div>
                     <div class="mt-6">
-                        <select class="select-bordered select w-full max-w-xs" required name="psId">
+                        <select class="select select-bordered w-full max-w-xs" required name="psId">
                             <option value=""></option>
                             <option v-for="ps in pss" :key="ps._id" :value="ps._id">
                                 {{ ps.name }}
@@ -194,7 +194,7 @@ import { BackspaceIcon } from '@heroicons/vue/24/solid';
 
                     <div class="mt-6">
                         <select
-                            class="select-bordered select w-full max-w-xs"
+                            class="select select-bordered w-full max-w-xs"
                             required
                             name="runnerId"
                             ref="numberInput"
@@ -207,7 +207,7 @@ import { BackspaceIcon } from '@heroicons/vue/24/solid';
                     </div>
 
                     <div class="mt-6 w-full">
-                        <button class="btn-primary btn" type="submit">Assegna</button>
+                        <button class="btn btn-primary" type="submit">Assegna</button>
                     </div>
                 </form>
             </X200Widget>

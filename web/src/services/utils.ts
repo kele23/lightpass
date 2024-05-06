@@ -43,7 +43,7 @@ export const createKey = (type: string, value: string) => {
 };
 
 export const cleanKey = (value: string) => {
-    let result = value.replace(/\s+/, '-');
+    let result = value.replace(/\s+/g, '-');
     result = result.toLowerCase();
     return result.replace(/[^a-z0-9-]/g, '');
 };
