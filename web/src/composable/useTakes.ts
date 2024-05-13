@@ -1,9 +1,8 @@
 import { effect, ref, watchEffect } from 'vue';
 import { IDItem, PartialTake, RACES_TYPES, Take } from '../interfaces/db.ts';
-import { _t } from '../services/dictionary.ts';
-import { createKey, getFiltersForType } from '../services/utils.ts';
-import useToasterStore from '../stores/toaster.ts';
+import { createKey, getFiltersForType, getMachineId } from '../services/utils.ts';
 import { raceDB } from './useRace.ts';
+import { useTimes } from './useTimes.ts';
 
 const takes = ref<Take[]>([]);
 
@@ -51,57 +50,61 @@ effect(async () => {
     takes.value = tmp;
 });
 
-const addTake = async (pTake: PartialTake): Promise<Take> => {
-    if (!raceDB.value) throw new Error('Cannot add take without a race selected');
+export function useTakes() {
+    const { addTime, removeTime } = useTimes();
 
-    const _id = createKey(RACES_TYPES.TAKE, pTake.ps + '-' + pTake.runner + '-' + pTake.type);
-    let found = undefined;
-    try {
-        found = await raceDB.value.get(_id);
-    } catch (ignored) {}
+    const addTake = async (pTake: PartialTake, timeId: string): Promise<Take> => {
+        if (!raceDB.value) throw new Error('Cannot add take without a race selected');
 
-    if (found) {
-        useToasterStore().error({ text: _t('PS <b>{0}</b> already exist', _id) });
-        throw `Take ${_id} already exist`;
-    }
+        const _id = createKey(RACES_TYPES.TAKE, pTake.ps + '-' + pTake.runner + '-' + pTake.type);
+        let found = undefined;
+        try {
+            found = await raceDB.value.get(_id);
+        } catch (ignored) {}
 
-    const take: Take = {
-        _id,
-        ...pTake,
+        if (found) {
+            throw new Error(`Take ${_id} already exist`);
+        }
+
+        const take: Take = {
+            _id,
+            ...pTake,
+        };
+
+        await removeTime(timeId);
+
+        const resp = await raceDB.value.put(take);
+        return {
+            ...take,
+            _rev: resp.rev,
+        } as Take;
     };
 
-    const resp = await raceDB.value.put(take);
-    return {
-        ...take,
-        _rev: resp.rev,
-    } as Take;
-};
+    const removeTake = async (_id: string) => {
+        if (!raceDB.value) throw new Error('Cannot remove take without a race selected');
 
-const removeTake = async (_id: string) => {
-    if (!raceDB.value) throw new Error('Cannot remove take without a race selected');
+        const take = await raceDB.value.get<Take>(_id);
+        if (take) {
+            await raceDB.value.remove(take);
+            await addTime({ time: take.time, deviceId: getMachineId() });
+        }
+    };
 
-    const take = await raceDB.value.get<Take>(_id);
-    if (take) {
-        await raceDB.value.remove(take);
-    }
-};
+    const cleanTakes = async () => {
+        if (!raceDB.value) throw new Error('Cannot clean Takes without a race selected');
 
-const cleanTakes = async () => {
-    if (!raceDB.value) throw new Error('Cannot clean Takes without a race selected');
+        // takes
+        const itemsTakes = await raceDB.value.allDocs<IDItem>({
+            ...getFiltersForType(RACES_TYPES.TAKE),
+        });
+        const toDeleteTakes = itemsTakes.rows.map((item) => ({
+            _id: item.id,
+            _rev: item.doc?._rev,
+            deleted: true,
+        }));
+        await raceDB.value.bulkDocs(toDeleteTakes);
+    };
 
-    // takes
-    const itemsTakes = await raceDB.value.allDocs<IDItem>({
-        ...getFiltersForType(RACES_TYPES.TAKE),
-    });
-    const toDeleteTakes = itemsTakes.rows.map((item) => ({
-        _id: item.id,
-        _rev: item.doc?._rev,
-        deleted: true,
-    }));
-    await raceDB.value.bulkDocs(toDeleteTakes);
-};
-
-export function useTakes() {
     return {
         takes,
         addTake,

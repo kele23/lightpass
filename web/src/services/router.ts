@@ -12,6 +12,7 @@ import L001Main from '../components/L001Main.vue';
 import { _t } from './dictionary.ts';
 import { useRace } from '../composable/useRace.ts';
 import { useLogin } from '../composable/useLogin.ts';
+import { TakeType } from '../interfaces/db.ts';
 
 const routes = [
     { path: '/:pathMatch(.*)*', component: M901NotFound, meta: { title: _t('Not Found') } },
@@ -19,7 +20,8 @@ const routes = [
         path: '/',
         component: L001Main,
         children: [
-            { path: '', component: M001Dashboard, meta: { title: _t('Dashboard') } },
+            { path: 'start', component: M001Dashboard, meta: { title: _t('Start'), type: TakeType.start } },
+            { path: 'finish', component: M001Dashboard, meta: { title: _t('Finish'), type: TakeType.end } },
             { path: 'race', component: M002Race, meta: { title: _t('Race') } },
             { path: 'runners', component: M003Runners, meta: { title: _t('Runners') } },
             { path: 'results', component: M005GlobalScore, meta: { title: _t('Global Results') } },
@@ -32,7 +34,7 @@ const routes = [
         },
     },
     { path: '/entry', component: M000Racer, meta: { title: _t('Entry'), auth: true } },
-    { path: '/login', component: M902Login, meta: { title: _t('Login') } },
+    { path: '/login', component: M902Login, meta: { title: _t('Login'), notLogged: true } },
 ];
 
 const router = createRouter({
@@ -56,6 +58,11 @@ router.beforeEach(async (to) => {
     if (to.meta.race) {
         const { currentRace } = useRace();
         if (!currentRace.value) return { path: '/entry' };
+    }
+
+    if (to.meta.notLogged) {
+        const { isLoggedIn } = useLogin();
+        if (await isLoggedIn()) return { path: '/entry' };
     }
 });
 

@@ -1,5 +1,4 @@
-import { RACES_TYPES } from "../interfaces/db.ts";
-
+import { RACES_TYPES } from '../interfaces/db.ts';
 
 ///////////////////////////////////////////////////////////////////// TAKE
 // export async function addTake(
@@ -50,4 +49,14 @@ export const cleanKey = (value: string) => {
 
 export const getFiltersForType = (type: RACES_TYPES) => {
     return { startkey: `${type}!`, endkey: `${type}!\ufff0` };
+};
+
+export const getMachineId = () => {
+    let machineId = localStorage.getItem('MachineId');
+
+    if (!machineId) {
+        machineId = crypto.randomUUID();
+        localStorage.setItem('MachineId', machineId);
+    }
+    return machineId;
 };

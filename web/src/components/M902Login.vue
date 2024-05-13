@@ -7,7 +7,7 @@ import useToasterStore from '../stores/toaster.ts';
 const toasterStore = useToasterStore();
 const { login, isLoggingIn } = useLogin();
 
-const doLogin = (e: SubmitEvent) => {
+const doLogin = async (e: Event) => {
     const form = new FormData(e.target as HTMLFormElement);
 
     const data = {
@@ -15,11 +15,11 @@ const doLogin = (e: SubmitEvent) => {
         password: form.get('password') as string,
     };
 
-    const ok = login(data);
+    const ok = await login(data);
     if (!ok) {
         toasterStore.warning({ text: _t('Cannot login') });
     } else {
-        router.push('/');
+        router.push('/entry');
     }
 };
 </script>

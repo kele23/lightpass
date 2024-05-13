@@ -1,7 +1,9 @@
 <script setup lang="ts">
 // import { useRouteParams } from '@vueuse/router';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 // import { useRace } from '../composable/useRace.ts';
+import { useRouteParams } from '@vueuse/router';
+import { usePS } from '../composable/usePS.ts';
 import { useScore } from '../composable/useScore.ts';
 import { PS } from '../interfaces/db.ts';
 import { _t } from '../services/dictionary.ts';
@@ -10,27 +12,19 @@ import X001Table from './X001Table.vue';
 import X201WidgetDownloadCsv from './X201WidgetDownloadCsv.vue';
 import X202WidgetPrint from './X202WidgetPrint.vue';
 
-//const { currentRace } = useRace();
 const selectedPS = ref<PS>();
-//const psParam = useRouteParams('ps');
+const psParam = useRouteParams('ps');
+const { pss } = usePS();
 const { score } = useScore(selectedPS);
 const table = ref();
 
-// watch(
-//     [psParam, currentRace],
-//     async () => {
-//         if (!currentRace || !currentRace.value) return;
-//         const psLevel = getPsLevel(currentRace.value._id!);
-//         try {
-//             const _id = psParam.value as string;
-//             const ps = await psLevel.get(_id);
-//             selectedPS.value = { _id, ...ps };
-//         } catch (e) {
-//             selectedPS.value = undefined;
-//         }
-//     },
-//     { immediate: true }
-// );
+watch(
+    [pss, psParam],
+    () => {
+        selectedPS.value = pss.value.find((item) => item._id == psParam.value);
+    },
+    { immediate: true }
+);
 </script>
 
 <template>

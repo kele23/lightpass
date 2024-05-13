@@ -13,14 +13,14 @@ async function createRace(event: Event) {
     const raceName = formData.get('name') as string;
     const doc = await addRace({ name: raceName });
     await setCurrentRace(doc._id);
-    router.push('/');
+    router.push('/race');
 }
 
 async function selectRace(event: Event) {
     const formData = new FormData(event.target as HTMLFormElement);
     const id = formData.get('name');
     await setCurrentRace(id as string);
-    router.push('/');
+    router.push('/race');
 }
 </script>
 

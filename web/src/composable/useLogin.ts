@@ -14,7 +14,7 @@ export const isLoggingIn = ref<boolean>(false);
 const isLoggedIn = async (): Promise<boolean> => {
     if (loggedIn.value) return true;
     try {
-        const resp = await fetch('/api/db/_session');
+        const resp = await fetch('/couchdb/_session');
         const tmpUser = (await resp.json()) as LoginUser;
         if (tmpUser.ok && tmpUser.userCtx.name) {
             user.value = tmpUser;
@@ -30,7 +30,7 @@ const isLoggedIn = async (): Promise<boolean> => {
 const login = async (data: { name: string; password: string }) => {
     try {
         isLoggingIn.value = true;
-        const resp = await fetch('/api/db/_session', {
+        const resp = await fetch('/couchdb/_session', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

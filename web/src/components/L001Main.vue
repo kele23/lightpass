@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { AtSymbolIcon, Bars3Icon, SignalIcon, UserIcon } from '@heroicons/vue/24/solid';
+import { AtSymbolIcon, Bars3Icon } from '@heroicons/vue/24/solid';
 import { useLightpassSensor } from '../composable/useLightpassSensor.ts';
 import { useRace } from '../composable/useRace.ts';
 import X002Nav from './X002Nav.vue';
-import { format } from 'date-fns';
 
 const { currentRace } = useRace();
-const { isConnected, requestDevice } = useLightpassSensor();
+//const { isConnected, requestDevice } = useLightpassSensor();
 </script>
 
 <template>
@@ -14,9 +13,6 @@ const { isConnected, requestDevice } = useLightpassSensor();
         <input id="main-drawer" type="checkbox" class="drawer-toggle" />
         <div class="drawer-content flex flex-col">
             <header class="sticky top-0 z-10 flex h-16 w-full items-center justify-between bg-base-200 px-4 shadow">
-                <router-link to="/" class="btn btn-ghost gap-1 bg-base-300">
-                    <AtSymbolIcon class="h-4 w-4" /> {{ currentRace?.name }}
-                </router-link>
                 <label for="main-drawer" class="btn btn-square btn-primary drawer-button xl:hidden">
                     <Bars3Icon class="h-6 w-6"
                 /></label>

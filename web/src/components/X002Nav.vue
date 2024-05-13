@@ -1,58 +1,61 @@
 <script setup lang="ts">
 import {
+    ArrowLeftStartOnRectangleIcon,
+    AtSymbolIcon,
     CheckBadgeIcon,
     CogIcon,
     CubeIcon,
+    FlagIcon,
     LifebuoyIcon,
+    PlayIcon,
     RocketLaunchIcon,
     SignalIcon,
     UsersIcon,
-} from '@heroicons/vue/24/solid';
+} from '@heroicons/vue/24/outline';
 import { usePS } from '../composable/usePS.ts';
-import { useRace } from '../composable/useRace.ts';
 import { _t } from '../services/dictionary.ts';
 import { useLightpassSensor } from '../composable/useLightpassSensor.ts';
+import { useRace } from '../composable/useRace.ts';
 
 /////////////////////////////////////////////////////
 const { pss } = usePS();
-const { races, currentRace, setCurrentRace } = useRace();
 const { isConnected } = useLightpassSensor();
+const { currentRace } = useRace();
 </script>
 
 <template>
-    <div class="z-40 min-h-full w-80 bg-base-300 p-4 text-base-content shadow">
+    <div class="z-40 flex min-h-full w-80 flex-col bg-base-300 p-4 text-base-content shadow">
         <div class="flex items-center gap-4 pt-6">
             <RocketLaunchIcon class="h-12 w-12" />
             <p class="text-2xl font-bold">LIGHTPASS V4</p>
         </div>
-        <div class="w-full max-w-xs pt-10 pb-3">
-            <div class="flex justify-between pb-1">
-                <span class="label-text">{{ _t('Current race:') }}</span>
-                <router-link to="/entry" class="btn-link label-text-alt btn-xs btn px-0">
-                    {{ _t('New Race') }}
-                </router-link>
-            </div>
-            <select
-                class="select w-full max-w-xs"
-                @change="setCurrentRace(($event.target as HTMLSelectElement)?.value)"
-            >
-                <option
-                    v-for="item in races"
-                    :key="item._id"
-                    :value="item._id"
-                    :selected="item._id == currentRace?._id"
-                >
-                    {{ item.name }}
-                </option>
-            </select>
+        <div class="divider"></div>
+        <div class="flex items-center gap-2 px-4 font-semibold">
+            <AtSymbolIcon class="h-6 w-6" /> {{ currentRace?.name }}
         </div>
         <div class="divider"></div>
-        <ul class="menu mt-6 p-0 [&_li>*]:rounded-none">
+        <ul class="menu mt-6 grow p-0 [&_li>*]:rounded-none">
             <li>
-                <router-link to="/">
+                <span>
                     <CogIcon class="h-6 w-6 text-left" />
                     <span class="mx-2 text-sm font-normal"> {{ _t('Dashboard') }} </span>
-                </router-link>
+                </span>
+                <ul>
+                    <li>
+                        <router-link to="/start"
+                            ><PlayIcon class="h-6 w-6 text-left" /><span class="mx-2 text-sm font-normal">
+                                {{ _t('Start') }}
+                            </span></router-link
+                        >
+                    </li>
+                    <li>
+                        <router-link to="/finish"
+                            ><FlagIcon class="h-6 w-6 text-left" /><span class="mx-2 text-sm font-normal">
+                                {{ _t('Finish') }}
+                            </span></router-link
+                        >
+                    </li>
+                </ul>
             </li>
             <li>
                 <router-link to="/results">
@@ -85,6 +88,12 @@ const { isConnected } = useLightpassSensor();
                 </router-link>
             </li>
         </ul>
+        <div class="divider"></div>
+        <div class="px-4">
+            <router-link to="/entry" class="btn btn-warning">
+                <ArrowLeftStartOnRectangleIcon class="h-6 w-6 text-left" />
+                <span class="mx-2 text-sm font-semibold"> {{ _t('Exit') }} </span>
+            </router-link>
+        </div>
     </div>
 </template>
-../composable/useLightpassSensor

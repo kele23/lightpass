@@ -8,10 +8,10 @@ export default defineConfig({
     server: {
         https: true,
         proxy: {
-            '/api/db': {
-                target: 'http://192.168.68.122:5984/',
+            '/couchdb': {
+                target: 'http://192.168.68.107:5984/',
                 changeOrigin: true,
-                rewrite: (path) => path.replace(/^\/api\/db/, ''),
+                rewrite: (path) => path.replace(/^\/couchdb/, ''),
             },
         },
     },

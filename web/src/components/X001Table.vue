@@ -31,16 +31,19 @@ const props = defineProps<{
 const filterValue = ref<string>('');
 const filteredData = computed(() => {
     const key = props.filterKey;
-    if (!key || !filterValue.value) return props.data;
+    if (!key || !filterValue.value) {
+        return props.data;
+    }
 
     const regex = new RegExp(`.*${filterValue.value}.*`, 'i');
-    return props.data.filter((item) => {
+    const tmp = props.data.filter((item) => {
         if (typeof key == 'string') return item[key]?.match(regex);
         for (const k of key) {
             if (item[k]?.match(regex)) return true;
         }
         return false;
     });
+    return tmp;
 });
 
 function format(data: any, formatIndex: number) {
@@ -143,7 +146,11 @@ function filter(event: SubmitEvent) {
                             :key="item._id"
                             class="group h-12 odd:bg-base-300 even:bg-base-200"
                         >
-                            <td v-for="(key, index) in keys" :key="key" class="px-2 py-1 text-sm print:px-1 print:py-0">
+                            <td
+                                v-for="(key, index) in keys"
+                                :key="key"
+                                class="px-2 py-1 text-sm print:px-1 print:py-0"
+                            >
                                 <p
                                     class="whitespace-no-wrap break-all print:text-xs"
                                     v-html="format(item[key], index)"

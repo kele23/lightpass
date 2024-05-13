@@ -7,7 +7,7 @@ import X001Table from './X001Table.vue';
 import X201WidgetDownloadCsv from './X201WidgetDownloadCsv.vue';
 import X202WidgetPrint from './X202WidgetPrint.vue';
 
-const { globalScore } = useGlobalScore();
+const { score } = useGlobalScore();
 const table = ref();
 </script>
 
@@ -19,7 +19,7 @@ const table = ref();
             </h1>
             <X001Table
                 ref="table"
-                :data="globalScore"
+                :data="score"
                 :show-pos="true"
                 :actionDisabled="true"
                 :filterKey="['number', 'name']"
@@ -30,7 +30,7 @@ const table = ref();
         </template>
         <template #sidebar>
             <X202WidgetPrint :table="table?.tableEl" />
-            <X201WidgetDownloadCsv :data="globalScore" />
+            <X201WidgetDownloadCsv :data="score" />
         </template>
     </L002MainInternal>
 </template>

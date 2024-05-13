@@ -2,13 +2,13 @@
 import { useTimes } from './composable/useTimes';
 import { useEventListener } from '@vueuse/core';
 import X401Toaster from './components/X401Toaster.vue';
-import X301ModalLogin from './components/X301ModalLogin.vue';
+import { getMachineId } from './services/utils';
 
 const { addTime } = useTimes();
 
 useEventListener('keydown', (e) => {
     if (e.key == '+' && e.altKey) {
-        addTime({ time: new Date().getTime() });
+        addTime({ time: new Date().getTime(), deviceId: getMachineId() });
     }
 });
 </script>
@@ -17,7 +17,6 @@ useEventListener('keydown', (e) => {
     <div>
         <router-view></router-view>
         <div id="modals"></div>
-        <X301ModalLogin />
         <X401Toaster />
     </div>
 </template>

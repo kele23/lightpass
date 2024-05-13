@@ -2,6 +2,7 @@ export const enum RACES_TYPES {
     RUNNER = 'runner',
     TAKE = 'take',
     PS = 'ps',
+    TIME = 'time',
 }
 
 export type IDItem = Record<string, any> & {
@@ -18,6 +19,7 @@ export type Race = PartialRace & IDItem;
 export enum Order {
     asc = 'asc',
     desc = 'desc',
+    time = 'time',
 }
 
 export type PartialPS = {
@@ -31,6 +33,7 @@ export type PS = IDItem & PartialPS;
 
 export type PartialTime = {
     time: number;
+    deviceId: string;
 };
 
 export type Time = IDItem & PartialTime;
@@ -49,6 +52,11 @@ export type PartialTake = {
 };
 
 export type Take = IDItem & PartialTake;
+
+export type FriendlyTake = Take & {
+    runnerNumber: number;
+    psName: string;
+};
 
 export type PartialRunner = {
     name: string;

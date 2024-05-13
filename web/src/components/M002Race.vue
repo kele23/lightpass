@@ -14,7 +14,7 @@ import X300ModalConfirm from './X300ModalConfirm.vue';
 import X200Widget from './X200Widget.vue';
 
 /////////////////////////////////////////////////////
-const { pss, addPS, removePS, cleanPS } = usePS();
+const { pss, addPS, removePS, cleanPSs } = usePS();
 const { isRevealed, reveal, confirm } = useConfirmDialog();
 
 const removePSDialog = async (id: string) => {
@@ -43,7 +43,7 @@ async function uploadCsv(event: SubmitEvent) {
     if (!files) return;
     //clean
     //await dbManager.cleanTakes(raceId);
-    await cleanPS();
+    await cleanPSs();
     //read file
     const f = files[0];
     const arrayBuffer = (await readFileAsync(f)) as ArrayBuffer;
@@ -77,7 +77,7 @@ async function uploadCsv(event: SubmitEvent) {
                 :data="pss"
                 :labels="['Name', 'Gap', 'Start', 'Order']"
                 :keys="['name', 'gap', 'start', 'order']"
-                :format="['string', 'string', 'date', (data: any) =>  data == Order.asc ? 'ASC' : 'DSC']"
+                :format="['string', 'string', 'date', (data: any) =>  data]"
                 @removeClick="removePSDialog"
             />
         </template>
@@ -93,7 +93,7 @@ async function uploadCsv(event: SubmitEvent) {
                     <div class="mt-6">
                         <input
                             type="text"
-                            class="input-bordered input w-full max-w-xs"
+                            class="input input-bordered w-full max-w-xs"
                             required
                             placeholder="Nome"
                             name="name"
@@ -102,7 +102,7 @@ async function uploadCsv(event: SubmitEvent) {
                     <div class="mt-6">
                         <input
                             type="datetime-local"
-                            class="input-bordered input w-full max-w-xs"
+                            class="input input-bordered w-full max-w-xs"
                             required
                             placeholder="Start"
                             name="start"
@@ -111,7 +111,7 @@ async function uploadCsv(event: SubmitEvent) {
                     <div class="mt-6">
                         <input
                             type="text"
-                            class="input-bordered input w-full max-w-xs"
+                            class="input input-bordered w-full max-w-xs"
                             placeholder="Gap"
                             required
                             name="gap"
@@ -119,14 +119,15 @@ async function uploadCsv(event: SubmitEvent) {
                         />
                     </div>
                     <div class="mt-6">
-                        <select class="select-bordered select w-full max-w-xs" name="order" required>
-                            <option value="asc">Crescente</option>
-                            <option value="desc">Decrescente</option>
+                        <select class="select select-bordered w-full max-w-xs" name="order" required>
+                            <option value="asc">{{ _t('Asc') }}</option>
+                            <option value="desc">{{ _t('Desc') }}</option>
+                            <option value="time">{{ _t('Time') }}</option>
                         </select>
                     </div>
 
                     <div class="mt-6 w-full">
-                        <button class="btn-primary btn" type="submit">Crea</button>
+                        <button class="btn btn-primary" type="submit">{{ _t('Create') }}</button>
                     </div>
                 </form>
             </X200Widget>
@@ -142,14 +143,14 @@ async function uploadCsv(event: SubmitEvent) {
                     <div class="mt-4 w-full space-y-6">
                         <input
                             type="file"
-                            class="file-input-bordered file-input w-full max-w-xs"
+                            class="file-input file-input-bordered w-full max-w-xs"
                             placeholder="File"
                             required
                             name="file"
                         />
                     </div>
                     <div class="mt-6 w-full">
-                        <button class="btn-primary btn" type="submit">Carica</button>
+                        <button class="btn btn-primary" type="submit">Carica</button>
                     </div>
                 </form>
             </X200Widget>

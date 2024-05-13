@@ -1,73 +1,66 @@
-import { Ref, ref, watch } from 'vue';
-import { PS, Take } from '../interfaces/db.ts';
+import { Ref, computed } from 'vue';
+import { FriendlyTake, PS, Take, TakeType } from '../interfaces/db.ts';
 import { Score } from '../interfaces/score.ts';
+import { getMachineId } from '../services/utils.ts';
 import { calculateScore } from '../utils/score.ts';
-import { useRace } from './useRace.ts';
-// import { RACES_TYPES, getFiltersForType, getRaceDB } from '../services/utils.ts';
+import { usePS } from './usePS.ts';
+import { useRunners } from './useRunners.ts';
+import { useTakes } from './useTakes.ts';
+import { useTimes } from './useTimes.ts';
 
-// export function useDashboard(selectedPs: Ref<string | undefined>) {
-//     const { currentRace } = useRace();
-//     const reset = ref(0);
-//     const takes = ref([] as Take[]);
-//     const score = ref([] as Score[]);
+export function useDashboard(selectedPs: Ref<PS | undefined>, takeType: Ref<TakeType | undefined>) {
+    const { times: allTimes } = useTimes();
+    const { pss } = usePS();
+    const { runners } = useRunners();
+    const { takes: allTakes, addTake, removeTake } = useTakes();
 
-//     watch([reset, selectedPs], async () => {
-//         if (!currentRace || !currentRace.value) return;
+    const takes = computed(() => {
+        let tmpTakes: Take[] = allTakes.value.filter((item) => item.type == takeType.value);
+        if (selectedPs.value) tmpTakes = tmpTakes.filter((item) => item.ps == selectedPs.value?._id);
 
-//         let tmp = [] as Take[];
+        return tmpTakes.map(
+            (t) =>
+                ({
+                    ...t,
+                    runnerNumber: runners.value.find((item) => item._id == t.runner)?.number,
+                    psName: pss.value.find((item) => item._id == t.ps)?.name,
+                } as FriendlyTake)
+        );
+    });
 
-//         const docs = await getRaceDB(currentRace.value._id).allDocs<Take>({
-//             include_docs: true,
-//             descending: true,
-//             ...getFiltersForType(RACES_TYPES.TAKE),
-//         });
+    const score = computed(() => {
+        if (selectedPs.value) {
+            let limitedScore = [] as Score[];
+            const tmp = calculateScore(selectedPs.value, allTakes.value, runners.value);
+            let index = 0;
+            for (let i = tmp.length - 1; i >= 0; i--) {
+                if (tmp[i].end) {
+                    index = i;
+                    break;
+                }
+            }
 
-//         for (const doc of docs.rows) {
-//             tmp.push(doc.doc!);
-//         }
+            for (let i = -3; i < 5; i++) {
+                if (index + i < 0 || index + i >= tmp.length) continue;
+                limitedScore.push(tmp[index + i]);
+            }
 
-//         // finish
-//         takes.value = tmp;
-//     });
+            return limitedScore.reverse();
+        } else {
+            return [];
+        }
+    });
 
-//     watch([reset, selectedPs], async () => {
-//         if (!currentRace || !currentRace.value) return;
-//         if (!selectedPs || !selectedPs.value) return;
+    const times = computed(() => {
+        const machineId = getMachineId();
+        return allTimes.value.filter((item) => item.deviceId == machineId);
+    });
 
-
-//         const raceDB = getRaceDB(currentRace.value._id)
-
-//         let ps = undefined;
-//         try {
-//             const tmp = await psLevel.get(selectedPs.value);
-//             ps = {
-//                 _id: selectedPs.value,
-//                 ...tmp,
-//             };
-//         } catch (e) {
-//             return;
-//         }
-
-//         let limitedScore = [] as Score[];
-//         const tmp = await calculateScore(ps, currentRace.value);
-//         let index = 0;
-//         for (let i = tmp.length - 1; i >= 0; i--) {
-//             if (tmp[i].end) {
-//                 index = i;
-//                 break;
-//             }
-//         }
-
-//         for (let i = -3; i < 5; i++) {
-//             if (index + i < 0 || index + i >= tmp.length) continue;
-//             limitedScore.push(tmp[index + i]);
-//         }
-
-//         score.value = limitedScore.reverse();
-//     });
-
-//     return {
-//         takes,
-//         score,
-//     };
-// }
+    return {
+        times,
+        takes,
+        score,
+        addTake,
+        removeTake,
+    };
+}

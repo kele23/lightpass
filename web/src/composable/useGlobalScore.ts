@@ -1,26 +1,22 @@
-import { ref, watch } from 'vue';
+import { effect, ref } from 'vue';
 import { GlobalScore } from '../interfaces/score.ts';
-import { calculateGlobalScore, scoreSorter } from '../utils/score.ts';
-import { useRace } from './useRace.ts';
+import { calculateGlobalScore } from '../utils/score.ts';
+import { usePS } from './usePS.ts';
+import { useRunners } from './useRunners.ts';
+import { useTakes } from './useTakes.ts';
 
 export function useGlobalScore() {
-    const { currentRace } = useRace();
-    const globalScore = ref<GlobalScore[]>([]);
-    const reset = ref(0);
+    const { pss } = usePS();
+    const { runners } = useRunners();
+    const { takes } = useTakes();
 
-    watch(currentRace, () => {
-        reset.value++;
-    });
+    const score = ref([] as GlobalScore[]);
 
-    watch(reset, async () => {
-        if (!currentRace || !currentRace.value) return;
-        const tmp = await calculateGlobalScore(currentRace.value);
-
-        // order
-        globalScore.value = tmp.sort(scoreSorter);
+    effect(() => {
+        score.value = calculateGlobalScore(pss.value, takes.value, runners.value);
     });
 
     return {
-        globalScore,
+        score,
     };
 }
