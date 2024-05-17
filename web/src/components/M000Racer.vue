@@ -2,9 +2,12 @@
 import { useRouter } from 'vue-router';
 import { useRace } from '../composable/useRace.ts';
 import { _t } from '../services/dictionary.ts';
+import { useLogin } from '../composable/useLogin.ts';
+import { UserCircleIcon } from '@heroicons/vue/24/outline';
 
 /////////////////////////////////////////////////////
 const { races, addRace, setCurrentRace } = useRace();
+const { loggedIn, user } = useLogin();
 const router = useRouter();
 
 /////////////////////////////////////////////////////
@@ -12,15 +15,22 @@ async function createRace(event: Event) {
     const formData = new FormData(event.target as HTMLFormElement);
     const raceName = formData.get('name') as string;
     const doc = await addRace({ name: raceName });
-    await setCurrentRace(doc._id);
-    router.push('/race');
+    if (doc) {
+        await setCurrentRace(doc);
+        router.push('/race');
+    }
 }
 
 async function selectRace(event: Event) {
     const formData = new FormData(event.target as HTMLFormElement);
     const id = formData.get('name');
-    await setCurrentRace(id as string);
-    router.push('/race');
+    if (races.value) {
+        const race = races.value.find((item) => item._id == id);
+        if (race) {
+            await setCurrentRace(race);
+            router.push('/race');
+        }
+    }
 }
 </script>
 
@@ -28,20 +38,20 @@ async function selectRace(event: Event) {
     <div class="container mx-auto">
         <div class="flex w-full flex-wrap">
             <div class="flex w-full flex-col items-center justify-center md:w-1/2">
-                <!-- <div class="mb-4 flex items-center gap-6" v-if="!isLogged">
-                    <div>Login</div>
-                    <button
-                        class="btn btn-primary btn-ghost gap-1 bg-base-300"
-                        :disabled="loading"
-                        @click="loginPopup = !loginPopup"
-                    >
-                        <UserIcon class="h-6 w-6" v-bind:class="isLogged && 'text-primary'" v-if="!loading" />
-                        <span class="loading loading-spinner loading-sm" v-if="loading"></span>
-                    </button>
+                <div class="mb-4 flex items-center gap-6" v-if="!loggedIn">
+                    <router-link to="/login" class="btn btn-ghost">
+                        <UserCircleIcon class="h-5 w-5" /> {{ _t('Login') }}
+                    </router-link>
                 </div>
-                <div class="w-full max-w-xs" v-if="!isLogged">
-                    <div class="divider"></div>
-                </div> -->
+                <div class="mb-4 flex items-center gap-2" v-if="loggedIn">
+                    <UserCircleIcon class="h-5 w-5" />
+                    <span
+                        >{{ _t('Hi') }} <b class="text-lg">{{ user?.name }}</b></span
+                    >
+                </div>
+                <div class="flex items-center justify-center">
+                    <hr class="w-32" />
+                </div>
                 <div class="my-4 flex w-full max-w-xs flex-col justify-center px-8 pt-8 md:pt-0">
                     <p class="text-center text-3xl">{{ _t('Select a race') }}</p>
                     <form class="flex flex-col pt-3" @submit.prevent="selectRace">
@@ -66,7 +76,8 @@ async function selectRace(event: Event) {
                     <div class="px-5">{{ _t('or') }}</div>
                     <hr class="w-16" />
                 </div>
-                <div class="my-4 flex w-full max-w-xs flex-col justify-center px-8 pt-8 md:pt-0">
+                <div class="my-4 flex w-full max-w-xs flex-col justify-center px-8 pt-8 md:pt-0" 
+                    :class="!loggedIn ? 'opacity-30 pointer-events-none': ''">
                     <p class="text-center text-3xl">{{ _t('New race') }}</p>
                     <form class="flex flex-col pt-3" @submit.prevent="createRace">
                         <div class="flex flex-col pb-4 pt-4">

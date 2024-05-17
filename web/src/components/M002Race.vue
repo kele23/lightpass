@@ -4,14 +4,14 @@ import { useConfirmDialog } from '@vueuse/core';
 // @ts-ignore
 import { parse } from 'papaparse';
 import { usePS } from '../composable/usePS.ts';
-import { Order, PS } from '../interfaces/db.ts';
+import { PS } from '../interfaces/db.ts';
 import { _t } from '../services/dictionary.ts';
 import { readFileAsync } from '../utils/files.ts';
 import L002MainInternal from './L002MainInternal.vue';
 import X001Table from './X001Table.vue';
+import X200Widget from './X200Widget.vue';
 import X201WidgetDownloadCsv from './X201WidgetDownloadCsv.vue';
 import X300ModalConfirm from './X300ModalConfirm.vue';
-import X200Widget from './X200Widget.vue';
 
 /////////////////////////////////////////////////////
 const { pss, addPS, removePS, cleanPSs } = usePS();

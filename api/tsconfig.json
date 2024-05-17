@@ -1,0 +1,26 @@
+{
+    "compilerOptions": {
+        "target": "ES2021",
+        "useDefineForClassFields": true,
+        "module": "NodeNext",
+        "lib": ["ES2021"],
+        "skipLibCheck": true,
+        "declaration": true,
+        "allowSyntheticDefaultImports": true,
+        "removeComments": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+
+        "moduleResolution": "NodeNext",
+        "resolveJsonModule": true,
+        "allowImportingTsExtensions": false,
+        "sourceMap": true,
+
+        /* Linting */
+        "strict": true,
+        "noUnusedLocals": false,
+        "noUnusedParameters": true,
+        "noFallthroughCasesInSwitch": true
+    },
+    "exclude": ["node_modules", "**/*.spec.ts"]
+}

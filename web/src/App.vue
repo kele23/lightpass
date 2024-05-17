@@ -3,8 +3,19 @@ import { useTimes } from './composable/useTimes';
 import { useEventListener } from '@vueuse/core';
 import X401Toaster from './components/X401Toaster.vue';
 import { getMachineId } from './services/utils';
+import { useRegisterSW } from 'virtual:pwa-register/vue';
 
 const { addTime } = useTimes();
+
+const intervalMS = 60 * 60 * 1000;
+const updateServiceWorker = useRegisterSW({
+    onRegistered(r) {
+        r &&
+            setInterval(() => {
+                r.update();
+            }, intervalMS);
+    },
+});
 
 useEventListener('keydown', (e) => {
     if (e.key == '+' && e.altKey) {

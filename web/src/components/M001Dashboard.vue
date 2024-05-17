@@ -40,7 +40,6 @@ function changePs(event: Event) {
 
 watch([route], () => {
     type.value = route.meta.type as TakeType;
-    console.log(type.value);
 }, {immediate: true});
 
 watch([type, selectedPs], () => {
@@ -51,7 +50,7 @@ async function populateAssign(_id: string) {
     if (!assignTime.value) return;
 
     const timeId = _id;
-    const raceId = currentRace.value?._id;
+    const raceId = currentRace.value;
     const psId = selectedPs.value;
 
     const time = times.value.find((item) => item._id == _id);

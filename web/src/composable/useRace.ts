@@ -1,98 +1,100 @@
 import PouchDB from 'pouchdb';
 import { effect, ref, shallowRef } from 'vue';
 import { IDItem, PS, PartialRace, Race, Runner, Take, Time } from '../interfaces/db.ts';
-import { _t } from '../services/dictionary.ts';
-import { cleanKey } from '../services/utils.ts';
-import useToasterStore from '../stores/toaster.ts';
-import { loggedIn } from './useLogin.ts';
+import { loggedIn, refreshToken } from './useLogin.ts';
+import { RacesService } from '../api/services.gen.ts';
 
-export const racesDB = new PouchDB<Race>('lightpass_races');
+export const races = ref<Race[]>();
 
-let syncTask: PouchDB.Replication.Sync<PouchDB.Database<Race>> | null = null;
-effect(() => {
-    if (loggedIn.value) {
-        syncTask = racesDB.sync(`${window.location.origin}/couchdb/lightpass_races`, { live: true, retry: true });
-    } else if (syncTask) {
-        syncTask.cancel();
-    }
-});
-
-export const currentRace = ref<Race>();
-export const races = ref<Race[]>([]);
-export const raceDB = shallowRef<PouchDB.Database<IDItem | PS | Runner | Take | Time>>();
-let syncHandler: PouchDB.Replication.Sync<PouchDB.Database<IDItem | PS | Runner | Take | Time>> | null = null;
-
-const addRace = async (pRace: PartialRace) => {
-    const toasterStore = useToasterStore();
-    const _id = cleanKey(pRace.name);
-
-    let found = undefined;
+const loadRaces = async () => {
+    // logged -> than try to load from couch
     try {
-        found = await racesDB.get(_id);
-    } catch (ignored) {}
+        const resp = await RacesService.getApiRaces();
+        localStorage.setItem('lightpassRaces', JSON.stringify(resp));
+        races.value = resp;
+    } catch (e) {
+        console.warn(e);
 
-    if (found) {
-        toasterStore.error({ text: _t('Race <b>{0}</b> already exist', pRace.name) });
-        throw `Race ${_id} already exist`;
-    }
-
-    const race: Race = {
-        _id,
-        ...pRace,
-    };
-
-    const newRace = await racesDB.put(race);
-    return { ...race, _rev: newRace.rev } as Race;
-};
-
-const removeRace = async (_id: string) => {
-    const found = await racesDB.get(_id);
-    if (found) {
-        racesDB.remove(found);
-    }
-};
-
-const setCurrentRace = async (_id: string) => {
-    const found = await racesDB.get(_id);
-    if (found) {
-        if (syncHandler) syncHandler.cancel();
-        raceDB.value = new PouchDB<IDItem | PS | Runner | Take>(`lightpass_race_${_id}`);
-        syncHandler = raceDB.value.sync(`${window.location.origin}/couchdb/lightpass_race_${_id}`, {
-            live: true,
-            retry: true,
-        });
-        currentRace.value = found;
+        // fallback to local storage
+        const tmpRaces = localStorage.getItem('lightpassRaces');
+        if (tmpRaces) {
+            races.value = JSON.parse(tmpRaces) as Race[];
+        }
     }
 };
 
 effect(async () => {
-    let tmp = [] as Race[];
-
-    const docs = await racesDB.allDocs<Race>({ include_docs: true });
-    for (const doc of docs.rows) {
-        tmp.push(doc.doc!);
+    // not logged? then load from local storage
+    if (!loggedIn.value) {
+        const tmpRaces = localStorage.getItem('lightpassRaces');
+        if (tmpRaces) {
+            races.value = JSON.parse(tmpRaces) as Race[];
+        }
+        return;
     }
 
-    // finish
-    races.value = tmp;
+    await loadRaces();
 });
 
-// listen to race change
-racesDB
-    .changes<Race>({
-        since: 'now',
-        live: true,
-        include_docs: true,
-    })
-    .on('change', (changes) => {
-        if (changes.deleted) {
-            races.value = races.value.filter((item) => item._id != changes.id);
-        } else if (changes.doc) {
-            races.value = [...races.value, changes.doc];
-            console.log('>>>>>>> New race ', changes.doc.name);
-        }
-    });
+export const currentRace = ref<Race>();
+export const raceDB = shallowRef<PouchDB.Database<IDItem | PS | Runner | Take | Time>>();
+export const remoteDB = shallowRef<PouchDB.Database<IDItem | PS | Runner | Take | Time>>();
+let syncHandler: PouchDB.Replication.Sync<IDItem | PS | Runner | Take | Time> | null = null;
+
+const addRace = async (pRace: PartialRace) => {
+    try {
+        const race = await RacesService.postApiRaces({ body: { name: pRace.name } });
+        await loadRaces();
+        return race;
+    } catch (e) {
+        console.warn(e);
+    }
+    return undefined;
+};
+
+const setCurrentRace = async (race: Race) => {
+    // stop sync if running
+    if (syncHandler) {
+        syncHandler.cancel();
+    }
+
+    // close current DBs
+    if (raceDB.value) {
+        raceDB.value.close();
+        raceDB.value = undefined;
+    }
+
+    if (remoteDB.value) {
+        remoteDB.value.close();
+        remoteDB.value = undefined;
+    }
+
+    // create new raceDB
+    raceDB.value = new PouchDB<IDItem | PS | Runner | Take>(race._id);
+
+    // enable sync to remote DB
+    if (loggedIn.value) {
+        remoteDB.value = new PouchDB<IDItem | PS | Runner | Take>(`${window.location.origin}/couchdb/${race._id}`, {
+            fetch: async (url, opts) => {
+                const response = await PouchDB.fetch(url, opts);
+                if (response.status == 401) {
+                    const refreshed = await refreshToken();
+                    if (refreshed) {
+                        return await PouchDB.fetch(url, opts);
+                    }
+                }
+                return response;
+            },
+        });
+        syncHandler = raceDB.value.sync(remoteDB.value, {
+            live: true,
+            retry: true,
+        });
+    }
+
+    currentRace.value = race;
+};
 
 export function useRace() {
-    return { races, currentRace, addRace, removeRace, setCurrentRace };
+    return { races, currentRace, addRace, setCurrentRace };
 }
