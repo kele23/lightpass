@@ -15,7 +15,7 @@ struct Inter
     unsigned long time;
 };
 
-Inter inter = {34, false, millis()};
+Inter inter = {16, false, millis()};
 
 // server
 AsyncWebServer server(80);
