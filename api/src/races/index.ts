@@ -75,7 +75,7 @@ const RacesPlugin: FastifyPluginAsync<AuthOptions> = async (fastify: FastifyInst
             // set db permissions
             await fastify.couch.request({db: result, method: 'put', path: '/_security', body:
                 {
-                    admins:  { names: [], roles: ["_admins", options.adminRole] },
+                    admins:  { names: [], roles: ["_admin", options.adminRole] },
                     members: { names: [], roles: [options.standardRole] },
                 }
             });

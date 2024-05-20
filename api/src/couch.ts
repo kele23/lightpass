@@ -2,6 +2,7 @@ import { FastifyInstance, FastifyPluginAsync, FastifyPluginOptions } from 'fasti
 import fp from 'fastify-plugin';
 import nano from 'nano';
 import crypto from 'crypto';
+import { CheckResp, CheckRespType, UserTokenPayload } from './auth/dto-types';
 
 declare module 'fastify' {
     interface FastifyInstance {
@@ -18,7 +19,7 @@ export type MainDBOptions = {
 const CouchDB: FastifyPluginAsync<MainDBOptions> = async (fastify: FastifyInstance, options: FastifyPluginOptions) => {
 
     const hash = crypto.createHmac('sha256', options.secret);
-    hash.update(options.name);
+    hash.update(options.user);
     const token = hash.digest('hex');
 
     const couch = nano({
@@ -33,6 +34,7 @@ const CouchDB: FastifyPluginAsync<MainDBOptions> = async (fastify: FastifyInstan
     });
 
     fastify.decorate('couch', couch);
+
 };
 
 export default fp(CouchDB);

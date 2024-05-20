@@ -39,10 +39,10 @@ export default defineConfig({
         https: true,
         proxy: {
             '/couchdb': {
-                target: 'http://localhost:3000/',
+                target: 'http://localhost:8563/',
             },
             '/api': {
-                target: 'http://localhost:3000/',
+                target: 'http://localhost:8563/',
             },
         },
     },

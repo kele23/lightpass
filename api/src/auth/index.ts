@@ -1,9 +1,9 @@
 import fastifyAuth from '@fastify/auth';
+import fastifyCookie from '@fastify/cookie';
 import jwt from '@fastify/jwt';
+import crypto from "crypto";
 import { FastifyInstance, FastifyPluginAsync, FastifyPluginOptions, FastifyReply, FastifyRequest } from 'fastify';
 import fp from 'fastify-plugin';
-
-import fastifyCookie from '@fastify/cookie';
 import { checkLogin, getUserOrThrow } from '../user/utils';
 import { CheckResp, CheckRespType, LoginReq, LoginReqType, LoginResp, LoginRespType, RefreshReq, RefreshReqType, RefreshResp, RefreshRespType, UserRefreshPayload, UserTokenPayload } from './dto-types';
 
@@ -165,5 +165,33 @@ const AuthPlugin: FastifyPluginAsync<AuthOptions> = async (fastify: FastifyInsta
                 }).send();
         },
     });
+
+
+     fastify.route<{ Reply: CheckRespType }>({
+        method: 'GET',
+        url: '/api/auth/couchcheck',
+        schema: {
+        description: 'Check token for couch authorization',
+        tags: ['Auth'],
+            response: {
+                200: CheckResp,
+            },
+        },
+        preHandler: fastify.auth([fastify.verifyJWT]),
+        handler: async (req, rpl) => {
+            const pay = req.user as UserTokenPayload;
+
+            const hash = crypto.createHmac('sha256', options.secret);
+            hash.update(pay.name);
+            const token = hash.digest('hex');
+            
+            const headers = {
+                "X-Auth-CouchDB-UserName": pay.name,
+                "X-Auth-CouchDB-Roles": pay.roles.join(","),
+                "X-Auth-CouchDB-Token": token
+            }
+            rpl.code(200).headers(headers).send(pay);
+        },
+     });
 };
 export default fp(AuthPlugin);
