@@ -44,7 +44,7 @@ const start = async () => {
         app.register(couch, { user: COUCH_USER, url: COUCH_URL, secret: COUCH_SECRET });
 
         // register authentication
-        app.register(auth, { secret:JWT_SECRET, secureCookies: SECURE_COOKIES, couchUrl: COUCH_URL, adminRole: ADMIN_ROLE, standardRole: STANDARD_ROLE }); 
+        app.register(auth, { couchSecret: COUCH_SECRET, jwtSecret:JWT_SECRET, secureCookies: SECURE_COOKIES, couchUrl: COUCH_URL, adminRole: ADMIN_ROLE, standardRole: STANDARD_ROLE }); 
 
         // register races
         app.register(races, { prefix:"lightpass", adminRole: ADMIN_ROLE, standardRole: STANDARD_ROLE  });

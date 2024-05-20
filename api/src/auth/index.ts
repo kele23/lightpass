@@ -15,7 +15,8 @@ declare module 'fastify' {
 }
 
 export type AuthOptions = FastifyPluginOptions & {
-    secret: string;
+    couchSecret: string;
+    jwtSecret: string;
     secureCookies: boolean;
     couchUrl: string;
     adminRole: string
@@ -36,7 +37,7 @@ const AuthPlugin: FastifyPluginAsync<AuthOptions> = async (fastify: FastifyInsta
 
     // auth, jwt and cookie plugins
     fastify.register(jwt, {
-        secret: options.secret,
+        secret: options.jwtSecret,
         cookie: {
             cookieName: 'token',
             signed: false
@@ -181,7 +182,7 @@ const AuthPlugin: FastifyPluginAsync<AuthOptions> = async (fastify: FastifyInsta
         handler: async (req, rpl) => {
             const pay = req.user as UserTokenPayload;
 
-            const hash = crypto.createHmac('sha256', options.secret);
+            const hash = crypto.createHmac('sha256', options.couchSecret);
             hash.update(pay.name);
             const token = hash.digest('hex');
             
