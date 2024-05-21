@@ -3,8 +3,9 @@ import { defineConfig } from 'vite';
 import fs from 'fs';
 import { VitePWA } from 'vite-plugin-pwa';
 
-// https://vitejs.dev/config/
-export default defineConfig({
+const LOCALK = process.env.LOCALK == 'true';
+
+const config = {
     plugins: [
         vue(),
         VitePWA({
@@ -45,10 +46,12 @@ export default defineConfig({
         }),
     ],
     server: {
-        https: {
-            key: fs.readFileSync('/home/m.scala/workspace/sslkeys/localk.key'),
-            cert: fs.readFileSync('/home/m.scala/workspace/sslkeys/localk.cer'),
-        },
+        https: LOCALK
+            ? {
+                  key: fs.readFileSync('/home/m.scala/workspace/sslkeys/localk.key'),
+                  cert: fs.readFileSync('/home/m.scala/workspace/sslkeys/localk.cer'),
+              }
+            : undefined,
         proxy: {
             '/couchdb': {
                 target: 'https://kele23.tplinkdns.com:8563/',
@@ -58,4 +61,7 @@ export default defineConfig({
             },
         },
     },
-});
+};
+
+// https://vitejs.dev/config/
+export default defineConfig(config);
