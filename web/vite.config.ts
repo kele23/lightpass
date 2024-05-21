@@ -11,8 +11,8 @@ const config = {
         VitePWA({
             injectRegister: 'auto',
             registerType: 'autoUpdate',
-            devOptions: {
-                enabled: true,
+            workbox: {
+                globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
             },
             manifest: {
                 name: 'Lightpass V4',
@@ -54,9 +54,11 @@ const config = {
             : undefined,
         proxy: {
             '/couchdb': {
+                secure: false,
                 target: 'https://kele23.tplinkdns.com:8563/',
             },
             '/api': {
+                secure: false,
                 target: 'https://kele23.tplinkdns.com:8563/',
             },
         },
