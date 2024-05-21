@@ -13,12 +13,10 @@ services:
       - "--providers.file.watch=true"
       - "--accesslog=true"
       - "--accesslog.filePath=/logs/access.log"
-      - "--entryPoints.web.address=:80"
       - "--entryPoints.websecure.address=:443"
     networks:
       - internal
     ports:
-      - ${LISTEN_PORT_HTTP}:80
       - ${LISTEN_PORT_HTTPS}:443
       - ${LISTEN_TRAEFIK_HTTP}:8080
     volumes:
