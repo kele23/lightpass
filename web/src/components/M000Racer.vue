@@ -3,11 +3,13 @@ import { useRouter } from 'vue-router';
 import { useRace } from '../composable/useRace.ts';
 import { _t } from '../services/dictionary.ts';
 import { useLogin } from '../composable/useLogin.ts';
-import { UserCircleIcon } from '@heroicons/vue/24/outline';
+import { useRaces } from '../composable/useRaces.ts';
+import { UserCircleIcon, RocketLaunchIcon } from '@heroicons/vue/24/outline';
 
 /////////////////////////////////////////////////////
-const { races, addRace, setCurrentRace } = useRace();
-const { loggedIn, user } = useLogin();
+const { races } = useRaces();
+const { addRace, setCurrentRace } = useRace();
+const { loggedIn, user, logout } = useLogin();
 const router = useRouter();
 
 /////////////////////////////////////////////////////
@@ -37,17 +39,28 @@ async function selectRace(event: Event) {
 <template>
     <div class="container mx-auto">
         <div class="flex w-full flex-wrap">
-            <div class="flex w-full flex-col items-center justify-center md:w-1/2">
+            <div class="flex w-full flex-col items-center justify-center py-11 md:w-1/2">
+                <div class="flex items-center gap-4 p-6 rounded-xl mb-14 bg-slate-900 text-white">
+                    <RocketLaunchIcon class="h-12 w-12" />
+                    <p class="text-2xl font-bold">LIGHTPASS V4</p>
+                </div>
                 <div class="mb-4 flex items-center gap-6" v-if="!loggedIn">
                     <router-link to="/login" class="btn btn-ghost">
                         <UserCircleIcon class="h-5 w-5" /> {{ _t('Login') }}
                     </router-link>
                 </div>
-                <div class="mb-4 flex items-center gap-2" v-if="loggedIn">
-                    <UserCircleIcon class="h-5 w-5" />
-                    <span
-                        >{{ _t('Hi') }} <b class="text-lg">{{ user?.name }}</b></span
-                    >
+                <div class="mb-4 flex items-center gap-6" v-if="loggedIn">
+                    <div class="flex items-center gap-2">
+                        <UserCircleIcon class="h-6 w-6" />
+                        <span class="text-xl"
+                            >{{ _t('Hi') }} <b class="text-2xl">{{ user?.name }}!</b>
+                        </span>
+                    </div>
+                    <div>
+                        <button class="btn btn-warning btn-sm" type="button" @click="() => logout()">
+                            {{ _t('Logout') }}
+                        </button>
+                    </div>
                 </div>
                 <div class="flex items-center justify-center">
                     <hr class="w-32" />
@@ -76,8 +89,10 @@ async function selectRace(event: Event) {
                     <div class="px-5">{{ _t('or') }}</div>
                     <hr class="w-16" />
                 </div>
-                <div class="my-4 flex w-full max-w-xs flex-col justify-center px-8 pt-8 md:pt-0" 
-                    :class="!loggedIn ? 'opacity-30 pointer-events-none': ''">
+                <div
+                    class="my-4 flex w-full max-w-xs flex-col justify-center px-8 pt-8 md:pt-0"
+                    :class="!loggedIn ? 'pointer-events-none opacity-30' : ''"
+                >
                     <p class="text-center text-3xl">{{ _t('New race') }}</p>
                     <form class="flex flex-col pt-3" @submit.prevent="createRace">
                         <div class="flex flex-col pb-4 pt-4">

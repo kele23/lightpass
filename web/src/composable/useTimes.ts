@@ -1,7 +1,9 @@
 import { ref, watchEffect } from 'vue';
 import { PartialTime, RACES_TYPES, Time } from '../interfaces/db.ts';
 import { createKey, getMachineId } from '../services/utils.ts';
-import { raceDB } from './useRace.ts';
+import { useRace } from './useRace.ts';
+
+const { raceDB } = useRace();
 
 const times = ref<Time[]>([]);
 
@@ -32,31 +34,31 @@ watchEffect((onCleanup) => {
     });
 });
 
-const addTime = async (pTime: PartialTime): Promise<Time> => {
-    if (!raceDB.value) throw new Error('Cannot add time without a race selected');
+export function useTimes() {
+    const addTime = async (pTime: PartialTime): Promise<Time> => {
+        if (!raceDB.value) throw new Error('Cannot add time without a race selected');
 
-    const _id = createKey(RACES_TYPES.TIME, pTime.time + '-' + pTime.deviceId);
+        const _id = createKey(RACES_TYPES.TIME, pTime.time + '-' + pTime.deviceId);
 
-    const timeObj: Time = {
-        _id,
-        deviceId: getMachineId(),
-        time: pTime.time,
+        const timeObj: Time = {
+            _id,
+            deviceId: getMachineId(),
+            time: pTime.time,
+        };
+
+        // add new time
+        const resp = await raceDB.value.put(timeObj);
+        return { ...timeObj, _rev: resp.rev };
     };
 
-    // add new time
-    const resp = await raceDB.value.put(timeObj);
-    return { ...timeObj, _rev: resp.rev };
-};
+    const removeTime = async (_id: string) => {
+        if (!raceDB.value) throw new Error('Cannot remove time without a race selected');
 
-const removeTime = async (_id: string) => {
-    if (!raceDB.value) throw new Error('Cannot remove time without a race selected');
+        const time = await raceDB.value.get<Time>(_id);
+        if (time) {
+            await raceDB.value.remove(time);
+        }
+    };
 
-    const time = await raceDB.value.get<Time>(_id);
-    if (time) {
-        await raceDB.value.remove(time);
-    }
-};
-
-export function useTimes() {
     return { times, addTime, removeTime };
 }

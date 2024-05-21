@@ -33,7 +33,7 @@ const routes = [
         },
     },
     { path: '/entry', component: M000Racer, meta: { title: _t('Entry') } },
-    { path: '/login', component: M902Login, meta: { title: _t('Login'), notLogged: true } },
+    { path: '/login', component: M902Login, meta: { title: _t('Login') } },
 ];
 
 const router = createRouter({
@@ -48,15 +48,10 @@ const router = createRouter({
     },
 });
 
-router.beforeEach(async (to) => {
+router.beforeEach((to) => {
     if (to.meta.race) {
         const { currentRace } = useRace();
         if (!currentRace.value) return { path: '/entry' };
-    }
-
-    if (to.meta.notLogged) {
-        const { isLoggedIn } = useLogin();
-        if (await isLoggedIn()) return { path: '/entry' };
     }
 });
 

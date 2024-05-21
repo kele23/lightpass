@@ -16,11 +16,14 @@ import { usePS } from '../composable/usePS.ts';
 import { _t } from '../services/dictionary.ts';
 import { useLightpassSensor } from '../composable/useLightpassSensor.ts';
 import { useRace } from '../composable/useRace.ts';
+import { useLogin } from '../composable/useLogin.ts';
+import { UserCircleIcon } from '@heroicons/vue/24/outline';
 
 /////////////////////////////////////////////////////
 const { pss } = usePS();
 const { isConnected } = useLightpassSensor();
 const { currentRace } = useRace();
+const { user } = useLogin();
 </script>
 
 <template>
@@ -89,11 +92,15 @@ const { currentRace } = useRace();
             </li>
         </ul>
         <div class="divider"></div>
-        <div class="px-4">
+        <div class="flex justify-between px-4">
             <router-link to="/entry" class="btn btn-warning">
                 <ArrowLeftStartOnRectangleIcon class="h-6 w-6 text-left" />
-                <span class="mx-2 text-sm font-semibold"> {{ _t('Exit') }} </span>
+                <span class="mx-2 text-sm font-semibold"> {{ _t('Back') }} </span>
             </router-link>
+            <div class="flex items-center gap-2" v-if="user">
+                <UserCircleIcon class="h-6 w-6" />
+                <b class="text-lg">{{ user?.name }}</b>
+            </div>
         </div>
     </div>
 </template>

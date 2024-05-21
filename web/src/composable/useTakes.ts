@@ -1,8 +1,10 @@
 import { effect, ref, watchEffect } from 'vue';
 import { IDItem, PartialTake, RACES_TYPES, Take } from '../interfaces/db.ts';
 import { createKey, getFiltersForType, getMachineId } from '../services/utils.ts';
-import { raceDB } from './useRace.ts';
+import { useRace } from './useRace.ts';
 import { useTimes } from './useTimes.ts';
+
+const { raceDB } = useRace();
 
 const takes = ref<Take[]>([]);
 

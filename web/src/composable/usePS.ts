@@ -3,7 +3,9 @@ import { IDItem, PS, PartialPS, RACES_TYPES } from '../interfaces/db.ts';
 import { _t } from '../services/dictionary.ts';
 import { createKey, getFiltersForType } from '../services/utils.ts';
 import useToasterStore from '../stores/toaster.ts';
-import { raceDB } from './useRace.ts';
+import { useRace } from './useRace.ts';
+
+const { raceDB } = useRace();
 
 const pss = ref<PS[]>([]);
 
@@ -51,68 +53,68 @@ effect(async () => {
     pss.value = tmp;
 });
 
-const addPS = async (pPs: PartialPS): Promise<PS> => {
-    if (!raceDB.value) throw new Error('Cannot add ps without a race selected');
+export function usePS() {
+    const addPS = async (pPs: PartialPS): Promise<PS> => {
+        if (!raceDB.value) throw new Error('Cannot add ps without a race selected');
 
-    const _id = createKey(RACES_TYPES.PS, pPs.name);
-    let found = undefined;
-    try {
-        found = await raceDB.value.get(_id);
-    } catch (ignored) {}
+        const _id = createKey(RACES_TYPES.PS, pPs.name);
+        let found = undefined;
+        try {
+            found = await raceDB.value.get(_id);
+        } catch (ignored) {}
 
-    if (found) {
-        useToasterStore().error({ text: _t('PS <b>{0}</b> already exist', pPs.name) });
-        throw `PS ${_id} already exist`;
-    }
+        if (found) {
+            useToasterStore().error({ text: _t('PS <b>{0}</b> already exist', pPs.name) });
+            throw `PS ${_id} already exist`;
+        }
 
-    const ps: PS = {
-        _id,
-        ...pPs,
+        const ps: PS = {
+            _id,
+            ...pPs,
+        };
+
+        const resp = await raceDB.value.put(ps);
+        return {
+            ...ps,
+            _rev: resp.rev,
+        } as PS;
     };
 
-    const resp = await raceDB.value.put(ps);
-    return {
-        ...ps,
-        _rev: resp.rev,
-    } as PS;
-};
+    const removePS = async (_id: string) => {
+        if (!raceDB.value) throw new Error('Cannot remove ps without a race selected');
 
-const removePS = async (_id: string) => {
-    if (!raceDB.value) throw new Error('Cannot remove ps without a race selected');
+        const ps = await raceDB.value.get<PS>(_id);
+        if (ps) {
+            await raceDB.value.remove(ps);
+        }
+    };
 
-    const ps = await raceDB.value.get<PS>(_id);
-    if (ps) {
-        await raceDB.value.remove(ps);
-    }
-};
+    const cleanPSs = async () => {
+        if (!raceDB.value) throw new Error('Cannot clean PSs without a race selected');
 
-const cleanPSs = async () => {
-    if (!raceDB.value) throw new Error('Cannot clean PSs without a race selected');
+        // takes
+        const itemsTakes = await raceDB.value.allDocs<IDItem>({
+            ...getFiltersForType(RACES_TYPES.TAKE),
+        });
+        const toDeleteTakes = itemsTakes.rows.map((item) => ({
+            _id: item.id,
+            _rev: item.doc?._rev,
+            deleted: true,
+        }));
+        await raceDB.value.bulkDocs(toDeleteTakes);
 
-    // takes
-    const itemsTakes = await raceDB.value.allDocs<IDItem>({
-        ...getFiltersForType(RACES_TYPES.TAKE),
-    });
-    const toDeleteTakes = itemsTakes.rows.map((item) => ({
-        _id: item.id,
-        _rev: item.doc?._rev,
-        deleted: true,
-    }));
-    await raceDB.value.bulkDocs(toDeleteTakes);
+        // pss
+        const itemsPSs = await raceDB.value.allDocs<IDItem>({
+            ...getFiltersForType(RACES_TYPES.PS),
+        });
+        const toDeletePS = itemsPSs.rows.map((item) => ({
+            _id: item.id,
+            _rev: item.doc?._rev,
+            deleted: true,
+        }));
+        await raceDB.value.bulkDocs(toDeletePS);
+    };
 
-    // pss
-    const itemsPSs = await raceDB.value.allDocs<IDItem>({
-        ...getFiltersForType(RACES_TYPES.PS),
-    });
-    const toDeletePS = itemsPSs.rows.map((item) => ({
-        _id: item.id,
-        _rev: item.doc?._rev,
-        deleted: true,
-    }));
-    await raceDB.value.bulkDocs(toDeletePS);
-};
-
-export function usePS() {
     return {
         pss,
         addPS,

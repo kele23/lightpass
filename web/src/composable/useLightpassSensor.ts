@@ -7,6 +7,7 @@ const LIGHTPASS_SERVICE = 'b5b0c9c5-36b4-474e-8922-1a4676c70002';
 const NOTIFY_CHARACTERISTIC = '5714ff7d-43d5-49f1-8f57-5c0ecbcfd459';
 const TIMES_CHARACTERISTIC = 'e0ec91ab-e8bb-4779-a1a0-6582ec9d977e';
 
+const { addTime } = useTimes();
 const { isConnected, device, server, requestDevice } = useBluetooth({
     filters: [{ services: [LIGHTPASS_SERVICE] }],
 });
@@ -15,7 +16,6 @@ let baseDate: number;
 let firstTime: number;
 
 async function createConnection() {
-    const { addTime } = useTimes();
     if (!isConnected || !server?.value) return;
 
     const service = await server.value.getPrimaryService(LIGHTPASS_SERVICE);
@@ -42,31 +42,42 @@ watch(isConnected, (newIsConnected) => {
 });
 
 export const useLightpassSensor = () => {
+    const loadingTimes = ref<boolean>(false);
     const deviceTimes = ref<number[]>();
 
-    watch(server, async () => {
+    const loadTimes = async () => {
         if (!server.value) return;
 
-        const service = await server.value.getPrimaryService(LIGHTPASS_SERVICE);
-        const characteristic = await service.getCharacteristic(TIMES_CHARACTERISTIC);
+        try {
+            loadingTimes.value = false;
 
-        const data = await characteristic.readValue();
-        const tmp = [] as number[];
-        for (let i = 0; i < data.byteLength; i++) {
-            // every 4 bytes
-            if (i % 4 == 0) {
-                const number = data.getUint32(i, true);
-                tmp.push(baseDate + (number - firstTime));
+            const service = await server.value.getPrimaryService(LIGHTPASS_SERVICE);
+            const characteristic = await service.getCharacteristic(TIMES_CHARACTERISTIC);
+
+            const data = await characteristic.readValue();
+            console.log(data);
+            const tmp = [] as number[];
+            for (let i = 0; i < data.byteLength; i++) {
+                // every 4 bytes
+                if (i % 4 == 0) {
+                    const number = data.getUint32(i, true);
+                    if (number != 0) tmp.push(baseDate + (number - firstTime));
+                }
             }
-        }
 
-        deviceTimes.value = tmp;
-    });
+            deviceTimes.value = tmp;
+        } catch (e) {
+            console.warn(e);
+        } finally {
+            loadingTimes.value = false;
+        }
+    };
 
     return {
         isConnected,
         device,
         requestDevice,
+        loadTimes,
         deviceTimes,
     };
 };

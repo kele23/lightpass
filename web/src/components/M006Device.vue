@@ -1,10 +1,14 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useLightpassSensor } from '../composable/useLightpassSensor.ts';
 import L002MainInternal from './L002MainInternal.vue';
 import X001Table from './X001Table.vue';
 import { IDItem } from '../interfaces/db.ts';
-const { deviceTimes } = useLightpassSensor();
+const { deviceTimes, loadTimes } = useLightpassSensor();
+
+onMounted(() => {
+    loadTimes();
+})
 
 const data = computed(() => {
     return deviceTimes.value
