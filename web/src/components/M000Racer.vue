@@ -7,8 +7,8 @@ import { useRaces } from '../composable/useRaces.ts';
 import { UserCircleIcon, RocketLaunchIcon } from '@heroicons/vue/24/outline';
 
 /////////////////////////////////////////////////////
-const { races } = useRaces();
-const { addRace, setCurrentRace } = useRace();
+const { races, addRace } = useRaces();
+const { setCurrentRace } = useRace();
 const { loggedIn, user, logout } = useLogin();
 const router = useRouter();
 

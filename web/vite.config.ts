@@ -3,7 +3,7 @@ import { defineConfig } from 'vite';
 import fs from 'fs';
 import { VitePWA } from 'vite-plugin-pwa';
 
-const LOCALK = process.env.LOCALK == 'true';
+const certs = !!process.env.MACHINE_CERT;
 
 const config = {
     plugins: [
@@ -46,10 +46,10 @@ const config = {
         }),
     ],
     server: {
-        https: LOCALK
+        https: certs
             ? {
-                  key: fs.readFileSync('/home/m.scala/workspace/sslkeys/localk.key'),
-                  cert: fs.readFileSync('/home/m.scala/workspace/sslkeys/localk.cer'),
+                  key: fs.readFileSync(process.env.MACHINE_KEY as string),
+                  cert: fs.readFileSync(process.env.MACHINE_CERT as string),
               }
             : undefined,
         proxy: {
