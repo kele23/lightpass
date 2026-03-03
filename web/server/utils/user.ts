@@ -1,55 +1,73 @@
-import nano from 'nano';
-import { User } from '../../types/user.ts';
 import { HTTPError } from 'nitro/h3';
+import { User } from '../../types/user.ts';
+import type { CouchClient } from './couch.ts';
 
 /**
- *
- * @param {name,password} Check if username password belong to user
- * @param userDb The userDB
- * @throws
- * @returns true if login successfull
+ * Check if username password belong to user
+ * @param {name, password} The user credentials
+ * @param couchUrl The base CouchDB url
+ * @returns true if login successful
  */
 export const checkLogin = async (
   { name, password }: { name: string; password: string },
   couchUrl: string,
 ): Promise<boolean> => {
-  // connect to couch using user credentials
-  const split = couchUrl.split('://');
-  const userCouch = nano(`${split[0]}://${name}:${password}@${split[1]}`);
-
-  // test session
   try {
-    await userCouch.session();
-    return true;
+    // Creiamo il token di base auth (disponibile nativamente in Node 18+ e ambienti Edge)
+    const credentials = btoa(`${name}:${password}`);
+
+    // Chiamiamo l'endpoint _session di CouchDB
+    const response = await fetch(`${couchUrl}/_session`, {
+      method: 'GET', // CouchDB supporta GET o POST su _session
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Basic ${credentials}`,
+      },
+    });
+
+    // Se la risposta è 200 OK, le credenziali sono valide.
+    // Se è 401 Unauthorized, non lo sono.
+    return response.ok;
   } catch (e) {
+    // Errore di rete o server irraggiungibile
     return false;
   }
 };
 
 /**
- *
+ * Recupera un utente dal database _users
  * @param name The username
- * @param userDb The userDB
+ * @param couch The CouchClient instance
  * @returns The user if found, undefined if not found
  */
-export const getUser = async (name: string, couch: nano.ServerScope): Promise<User | undefined> => {
+export const getUser = async (name: string, couch: CouchClient): Promise<User | undefined> => {
   try {
-    const usersDb = couch.use('_users');
-    const user = (await usersDb.get('org.couchdb.user:' + name)) as User;
+    // Usiamo encodeURIComponent per sicurezza, nel caso il nome contenga caratteri speciali
+    const docId = encodeURIComponent(`org.couchdb.user:${name}`);
+
+    // Richiamiamo direttamente il path del db e l'id del documento
+    const user = await couch.request<User>(`/_users/${docId}`);
+
     return user;
   } catch (e) {
+    // Il nostro CouchClient lancia un errore se lo status non è OK (es. 404 Not Found)
     return undefined;
   }
 };
 
 /**
- *
+ * Recupera un utente o lancia un'eccezione
  * @param name The username
- * @param userDb The userDB
- * @returns The user if found, undefined if not found
+ * @param couch The CouchClient instance
+ * @returns The user if found
+ * @throws HTTPError se l'utente non viene trovato
  */
-export const getUserOrThrow = async (name: string, couch: nano.ServerScope): Promise<User> => {
+export const getUserOrThrow = async (name: string, couch: CouchClient): Promise<User> => {
   const user = await getUser(name, couch);
-  if (!user) throw new HTTPError('User not found', { status: 401 });
+
+  if (!user) {
+    throw new HTTPError('User not found', { status: 401 });
+  }
+
   return user;
 };

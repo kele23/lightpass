@@ -1,4 +1,3 @@
-// server/api/races/index.post.ts
 import { verifyAdministrator } from '../../utils/auth.ts';
 import { defineEventHandler, HTTPError, readBody } from 'nitro/h3';
 import { useRuntimeConfig } from 'nitro/runtime-config';
@@ -28,22 +27,22 @@ export default defineEventHandler(async (event): Promise<Race> => {
   // 4. Aggiungi il prefisso
   const dbName = `${config.racePrefix}_${slug}`;
 
-  // 5. Crea il DB e inserisci le info
-  await couch.db.create(dbName);
-  const raceDb = couch.use(dbName);
+  // 5. Crea il DB effettuando una PUT sull'endpoint col nome del DB
+  await couch.request(`/${dbName}`, { method: 'PUT' });
 
-  // @ts-ignore: it is the name of the race ( the original name )
-  await raceDb.insert({ _id: 'raceinfo', name: body.name });
+  // Inserisci le info (essendo un ID fisso 'raceinfo', usiamo PUT)
+  await couch.request(`/${dbName}/raceinfo`, {
+    method: 'PUT',
+    body: JSON.stringify({ name: body.name }),
+  });
 
   // 6. Imposta i permessi di sicurezza su CouchDB
-  await couch.request({
-    db: dbName,
-    method: 'put',
-    path: '_security',
-    body: {
+  await couch.request(`/${dbName}/_security`, {
+    method: 'PUT',
+    body: JSON.stringify({
       admins: { names: [], roles: ['_admin', config.adminRole] },
       members: { names: [], roles: [config.standardRole] },
-    },
+    }),
   });
 
   // 7. Ritorna il risultato

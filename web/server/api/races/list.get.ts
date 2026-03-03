@@ -1,4 +1,3 @@
-// server/api/races/index.get.ts
 import { defineEventHandler } from 'nitro/h3';
 import { useRuntimeConfig } from 'nitro/runtime-config';
 import { Race } from '../../../types/races.ts';
@@ -8,17 +7,20 @@ export default defineEventHandler(async (): Promise<Race[]> => {
   const config = useRuntimeConfig();
   const couch = useCouch();
 
-  const dblist = await couch.db.list();
+  // /_all_dbs ritorna direttamente un array di stringhe
+  const dblist = await couch.request<string[]>('/_all_dbs');
   const result: Race[] = [];
 
   for (const dbName of dblist) {
     if (!dbName.startsWith(config.racePrefix)) continue;
 
-    const db = couch.use(dbName);
     try {
-      const info = (await db.get('raceinfo')) as Race;
+      // Effettuiamo una GET diretta sul documento 'raceinfo'
+      const info = await couch.request<Race>(`/${dbName}/raceinfo`);
       result.push({ name: info.name, _id: dbName });
-    } catch (ignored) {}
+    } catch (ignored) {
+      // Ignora l'errore se il documento 'raceinfo' non esiste in questo database
+    }
   }
 
   return result;

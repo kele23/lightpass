@@ -1,4 +1,4 @@
-import PouchDB from 'pouchdb';
+import PouchDB from 'pouchdb-browser';
 import { ref, shallowRef } from 'vue';
 import { PS, Runner, Take, Time } from '../interfaces/db.ts';
 import { useLogin } from './useLogin.ts';

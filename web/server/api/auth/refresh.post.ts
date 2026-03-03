@@ -19,8 +19,7 @@ export default defineEventHandler(async (event) => {
 
   if (!inToken.refresh) throw new HTTPError('Invalid refresh token', { status: 400 });
 
-  const couch = useCouch();
-  const user = await getUserOrThrow(inToken.name, couch);
+  const user = await getUserOrThrow(inToken.name, useCouch());
 
   // Main token
   const token = jwt.sign(

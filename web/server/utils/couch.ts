@@ -1,10 +1,14 @@
-import nano from 'nano';
-import { useRuntimeConfig } from 'nitro/runtime-config';
 import crypto from 'crypto';
+import { useRuntimeConfig } from 'nitro/runtime-config';
+import { logger } from './logger.ts';
 
-let couchInstance: nano.ServerScope | null = null;
+export interface CouchClient {
+  request: <T = any>(endpoint: string, options?: RequestInit) => Promise<T>;
+}
 
-export function useCouch(): nano.ServerScope {
+let couchInstance: CouchClient | null = null;
+
+export function useCouch(): CouchClient {
   if (couchInstance) {
     return couchInstance;
   }
@@ -14,15 +18,35 @@ export function useCouch(): nano.ServerScope {
   hash.update(config.couchUser);
   const token = hash.digest('hex');
 
-  // create couch intance
-  couchInstance = nano({
-    url: config.couchUrl,
-    headers: {
-      'X-Auth-CouchDB-UserName': config.couchUser,
-      'X-Auth-CouchDB-Roles': '_admin',
-      'X-Auth-CouchDB-Token': token,
+  const baseUrl = config.couchUrl;
+  const defaultHeaders = {
+    'Content-Type': 'application/json',
+    'X-Auth-CouchDB-UserName': config.couchUser,
+    'X-Auth-CouchDB-Roles': '_admin',
+    'X-Auth-CouchDB-Token': token,
+  };
+
+  couchInstance = {
+    request: async <T = any>(endpoint: string, options: RequestInit = {}): Promise<T> => {
+      const url = new URL(endpoint, baseUrl);
+
+      logger.info(`CouchDB Request: ${url.toString()}`);
+      const response = await fetch(url.toString(), {
+        ...options,
+        headers: {
+          ...defaultHeaders,
+          ...options.headers,
+        },
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`CouchDB Error [${response.status}]: ${errorText}`);
+      }
+
+      return response.json() as Promise<T>;
     },
-  });
+  };
 
   return couchInstance;
 }

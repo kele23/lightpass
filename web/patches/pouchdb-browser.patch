@@ -1,0 +1,26 @@
+diff --git a/lib/index.es.js b/lib/index.es.js
+index a4098232d000eb67d7916e41c46a5cf0f7731550..914490a1685df3e7a6a8de3f540c18a7e49af3e8 100644
+--- a/lib/index.es.js
++++ b/lib/index.es.js
+@@ -1,7 +1,7 @@
+ import Md5 from 'spark-md5';
+ import { v4 } from 'uuid';
+ import vuvuzela from 'vuvuzela';
+-import EE from 'events';
++import EE from 'my_events';
+ 
+ function isBinaryObject(object) {
+   return (typeof ArrayBuffer !== 'undefined' && object instanceof ArrayBuffer) ||
+diff --git a/lib/index.js b/lib/index.js
+index ec56ac95c65135438348e0d00a5fdcd3858c3cc7..8bba5720ca470dbd35c230fd2006b94189a1c8d5 100644
+--- a/lib/index.js
++++ b/lib/index.js
+@@ -5,7 +5,7 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
+ var Md5 = _interopDefault(require('spark-md5'));
+ var uuid = require('uuid');
+ var vuvuzela = _interopDefault(require('vuvuzela'));
+-var EE = _interopDefault(require('events'));
++var EE = _interopDefault(require('my_events'));
+ 
+ function isBinaryObject(object) {
+   return (typeof ArrayBuffer !== 'undefined' && object instanceof ArrayBuffer) ||

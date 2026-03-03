@@ -18,37 +18,24 @@ const config = {
     //   workbox: {
     //     globPatterns: ['**/*.{js,css,html,ico,png,svg,webp}'],
     //   },
-    //   manifest: {
-    //     name: 'Lightpass V4',
-    //     short_name: 'Lightpass',
-    //     description: 'Racing system',
-    //     theme_color: '#ffffff',
-    //     icons: [
-    //       {
-    //         src: 'pwa-64x64.png',
-    //         sizes: '64x64',
-    //         type: 'image/png',
-    //       },
-    //       {
-    //         src: 'pwa-192x192.png',
-    //         sizes: '192x192',
-    //         type: 'image/png',
-    //       },
-    //       {
-    //         src: 'pwa-512x512.png',
-    //         sizes: '512x512',
-    //         type: 'image/png',
-    //       },
-    //       {
-    //         src: 'maskable-icon-512x512.png',
-    //         sizes: '512x512',
-    //         type: 'image/png',
-    //         purpose: 'maskable',
-    //       },
-    //     ],
-    //   },
+    //   manifest: { ... },
     // }),
   ],
+
+  define: {
+    global: 'window',
+  },
+
+  resolve: {
+    alias: {
+      my_events: 'events',
+    },
+  },
+
+  build: {
+    minify: false,
+  },
+
   server: {
     https: certs
       ? {

@@ -17,8 +17,7 @@ export default defineEventHandler(async (event) => {
   const ok = await checkLogin(body, config.couchUrl);
   if (!ok) throw new HTTPError('Invalid login', { status: 400 });
 
-  const couch = useCouch();
-  const user = await getUserOrThrow(body.name, couch);
+  const user = await getUserOrThrow(body.name, useCouch());
 
   // Main token
   const token = jwt.sign(
