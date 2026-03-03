@@ -44,7 +44,7 @@
   },
   "pnpm": {
     "patchedDependencies": {
-      "pouchdb-browser": "patches/pouchdb-browser.patch"
+      "pouchdb-browser@9.0.0": "patches/pouchdb-browser.patch"
     }
   }
 }

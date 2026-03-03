@@ -5,7 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 patchedDependencies:
-  pouchdb-browser:
+  pouchdb-browser@9.0.0:
     hash: 0506f2e48b12117569a238b09e1cd0b7d3dfea3997df03d5644c65e5df65d50f
     path: patches/pouchdb-browser.patch
 
