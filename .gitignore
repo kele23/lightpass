@@ -105,3 +105,4 @@ dist
 
 # Output Nitro
 .output
+.wrangler
