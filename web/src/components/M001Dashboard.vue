@@ -29,209 +29,229 @@ const { times, score, takes, addTake, removeTake } = useDashboard(selectedPs, ty
 const numberInput = ref<HTMLElement>();
 const route = useRoute();
 
-
 const { isRevealed: isTakeDelRevealed, reveal: revealTakeDel, confirm: confirmTakeDel } = useConfirmDialog();
 const { isRevealed: isTimeDelRevealed, reveal: revealTimeDel, confirm: confirmTimeDel } = useConfirmDialog();
 
 const assignTime = ref<HTMLFormElement>();
 function changePs(event: Event) {
-    selectedPs.value = pss.value.find((item) => item._id == (event.target as HTMLInputElement)?.value);
+  selectedPs.value = pss.value.find((item) => item._id == (event.target as HTMLInputElement)?.value);
 }
 
-watch([route], () => {
+watch(
+  [route],
+  () => {
     type.value = route.meta.type as TakeType;
-}, {immediate: true});
+  },
+  { immediate: true },
+);
 
 watch([type, selectedPs], () => {
-    assignTime.value?.reset();
+  assignTime.value?.reset();
 });
 
 async function populateAssign(_id: string) {
-    if (!assignTime.value) return;
+  if (!assignTime.value) return;
 
-    const timeId = _id;
-    const raceId = currentRace.value;
-    const psId = selectedPs.value;
+  const timeId = _id;
+  const raceId = currentRace.value?._id;
+  const psId = selectedPs.value?._id;
 
-    const time = times.value.find((item) => item._id == _id);
-    if (!time) return;
+  const time = times.value.find((item) => item._id == _id);
+  if (!time) return;
 
-    // compile form
-    const formData = {
-        timeId,
-        timeNum: time.time,
-        raceId,
-        psId,
-        timeStr: datems(time.time),
-        type: type.value,
-    };
-    jsonToForm(assignTime.value, formData);
+  // compile form
+  const formData = {
+    timeId,
+    timeNum: time.time,
+    raceId,
+    psId,
+    timeStr: datems(time.time),
+    type: type.value,
+  };
+  jsonToForm(assignTime.value, formData);
 
-    numberInput.value?.focus();
+  numberInput.value?.focus();
 }
 
 async function submitTake(event: SubmitEvent) {
-    const form = event.target as HTMLFormElement;
-    const formData = new FormData(form);
-    if (!formData.get('timeId')) return;
+  const form = event.target as HTMLFormElement;
+  const formData = new FormData(form);
+  if (!formData.get('timeId')) {
+    toasterStore.error({ text: _t('Time not selected') });
+    return;
+  }
 
-    try {
-        await addTake(
-            {
-                time: parseInt(formData.get('timeNum')!.toString()),
-                ps: formData.get('psId')!.toString(),
-                runner: formData.get('runnerId')!.toString(),
-                type: parseInt(formData.get('type')!.toString()) == TakeType.start ? TakeType.start : TakeType.end,
-            },
-            formData.get('timeId')!.toString()
-        );
-        assignTime.value?.reset();
-    } catch (e) {
-        toasterStore.error({ text: _t('Take already exists') });
-    }
+  const runnerId = runners.value.find((item) => item.number == parseInt(formData.get('runnerNumber')!.toString()))?._id;
+  if (!runnerId) {
+    toasterStore.error({ text: _t('Runner not exists or not selected') });
+    return;
+  }
+
+  const psId = formData.get('psId')!.toString();
+  if (!psId) {
+    toasterStore.error({ text: _t('PS not selected') });
+    return;
+  }
+
+  try {
+    await addTake(
+      {
+        time: parseInt(formData.get('timeNum')!.toString()),
+        ps: psId,
+        runner: runnerId,
+        type: parseInt(formData.get('type')!.toString()) == TakeType.start ? TakeType.start : TakeType.end,
+      },
+      formData.get('timeId')!.toString(),
+    );
+    assignTime.value?.reset();
+  } catch (e) {
+    toasterStore.error({ text: _t('Take already exists') });
+  }
 }
 
 const delTake = async (id: string) => {
-    const { data, isCanceled } = await revealTakeDel();
-    if (!isCanceled && data) {
-        await removeTake(id);
-    }
+  const { data, isCanceled } = await revealTakeDel();
+  if (!isCanceled && data) {
+    await removeTake(id);
+  }
 };
 
 const delTime = async (id: string) => {
-    const { data, isCanceled } = await revealTimeDel();
-    if (!isCanceled && data) {
-        await removeTime(id);
-    }
+  const { data, isCanceled } = await revealTimeDel();
+  if (!isCanceled && data) {
+    await removeTime(id);
+  }
 };
 </script>
 
 <template>
-    <L002MainInternal>
-        <template #content>
-            <h1 class="mb-6">
-                <b class="text-3xl">{{  type == TakeType.start ? "START" : "FINISH" }}</b>
-            </h1>
+  <L002MainInternal>
+    <template #content>
+      <h1 class="mb-6">
+        <b class="text-3xl">{{ type == TakeType.start ? 'START' : 'FINISH' }}</b>
+      </h1>
 
-            <X001Table
-                :data="times"
-                title="Times"
-                :labels="['Time']"
-                :keys="['time']"
-                :editEnabled="true"
-                :format="['datems']"
-                @removeClick="(_id) => delTime(_id)"
-                @editClick="(_id) => populateAssign(_id)"
+      <X001Table
+        :data="times"
+        title="Times"
+        :labels="['Time']"
+        :keys="['time']"
+        :editEnabled="true"
+        :format="['datems']"
+        @removeClick="(_id) => delTime(_id)"
+        @editClick="(_id) => populateAssign(_id)"
+      />
+
+      <X001Table
+        v-if="selectedPs"
+        :data="score"
+        title="Partial score"
+        :actionDisabled="true"
+        :hideCount="true"
+        :labels="['Number', 'Name', 'Start', 'End', 'Diff', 'Pos']"
+        :keys="['number', 'name', 'start', 'end', 'diff', 'pos']"
+        :format="['bolder', 'string', 'onlyTimeMs', 'onlyTimeMs', 'diff', 'pos']"
+      />
+
+      <X001Table
+        :title="_t('Takes')"
+        :data="takes"
+        :labels="['Runner', 'Time', 'PS', 'Type']"
+        :keys="['runnerNumber', 'time', 'psName', 'type']"
+        :format="[
+          'pIntBolder',
+          'onlyTimeMs',
+          'uppercase',
+          (data: TakeType) => (data == TakeType.start ? 'START' : 'END'),
+        ]"
+        @removeClick="(_id) => delTake(_id)"
+      />
+    </template>
+    <template #sidebar>
+      <X200Widget>
+        <div class="form-control w-full max-w-xs">
+          <label class="label">
+            <span class="label-text">{{ _t('Select PS') }}</span>
+          </label>
+          <select class="select select-bordered w-full max-w-xs" @change="changePs">
+            <option value="">{{ _t('All PS') }}</option>
+            <option v-for="ps in pss" :key="ps._id" :value="ps._id" :selected="ps._id == selectedPs?._id">
+              {{ ps.name }}
+            </option>
+          </select>
+        </div>
+      </X200Widget>
+      <X200Widget>
+        <form ref="assignTime" @submit.prevent="submitTake($event as SubmitEvent)">
+          <div class="flex items-center justify-between">
+            <span class="font-bold"> {{ _t('Assign') }} </span>
+            <button class="btn" title="Clear" type="reset">
+              <BackspaceIcon class="h-6 w-6" />
+            </button>
+          </div>
+
+          <input type="hidden" required name="raceId" />
+          <input type="hidden" required name="timeId" />
+          <input type="hidden" required name="timeNum" />
+          <input type="hidden" required name="type" />
+
+          <div class="mt-6">
+            <input
+              type="text"
+              class="input input-bordered w-full max-w-xs"
+              required
+              placeholder="Time"
+              name="timeStr"
+              readonly
             />
+          </div>
+          <div class="mt-6">
+            <select class="select select-bordered w-full max-w-xs" required name="psId">
+              <option value=""></option>
+              <option v-for="ps in pss" :key="ps._id" :value="ps._id">
+                {{ ps.name }}
+              </option>
+            </select>
+          </div>
 
-            <X001Table
-                v-if="selectedPs"
-                :data="score"
-                title="Partial score"
-                :actionDisabled="true"
-                :hideCount="true"
-                :labels="['Number', 'Name', 'Start', 'End', 'Diff', 'Pos']"
-                :keys="['number', 'name', 'start', 'end', 'diff', 'pos']"
-                :format="['bolder', 'string', 'onlyTimeMs', 'onlyTimeMs', 'diff', 'pos']"
+          <div class="mt-6">
+            <input
+              type="number"
+              class="input input-bordered w-full max-w-xs"
+              required
+              placeholder="Runner"
+              name="runnerNumber"
+              ref="numberInput"
             />
+          </div>
 
-            <X001Table
-                :title="_t('Takes')"
-                :data="takes"
-                :labels="['Runner', 'Time', 'PS', 'Type']"
-                :keys="['runnerNumber', 'time', 'psName', 'type']"
-                :format="[ 'pIntBolder','onlyTimeMs', 'uppercase', (data: TakeType) => data == TakeType.start ? 'START' : 'END']"
-                @removeClick="(_id) => delTake(_id)"
-            />
-        </template>
-        <template #sidebar>
-            <X200Widget>
-                <div class="form-control w-full max-w-xs">
-                    <label class="label">
-                        <span class="label-text">{{ _t('Select PS') }}</span>
-                    </label>
-                    <select class="select select-bordered w-full max-w-xs" @change="changePs">
-                        <option value="">{{ _t('All PS') }}</option>
-                        <option v-for="ps in pss" :key="ps._id" :value="ps._id" :selected="ps._id == selectedPs?._id">
-                            {{ ps.name }}
-                        </option>
-                    </select>
-                </div>
-            </X200Widget>
-            <X200Widget>
-                <form ref="assignTime" @submit.prevent="submitTake($event as SubmitEvent)">
-                    <div class="flex items-center justify-between">
-                        <span class="font-bold"> {{ _t('Assign') }} </span>
-                        <button class="btn" title="Clear" type="reset">
-                            <BackspaceIcon class="h-6 w-6" />
-                        </button>
-                    </div>
+          <div class="mt-6 w-full">
+            <button class="btn btn-primary" type="submit">Assegna</button>
+          </div>
+        </form>
+      </X200Widget>
+    </template>
 
-                    <input type="hidden" required name="raceId" />
-                    <input type="hidden" required name="timeId" />
-                    <input type="hidden" required name="timeNum" />
-                    <input type="hidden" required name="type" />
-
-                    <div class="mt-6">
-                        <input
-                            type="text"
-                            class="input input-bordered w-full max-w-xs"
-                            required
-                            placeholder="Time"
-                            name="timeStr"
-                            readonly
-                        />
-                    </div>
-                    <div class="mt-6">
-                        <select class="select select-bordered w-full max-w-xs" required name="psId">
-                            <option value=""></option>
-                            <option v-for="ps in pss" :key="ps._id" :value="ps._id">
-                                {{ ps.name }}
-                            </option>
-                        </select>
-                    </div>
-
-                    <div class="mt-6">
-                        <select
-                            class="select select-bordered w-full max-w-xs"
-                            required
-                            name="runnerId"
-                            ref="numberInput"
-                        >
-                            <option value=""></option>
-                            <option v-for="runner in runners" :key="runner._id" :value="runner._id">
-                                {{ runner.number }}
-                            </option>
-                        </select>
-                    </div>
-
-                    <div class="mt-6 w-full">
-                        <button class="btn btn-primary" type="submit">Assegna</button>
-                    </div>
-                </form>
-            </X200Widget>
-        </template>
-
-        <!-- MODALS OR THINGS -->
-        <template #after>
-            <Teleport to="#modals">
-                <X300ModalConfirm
-                    :title="_t('Remove Take')"
-                    :description="_t('Are you sure to delete the Take?')"
-                    ok-label="Delete"
-                    :isRevealed="isTakeDelRevealed"
-                    @close="(cont) => confirmTakeDel(cont)"
-                />
-                <X300ModalConfirm
-                    :title="_t('Remove Time')"
-                    :description="_t('Are you sure to delete the Time?')"
-                    ok-label="Delete"
-                    :isRevealed="isTimeDelRevealed"
-                    @close="(cont) => confirmTimeDel(cont)"
-                />
-            </Teleport>
-        </template>
-    </L002MainInternal>
+    <!-- MODALS OR THINGS -->
+    <template #after>
+      <Teleport to="#modals">
+        <X300ModalConfirm
+          :title="_t('Remove Take')"
+          :description="_t('Are you sure to delete the Take?')"
+          ok-label="Delete"
+          :isRevealed="isTakeDelRevealed"
+          @close="(cont) => confirmTakeDel(cont)"
+        />
+        <X300ModalConfirm
+          :title="_t('Remove Time')"
+          :description="_t('Are you sure to delete the Time?')"
+          ok-label="Delete"
+          :isRevealed="isTimeDelRevealed"
+          @close="(cont) => confirmTimeDel(cont)"
+        />
+      </Teleport>
+    </template>
+  </L002MainInternal>
 </template>
 
 <style></style>

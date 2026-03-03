@@ -12,25 +12,25 @@ const table = ref();
 </script>
 
 <template>
-    <L002MainInternal>
-        <template #content>
-            <h1 class="mb-6">
-                <b class="text-3xl">{{ _t('Global Score') }}</b>
-            </h1>
-            <X001Table
-                ref="table"
-                :data="score"
-                :show-pos="true"
-                :actionDisabled="true"
-                :filterKey="['number', 'name']"
-                :labels="['POS', 'Number', 'Name', 'Cat', 'Team', 'Diff']"
-                :keys="['pos', 'number', 'name', 'category', 'team', 'diff']"
-                :format="['pos', 'bolder', 'string', 'string', 'string', 'diff']"
-            />
-        </template>
-        <template #sidebar>
-            <X202WidgetPrint :table="table?.tableEl" />
-            <X201WidgetDownloadCsv :data="score" />
-        </template>
-    </L002MainInternal>
+  <L002MainInternal>
+    <template #content>
+      <h1 class="mb-6">
+        <b class="text-3xl">{{ _t('Global Score') }}</b>
+      </h1>
+      <X001Table
+        ref="table"
+        :data="score"
+        :show-pos="true"
+        :actionDisabled="true"
+        :filterKey="['number', 'name']"
+        :labels="['POS', 'Number', 'Name', 'Cat', 'Team', 'Diff']"
+        :keys="['pos', 'number', 'name', 'category', 'team', 'diff']"
+        :format="['pos', 'bolder', 'string', 'string', 'string', 'diff']"
+      />
+    </template>
+    <template #sidebar>
+      <X202WidgetPrint :table="table?.tableEl" />
+      <X201WidgetDownloadCsv :data="score" />
+    </template>
+  </L002MainInternal>
 </template>

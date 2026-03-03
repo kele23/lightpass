@@ -9,25 +9,25 @@ const { addTime } = useTimes();
 
 const intervalMS = 60 * 60 * 1000;
 const updateServiceWorker = useRegisterSW({
-    onRegistered(r) {
-        r &&
-            setInterval(() => {
-                r.update();
-            }, intervalMS);
-    },
+  onRegistered(r) {
+    r &&
+      setInterval(() => {
+        r.update();
+      }, intervalMS);
+  },
 });
 
 useEventListener('keydown', (e) => {
-    if (e.key == '+' && e.altKey) {
-        addTime({ time: new Date().getTime(), deviceId: getMachineId() });
-    }
+  if (e.key == '+' && e.altKey) {
+    addTime({ time: new Date().getTime(), deviceId: getMachineId() });
+  }
 });
 </script>
 
 <template>
-    <div>
-        <router-view></router-view>
-        <div id="modals"></div>
-        <X401Toaster />
-    </div>
+  <div>
+    <router-view />
+    <div id="modals" />
+    <X401Toaster />
+  </div>
 </template>

@@ -4,7 +4,7 @@
  * @return {Bool}             true if the has a name
  */
 const isValidElement = (element: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement) => {
-    return !!element.name;
+  return !!element.name;
 };
 
 /**
@@ -13,7 +13,7 @@ const isValidElement = (element: HTMLInputElement | HTMLSelectElement | HTMLText
  * @return {Bool}             true if the element has a non empty value
  */
 const hasValue = (element: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement) => {
-    return !!element.value;
+  return !!element.value;
 };
 
 /**
@@ -22,7 +22,7 @@ const hasValue = (element: HTMLInputElement | HTMLSelectElement | HTMLTextAreaEl
  * @return {Boolean}          true if the value should be added, false if not
  */
 const isValidValue = (element: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement) => {
-    return !['checkbox', 'radio'].includes(element.type) || (element as HTMLInputElement).checked;
+  return !['checkbox', 'radio'].includes(element.type) || (element as HTMLInputElement).checked;
 };
 
 /**
@@ -40,11 +40,11 @@ const isRadio = (element: HTMLInputElement | HTMLSelectElement | HTMLTextAreaEle
  * @return {Boolean}          true if the element is a multiselect, false if not
  */
 const isMultiSelect = (element: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement) => {
-    if (element.tagName == 'select') {
-        const select = element as HTMLSelectElement;
-        return select.options && select.multiple;
-    }
-    return false;
+  if (element.tagName == 'select') {
+    const select = element as HTMLSelectElement;
+    return select.options && select.multiple;
+  }
+  return false;
 };
 
 /**
@@ -53,11 +53,11 @@ const isMultiSelect = (element: HTMLInputElement | HTMLSelectElement | HTMLTextA
  * @return {Array}                          an array of selected option values
  */
 const getSelectValues = (options: HTMLOptionsCollection) => {
-    const values = [] as string[];
-    for (const option of options) {
-        if (option.selected) values.push(option.value);
-    }
-    return values;
+  const values = [] as string[];
+  for (const option of options) {
+    if (option.selected) values.push(option.value);
+  }
+  return values;
 };
 
 /**
@@ -67,66 +67,72 @@ const getSelectValues = (options: HTMLOptionsCollection) => {
  * @returns
  */
 export const formToJSON = (elements: HTMLFormControlsCollection, includeEmpty = false) => {
-    let data = {} as any;
+  let data = {} as any;
 
-    for (const el of elements) {
-        const element = el as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
-        // Make sure the element has the required properties and should be added.
-        if (isValidElement(element) && (hasValue(element) || includeEmpty) && isValidValue(element)) {
-            /*
-             * Some fields allow for more than one value, so we need to check if this
-             * is one of those fields and, if so, store the values as an array.
-             */
-            if (isCheckbox(element)) {
-                const value = element.value == 'true' ? true : element.value;
-                if (!data[element.name]) {
-                    data[element.name] = value;
-                } else {
-                    data[element.name] = [value].push(data[element.name]);
-                }
-            } else if (isRadio(element)) {
-                data[element.name] = element.value == 'true' ? true : element.value;
-            } else if (isMultiSelect(element as HTMLSelectElement)) {
-                const select = element as HTMLSelectElement;
-                data[element.name] = getSelectValues(select.options);
-            } else {
-                data[element.name] = element.value;
-            }
+  for (const el of elements) {
+    const element = el as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
+    // Make sure the element has the required properties and should be added.
+    if (isValidElement(element) && (hasValue(element) || includeEmpty) && isValidValue(element)) {
+      /*
+       * Some fields allow for more than one value, so we need to check if this
+       * is one of those fields and, if so, store the values as an array.
+       */
+      if (isCheckbox(element)) {
+        const value = element.value == 'true' ? true : element.value;
+        if (!data[element.name]) {
+          data[element.name] = value;
+        } else {
+          data[element.name] = [value].push(data[element.name]);
         }
+      } else if (isRadio(element)) {
+        data[element.name] = element.value == 'true' ? true : element.value;
+      } else if (isMultiSelect(element as HTMLSelectElement)) {
+        const select = element as HTMLSelectElement;
+        data[element.name] = getSelectValues(select.options);
+      } else {
+        data[element.name] = element.value;
+      }
     }
+  }
 
-    return data;
+  return data;
 };
 
-/**
- *
- * @param form
- * @param json
- * @param ignore
- */
-export const jsonToForm = (form: HTMLFormElement, json: any, ignore?: HTMLElement[]) => {
-    for (const el of form.elements) {
-        const element = el as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
+export const jsonToForm = (form: HTMLFormElement, json: Record<string, any>, ignore?: HTMLElement[]) => {
+  for (const el of Array.from(form.elements)) {
+    const element = el as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
 
-        if (!isValidElement(element)) continue;
-        if (ignore && ignore.indexOf(element) >= 0) continue;
+    // 1. Validazione iniziale
+    if (!element.name || (ignore && ignore.includes(element))) continue;
 
-        const name = element.name;
-        const value =
-            typeof json[name] == 'boolean' ? '' + json[name] : typeof json[name] == 'undefined' ? '' : json[name];
-        if (isCheckbox(element)) {
-            const checkbox = element as HTMLInputElement;
-            checkbox.checked = value && element.value && (value == element.value || value.indexOf(element.value) >= 0);
-        } else if (isRadio(element)) {
-            const radio = element as HTMLInputElement;
-            radio.checked = value && element.value && (value == element.value || value.indexOf(element.value) >= 0);
-        } else if (isMultiSelect(element)) {
-            const select = element as HTMLSelectElement;
-            for (const option of select.options) {
-                option.selected = value == element.value || value.indexOf(option.value) >= 0;
-            }
-        } else {
-            element.value = value;
-        }
+    const name = element.name;
+    const value = json[name];
+
+    // Se il valore nel JSON è nullo o indefinito, passiamo oltre o resettiamo
+    if (value === undefined || value === null) continue;
+
+    // 2. Gestione Checkbox e Radio
+    if (element instanceof HTMLInputElement && (element.type === 'checkbox' || element.type === 'radio')) {
+      if (Array.isArray(value)) {
+        element.checked = value.map(String).includes(String(element.value));
+      } else if (typeof value === 'boolean') {
+        element.checked = value;
+      } else {
+        element.checked = String(value) === String(element.value);
+      }
     }
+
+    // 3. Gestione Select Multiplo
+    else if (element instanceof HTMLSelectElement && element.multiple) {
+      const values = Array.isArray(value) ? value.map(String) : [String(value)];
+      for (const option of Array.from(element.options)) {
+        option.selected = values.includes(option.value);
+      }
+    }
+
+    // 4. Input standard (text, date, email, select-one, textarea)
+    else {
+      element.value = value;
+    }
+  }
 };

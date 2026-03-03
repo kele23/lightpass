@@ -1,83 +1,103 @@
 import { ref } from 'vue';
-import { AuthService } from '../api/services.gen.ts';
 
 export type LoginUser = {
-    name: string;
+  name: string;
 };
 
 const loggedIn = ref<boolean>(false);
 const user = ref<LoginUser>();
 
 const isLoggedIn = async (): Promise<boolean> => {
-    // check token valid
-    try {
-        let resp = await AuthService.getApiAuthCheck();
-        user.value = resp;
-        loggedIn.value = true;
-        return true;
-    } catch (e) {
-        // if (resp.status == 401) {
-        //     // retry after refresh is 401
-        //     const refresh = await refreshToken();
-        //     if (refresh) {
-        //         resp = await AuthService.getApiAuthCheck();
-        //     }
-        // }
+  const resp = await fetch('/api/auth/check');
+  if (resp.ok) {
+    const userS = await resp.json();
+    user.value = userS;
+    loggedIn.value = true;
+    return true;
+  } else {
+    loggedIn.value = false;
+    user.value = undefined;
+  }
 
-        loggedIn.value = false;
-        user.value = undefined;
-        console.warn(e);
-    }
-    return false;
+  return false;
 };
 
 // laungh isLoggedIn first time
 isLoggedIn();
 
+let refreshPromise: Promise<boolean> | null = null;
+
 export function useLogin() {
-    const login = async (data: { name: string; password: string }) => {
-        try {
-            const respData = await AuthService.postApiAuthLogin({ body: data });
+  const isLoggingIn = ref<boolean>(false);
 
-            // set refresh token
-            localStorage.setItem('refreshToken', respData.refreshToken);
-            return await isLoggedIn();
-        } catch (e) {
-            console.warn(e);
+  const login = async (data: { name: string; password: string }) => {
+    isLoggingIn.value = true;
+    try {
+      const resp = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (resp.ok) {
+        const loginResp = await resp.json();
+        localStorage.setItem('refreshToken', loginResp.refreshToken);
+        return await isLoggedIn();
+      }
+      return false;
+    } finally {
+      isLoggingIn.value = false;
+    }
+  };
+
+  const refreshToken = async () => {
+    if (refreshPromise) {
+      return refreshPromise;
+    }
+    refreshPromise = (async () => {
+      try {
+        const resp = await fetch('/api/auth/refresh', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ refreshToken: localStorage.getItem('refreshToken') }),
+        });
+
+        if (resp.ok) {
+          const loginResp = await resp.json();
+          localStorage.setItem('refreshToken', loginResp.refreshToken);
+          return await isLoggedIn();
         }
+
         return false;
-    };
-
-    const refreshToken = async () => {
-        let refreshToken = localStorage.getItem('refreshToken');
-        if (!refreshToken) {
-            loggedIn.value = false;
-            user.value = undefined;
-            return false;
-        }
-
-        try {
-            await AuthService.postApiAuthRefresh({ body: { refreshToken } });
-            return true;
-        } catch (e) {
-            console.warn(e);
-            loggedIn.value = false;
-            user.value = undefined;
-        }
-
+      } catch (error) {
+        console.error('Errore durante il refresh:', error);
         return false;
-    };
+      } finally {
+        refreshPromise = null;
+      }
+    })();
 
-    const logout = async () => {
-        try {
-            await AuthService.postApiAuthLogout();
-            localStorage.removeItem('refreshToken');
-            return await isLoggedIn();
-        } catch (e) {
-            console.warn(e);
-        }
-        return false;
-    };
+    return refreshPromise;
+  };
 
-    return { login, logout, refreshToken, loggedIn, user };
+  const logout = async () => {
+    const resp = await fetch('/api/auth/logout', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (resp.ok) {
+      isLoggedIn();
+      return true;
+    }
+    return false;
+  };
+
+  return { login, logout, refreshToken, loggedIn, user, isLoggingIn };
 }

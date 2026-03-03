@@ -9,75 +9,75 @@ const TIMES_CHARACTERISTIC = 'e0ec91ab-e8bb-4779-a1a0-6582ec9d977e';
 
 const { addTime } = useTimes();
 const { isConnected, device, server, requestDevice } = useBluetooth({
-    filters: [{ services: [LIGHTPASS_SERVICE] }],
+  filters: [{ services: [LIGHTPASS_SERVICE] }],
 });
 
 let baseDate: number;
 let firstTime: number;
 
 async function createConnection() {
-    if (!isConnected || !server?.value) return;
+  if (!isConnected || !server?.value) return;
 
-    const service = await server.value.getPrimaryService(LIGHTPASS_SERVICE);
-    const characteristic = await service.getCharacteristic(NOTIFY_CHARACTERISTIC);
+  const service = await server.value.getPrimaryService(LIGHTPASS_SERVICE);
+  const characteristic = await service.getCharacteristic(NOTIFY_CHARACTERISTIC);
 
-    await characteristic.startNotifications();
-    characteristic.addEventListener('characteristicvaluechanged', (event: any) => {
-        if (event.target?.value) {
-            const data = event.target?.value as DataView;
-            const number = data.getUint32(0, true);
-            if (!firstTime) {
-                baseDate = new Date().getTime();
-                firstTime = number;
-            }
-            addTime({ time: baseDate + (number - firstTime), deviceId: getMachineId() });
-        }
-    });
+  await characteristic.startNotifications();
+  characteristic.addEventListener('characteristicvaluechanged', (event: any) => {
+    if (event.target?.value) {
+      const data = event.target?.value as DataView;
+      const number = data.getUint32(0, true);
+      if (!firstTime) {
+        baseDate = new Date().getTime();
+        firstTime = number;
+      }
+      addTime({ time: baseDate + (number - firstTime), deviceId: getMachineId() });
+    }
+  });
 }
 
 // when connected -> create connection to notification
 watch(isConnected, (newIsConnected) => {
-    if (!newIsConnected) return;
-    createConnection();
+  if (!newIsConnected) return;
+  createConnection();
 });
 
 export const useLightpassSensor = () => {
-    const loadingTimes = ref<boolean>(false);
-    const deviceTimes = ref<number[]>();
+  const loadingTimes = ref<boolean>(false);
+  const deviceTimes = ref<number[]>();
 
-    const loadTimes = async () => {
-        if (!server.value) return;
+  const loadTimes = async () => {
+    if (!server.value) return;
 
-        try {
-            loadingTimes.value = false;
+    try {
+      loadingTimes.value = true;
 
-            const service = await server.value.getPrimaryService(LIGHTPASS_SERVICE);
-            const characteristic = await service.getCharacteristic(TIMES_CHARACTERISTIC);
+      const service = await server.value.getPrimaryService(LIGHTPASS_SERVICE);
+      const characteristic = await service.getCharacteristic(TIMES_CHARACTERISTIC);
 
-            const data = await characteristic.readValue();
-            console.log(data);
-            const tmp = [] as number[];
-            for (let i = 0; i < data.byteLength; i++) {
-                // every 4 bytes
-                if (i % 4 == 0) {
-                    const number = data.getUint32(i, true);
-                    if (number != 0) tmp.push(baseDate + (number - firstTime));
-                }
-            }
-
-            deviceTimes.value = tmp;
-        } catch (e) {
-            console.warn(e);
-        } finally {
-            loadingTimes.value = false;
+      const data = await characteristic.readValue();
+      console.log(data);
+      const tmp = [] as number[];
+      for (let i = 0; i < data.byteLength; i++) {
+        // every 4 bytes
+        if (i % 4 == 0) {
+          const number = data.getUint32(i, true);
+          if (number != 0) tmp.push(baseDate + (number - firstTime));
         }
-    };
+      }
 
-    return {
-        isConnected,
-        device,
-        requestDevice,
-        loadTimes,
-        deviceTimes,
-    };
+      deviceTimes.value = tmp;
+    } catch (e) {
+      console.warn(e);
+    } finally {
+      loadingTimes.value = false;
+    }
+  };
+
+  return {
+    isConnected,
+    device,
+    requestDevice,
+    loadTimes,
+    deviceTimes,
+  };
 };
