@@ -1,2 +1,0 @@
-patchedDependencies:
-  pouchdb-browser: patches/pouchdb-browser.patch

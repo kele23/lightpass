@@ -41,5 +41,10 @@
     "typescript": "^5.9.3",
     "vite": "^7.3.1",
     "vite-plugin-pwa": "^1.2.0"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "pouchdb-browser": "patches/pouchdb-browser.patch"
+    }
   }
 }
