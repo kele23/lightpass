@@ -45,6 +45,10 @@
   "pnpm": {
     "patchedDependencies": {
       "pouchdb-browser@9.0.0": "patches/pouchdb-browser.patch"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "sharp"
+    ]
   }
 }
