@@ -28,9 +28,11 @@ export const checkLogin = async (
 
     // Se la risposta è 200 OK, le credenziali sono valide.
     // Se è 401 Unauthorized, non lo sono.
-    return response.ok;
+    if (response.ok) return true;
+    logger.warn('Cannot login, invalid credentials or couchdb unreachable ' + (await response.text()));
+    return false;
   } catch (e: any) {
-    logger.warn('Cannot login, invalid credentials or couchdb unreachable', e.message);
+    logger.warn('Cannot login, invalid credentials or couchdb unreachable ' + e.message);
     return false;
   }
 };
