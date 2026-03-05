@@ -1,6 +1,7 @@
 import { HTTPError } from 'nitro/h3';
 import { User } from '../../types/user.ts';
 import type { CouchClient } from './couch.ts';
+import { logger } from './logger.ts';
 
 /**
  * Check if username password belong to user
@@ -28,8 +29,8 @@ export const checkLogin = async (
     // Se la risposta è 200 OK, le credenziali sono valide.
     // Se è 401 Unauthorized, non lo sono.
     return response.ok;
-  } catch (e) {
-    // Errore di rete o server irraggiungibile
+  } catch (e: any) {
+    logger.warn('Cannot login, invalid credentials or couchdb unreachable', e.message);
     return false;
   }
 };
@@ -49,8 +50,8 @@ export const getUser = async (name: string, couch: CouchClient): Promise<User | 
     const user = await couch.request<User>(`/_users/${docId}`);
 
     return user;
-  } catch (e) {
-    // Il nostro CouchClient lancia un errore se lo status non è OK (es. 404 Not Found)
+  } catch (e: any) {
+    logger.warn('Cannot get user', e.message);
     return undefined;
   }
 };
