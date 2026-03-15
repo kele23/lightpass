@@ -11,7 +11,7 @@ export default defineConfig({
   runtimeConfig: {
     couchSecret: 'secret-di-default',
     jwtSecret: 'secret-di-default',
-    couchUrl: 'https://kele23.tplinkdns.com:5984',
+    couchUrl: 'http://localhost:5984',
     couchUser: 'admin',
     racePrefix: 'race',
     adminRole: 'lightpass_admin',

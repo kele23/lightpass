@@ -38,7 +38,7 @@ export const checkLogin = async (
 };
 
 /**
- * Recupera un utente dal database _users
+ * Recupera un utente dal database _users?
  * @param name The username
  * @param couch The CouchClient instance
  * @returns The user if found, undefined if not found
