@@ -2,7 +2,6 @@ import jwt from 'jsonwebtoken';
 import { defineEventHandler, HTTPError, readBody, setCookie } from 'nitro/h3';
 import { useRuntimeConfig } from 'nitro/runtime-config';
 import { checkLogin, getUserOrThrow } from '../../utils/user.ts';
-import { useCouch } from '../../utils/couch.ts';
 
 export type UserLoginBody = {
   name: string;
@@ -14,10 +13,12 @@ export default defineEventHandler(async (event) => {
   const body = await readBody<UserLoginBody>(event);
   if (!body) throw new HTTPError('Sorry, you have to provide username & password to login', { status: 401 });
 
-  const ok = await checkLogin(body, config.couchUrl);
+  // check login
+  const ok = await checkLogin(body);
   if (!ok) throw new HTTPError('Invalid login', { status: 400 });
 
-  const user = await getUserOrThrow(body.name, useCouch());
+  // load user by name
+  const user = await getUserOrThrow(body.name, event);
 
   // Main token
   const token = jwt.sign(

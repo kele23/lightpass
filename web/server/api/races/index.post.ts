@@ -1,18 +1,17 @@
-import { verifyAdministrator } from '../../utils/auth.ts';
 import { defineEventHandler, HTTPError, readBody } from 'nitro/h3';
 import { useRuntimeConfig } from 'nitro/runtime-config';
-import { useCouch } from '../../utils/couch.ts';
 import { Race } from '../../../types/races.ts';
+import { verifyAdministrator } from '../../utils/auth.ts';
+import { useCouchAdmin } from '../../utils/couch.ts';
 
 export type RaceCreateBodyType = {
   name: string;
 };
 
 export default defineEventHandler(async (event): Promise<Race> => {
-  verifyAdministrator(event);
-
+  const user = verifyAdministrator(event);
   const config = useRuntimeConfig();
-  const couch = useCouch();
+  const couch = useCouchAdmin(user.name);
 
   // 2. Leggi il body
   const body = await readBody<RaceCreateBodyType>(event);
@@ -40,9 +39,15 @@ export default defineEventHandler(async (event): Promise<Race> => {
   await couch.request(`/${dbName}/_security`, {
     method: 'PUT',
     body: JSON.stringify({
-      admins: { names: [], roles: ['_admin', config.adminRole] },
-      members: { names: [], roles: [config.standardRole] },
+      admins: { names: [], roles: [config.couchAdminRole, config.lgAdminRole] },
+      members: { names: [], roles: [config.lgStandardRole] },
     }),
+  });
+
+  // Crea il documento lightpass-dbs/dbName per renderlo visibile all'app
+  await couch.request(`/lightpass-dbs/${dbName}`, {
+    method: 'PUT',
+    body: JSON.stringify({ name: dbName }),
   });
 
   // 7. Ritorna il risultato

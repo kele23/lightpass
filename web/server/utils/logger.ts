@@ -14,9 +14,9 @@ function log(level: 'info' | 'error' | 'warn', message: string, event?: H3Event,
     message,
     request: event
       ? {
-          method: event.req.method,
-          url: event.url.pathname + event.url.search,
-          headers: event.req.headers,
+          method: event.req?.method,
+          url: event.url?.pathname + event.url?.search,
+          headers: event.req?.headers,
         }
       : 'No Request Context',
     data,

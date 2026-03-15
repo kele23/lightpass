@@ -12,9 +12,9 @@ export default defineConfig({
     couchSecret: 'secret-di-default',
     jwtSecret: 'secret-di-default',
     couchUrl: 'http://localhost:5984',
-    couchUser: 'admin',
     racePrefix: 'race',
-    adminRole: 'lightpass_admin',
-    standardRole: 'lightpass_user',
+    couchAdminRole: '_admin',
+    lgAdminRole: 'lightpass_admin',
+    lgStandardRole: 'lightpass_user',
   },
 });

@@ -10,16 +10,20 @@ export default definePlugin((nitroApp) => {
 
   // 2. Global Error Handler
   nitroApp.hooks.hook('error', async (error: Error, { event }: { event: H3Event }) => {
+    // do not log silent errors
+    if (error instanceof HTTPError && error.data?.silent) {
+      return;
+    }
+
     // This triggers for all exceptions in your event handlers
     const errorLog = {
       message: error.message,
       stack: error.stack,
       statusCode: error instanceof HTTPError ? error.status : 500,
       path: event.url.pathname,
-      method: event.req.method,
     };
 
     // You can send this to Sentry, Axiom, or just console
-    logger.warn(' [EXCEPTION] ', event, errorLog);
+    logger.error(' [EXCEPTION] ', event, errorLog);
   });
 });

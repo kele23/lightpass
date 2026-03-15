@@ -1,36 +1,31 @@
 import crypto from 'crypto';
 import { useRuntimeConfig } from 'nitro/runtime-config';
 import { logger } from './logger.ts';
+import { H3Event } from 'nitro/h3';
 
 export interface CouchClient {
   request: <T = any>(endpoint: string, options?: RequestInit) => Promise<T>;
 }
 
-let couchInstance: CouchClient | null = null;
-
-export function useCouch(): CouchClient {
-  if (couchInstance) {
-    return couchInstance;
-  }
-
+export function useCouch(user: { name: string; roles: string[] }, event?: H3Event): CouchClient {
   const config = useRuntimeConfig();
   const hash = crypto.createHmac('sha256', config.couchSecret);
-  hash.update(config.couchUser);
+  hash.update(user.name);
   const token = hash.digest('hex');
 
   const baseUrl = config.couchUrl;
   const defaultHeaders = {
     'Content-Type': 'application/json',
-    'X-Auth-CouchDB-UserName': config.couchUser,
-    'X-Auth-CouchDB-Roles': '_admin',
+    'X-Auth-CouchDB-UserName': user.name,
+    'X-Auth-CouchDB-Roles': user.roles.join(','),
     'X-Auth-CouchDB-Token': token,
   };
 
-  couchInstance = {
+  const couchInstance: CouchClient = {
     request: async <T = any>(endpoint: string, options: RequestInit = {}): Promise<T> => {
       const url = new URL(endpoint, baseUrl);
 
-      logger.info(`CouchDB Request: ${url.toString()}`);
+      logger.info(`[COUCH] Request: ${url.toString()}`, event);
       const response = await fetch(url.toString(), {
         ...options,
         headers: {
@@ -41,6 +36,7 @@ export function useCouch(): CouchClient {
 
       if (!response.ok) {
         const errorText = await response.text();
+        console.log(errorText);
         throw new Error(`CouchDB Error [${response.status}]: ${errorText}`);
       }
 
@@ -49,4 +45,15 @@ export function useCouch(): CouchClient {
   };
 
   return couchInstance;
+}
+
+/**
+ * Get a couch client with administrative privilege for the user
+ * @param userName The username that need administrative privilege
+ * @returns The couch client with administrative privilege for the user
+ */
+export function useCouchAdmin(userName: string): CouchClient {
+  const config = useRuntimeConfig();
+  logger.info('Using couch admin for user ' + userName);
+  return useCouch({ name: userName, roles: [config.couchAdminRole] });
 }

@@ -2,7 +2,6 @@ import jwt from 'jsonwebtoken';
 import { defineEventHandler, HTTPError, readBody, setCookie } from 'nitro/h3';
 import { useRuntimeConfig } from 'nitro/runtime-config';
 import { UserRefreshPayload } from '../../../types/user.ts';
-import { useCouch } from '../../utils/couch.ts';
 import { getUserOrThrow } from '../../utils/user.ts';
 
 export type RefreshBody = {
@@ -16,10 +15,10 @@ export default defineEventHandler(async (event) => {
 
   const inToken = jwt.verify(body.refreshToken, config.jwtSecret) as UserRefreshPayload;
   if (!inToken) throw new HTTPError('Invalid login', { status: 400 });
-
   if (!inToken.refresh) throw new HTTPError('Invalid refresh token', { status: 400 });
 
-  const user = await getUserOrThrow(inToken.name, useCouch());
+  // load user by name
+  const user = await getUserOrThrow(inToken.name, event);
 
   // Main token
   const token = jwt.sign(
