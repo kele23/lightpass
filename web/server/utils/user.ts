@@ -16,6 +16,7 @@ export const checkLogin = async ({ name, password }: { name: string; password: s
 
     // Chiamiamo l'endpoint _session di CouchDB
     const config = useRuntimeConfig();
+    logger.info('Checking login for user ' + name + ' ' + config.couchUrl);
     const response = await fetch(`${config.couchUrl}/_session`, {
       method: 'GET', // CouchDB supporta GET o POST su _session
       headers: {
