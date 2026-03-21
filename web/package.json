@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host",
-    "build": "vite build && cp .env .output/.dev.vars",
+    "build": "vite build",
     "preview": "vite preview",
     "generate": "openapi-ts --client xhr --input ./api-swagger.json --output ./src/api --base ''",
     "generate-pwa-assets": "pwa-assets-generator"
