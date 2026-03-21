@@ -20,12 +20,15 @@ export const checkLogin = async (
     // Determiniamo il fetch (VPC su Cloudflare oppure globale in dev)
     let internalFetch = globalThis.fetch;
     const env = (event?.context as any)?.cloudflare?.env;
+
+    logger.info(`[DEBUG] auth/login.post.ts - env?.VPC_SERVICE defined? ${!!env?.VPC_SERVICE}`);
     if (env?.VPC_SERVICE) {
       internalFetch = env.VPC_SERVICE.fetch.bind(env.VPC_SERVICE);
     }
 
     // Chiamiamo l'endpoint _session di CouchDB
     const config = useRuntimeConfig();
+    logger.info(`[DEBUG] auth/login.post.ts - executing fetch on: ${config.couchUrl}/_session`);
     const response = await internalFetch(`${config.couchUrl}/_session`, {
       method: 'GET', // CouchDB supporta GET o POST su _session
       headers: {
