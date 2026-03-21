@@ -1,0 +1,11 @@
+{
+  "name": "kele23-lightpass-web",
+  "compatibility_date": "2026-03-21",
+  "vpc_services": [
+    {
+      "binding": "VPC_SERVICE",
+      "service_id": "019cbfbe-206b-7282-920e-fc05b7e4f4c1",
+      "remote": true
+    }
+  ]
+}

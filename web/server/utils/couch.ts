@@ -29,8 +29,16 @@ export function useCouch(user: { name: string; roles: string[] }, event?: H3Even
     request: async <T = any>(endpoint: string, options: RequestInit = {}): Promise<T> => {
       const url = new URL(endpoint, baseUrl);
 
+      // Check for VPC_SERVICE in Nitro's Cloudflare context bindings
+      const env = (event?.context as any)?.cloudflare?.env;
+      let internalFetch = globalThis.fetch;
+
+      if (env?.VPC_SERVICE) {
+        internalFetch = env.VPC_SERVICE.fetch.bind(env.VPC_SERVICE);
+      }
+
       logger.info(`[COUCH] Request: ${url.toString()}`, event);
-      const response = await fetch(url.toString(), {
+      const response = await internalFetch(url.toString(), {
         ...options,
         headers: {
           ...defaultHeaders,
