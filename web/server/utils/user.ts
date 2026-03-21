@@ -9,14 +9,24 @@ import { logger } from './logger.ts';
  * @param {name, password} The user credentials
  * @returns true if login successful
  */
-export const checkLogin = async ({ name, password }: { name: string; password: string }): Promise<boolean> => {
+export const checkLogin = async (
+  { name, password }: { name: string; password: string },
+  event: H3Event,
+): Promise<boolean> => {
   try {
     // Creiamo il token di base auth (disponibile nativamente in Node 18+ e ambienti Edge)
     const credentials = btoa(`${name}:${password}`);
 
+    // Determiniamo il fetch (VPC su Cloudflare oppure globale in dev)
+    let internalFetch = globalThis.fetch;
+    const env = (event?.context as any)?.cloudflare?.env;
+    if (env?.VPC_SERVICE) {
+      internalFetch = env.VPC_SERVICE.fetch.bind(env.VPC_SERVICE);
+    }
+
     // Chiamiamo l'endpoint _session di CouchDB
     const config = useRuntimeConfig();
-    const response = await fetch(`${config.couchUrl}/_session`, {
+    const response = await internalFetch(`${config.couchUrl}/_session`, {
       method: 'GET', // CouchDB supporta GET o POST su _session
       headers: {
         Accept: 'application/json',

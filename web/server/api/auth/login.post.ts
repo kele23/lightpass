@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
   if (!body) throw new HTTPError('Sorry, you have to provide username & password to login', { status: 401 });
 
   // check login
-  const ok = await checkLogin(body);
+  const ok = await checkLogin(body, event);
   if (!ok) throw new HTTPError('Invalid login', { status: 400 });
 
   // load user by name
