@@ -1,8 +1,8 @@
 import { H3Event, HTTPError } from 'nitro/h3';
-import { User } from '../../types/user.ts';
-import { useCouch } from './couch.ts';
-import { logger } from './logger.ts';
 import { useRuntimeConfig } from 'nitro/runtime-config';
+import { User } from '../../types/user.ts';
+import { useCouchAdmin } from './couch.ts';
+import { logger } from './logger.ts';
 
 /**
  * Check if username password belong to user
@@ -16,7 +16,6 @@ export const checkLogin = async ({ name, password }: { name: string; password: s
 
     // Chiamiamo l'endpoint _session di CouchDB
     const config = useRuntimeConfig();
-    logger.info('Checking login for user ' + name + ' ' + config.couchUrl);
     const response = await fetch(`${config.couchUrl}/_session`, {
       method: 'GET', // CouchDB supporta GET o POST su _session
       headers: {
@@ -46,8 +45,7 @@ export const getUser = async (name: string, event: H3Event): Promise<User | unde
   const docId = encodeURIComponent(`org.couchdb.user:${name}`);
 
   // Richiamiamo direttamente il path del db e l'id del documento
-  const config = useRuntimeConfig();
-  const couch = useCouch({ name: name, roles: [config.couchAdminRole] }, event);
+  const couch = useCouchAdmin(name, event);
   const user = await couch.request<User>(`/_users/${docId}`);
 
   return user;

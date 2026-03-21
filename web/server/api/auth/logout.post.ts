@@ -2,11 +2,11 @@ import { defineEventHandler, deleteCookie } from 'nitro/h3';
 import { useRuntimeConfig } from 'nitro/runtime-config';
 import { verifyJWT } from '../../utils/auth.ts';
 
-export default defineEventHandler((event) => {
+export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig();
 
   // verify login before logout
-  verifyJWT(event);
+  await verifyJWT(event);
 
   deleteCookie(event, 'token', {
     path: '/',

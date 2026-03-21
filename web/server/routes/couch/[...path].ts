@@ -4,7 +4,7 @@ import { useRuntimeConfig } from 'nitro/runtime-config';
 import { verifyJWT } from '../../utils/auth.ts';
 
 export default defineEventHandler(async (event) => {
-  const user = verifyJWT(event);
+  const user = await verifyJWT(event);
   const config = useRuntimeConfig();
 
   // generate couch db credentials

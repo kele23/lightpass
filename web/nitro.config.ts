@@ -1,7 +1,7 @@
 import { defineConfig } from 'nitro';
 
 export default defineConfig({
-  compatibilityDate: '2024-09-19',
+  compatibilityDate: '2026-03-21',
   preset: 'cloudflare_module',
   cloudflare: {
     deployConfig: true,

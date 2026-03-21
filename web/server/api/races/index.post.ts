@@ -9,7 +9,7 @@ export type RaceCreateBodyType = {
 };
 
 export default defineEventHandler(async (event): Promise<Race> => {
-  const user = verifyAdministrator(event);
+  const user = await verifyAdministrator(event);
   const config = useRuntimeConfig();
   const couch = useCouchAdmin(user.name);
 

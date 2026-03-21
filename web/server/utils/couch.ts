@@ -9,10 +9,13 @@ export interface CouchClient {
 
 export function useCouch(user: { name: string; roles: string[] }, event?: H3Event): CouchClient {
   const config = useRuntimeConfig();
+
+  // create hashed token for user
   const hash = crypto.createHmac('sha256', config.couchSecret);
   hash.update(user.name);
   const token = hash.digest('hex');
 
+  // set default headers for couchdb requests
   const baseUrl = config.couchUrl;
   const defaultHeaders = {
     'Content-Type': 'application/json',
@@ -21,6 +24,7 @@ export function useCouch(user: { name: string; roles: string[] }, event?: H3Even
     'X-Auth-CouchDB-Token': token,
   };
 
+  // create couch client
   const couchInstance: CouchClient = {
     request: async <T = any>(endpoint: string, options: RequestInit = {}): Promise<T> => {
       const url = new URL(endpoint, baseUrl);
@@ -34,12 +38,13 @@ export function useCouch(user: { name: string; roles: string[] }, event?: H3Even
         },
       });
 
+      // check if response is ok
       if (!response.ok) {
         const errorText = await response.text();
-        console.log(errorText);
         throw new Error(`CouchDB Error [${response.status}]: ${errorText}`);
       }
 
+      // return response as json
       return response.json() as Promise<T>;
     },
   };
@@ -52,8 +57,8 @@ export function useCouch(user: { name: string; roles: string[] }, event?: H3Even
  * @param userName The username that need administrative privilege
  * @returns The couch client with administrative privilege for the user
  */
-export function useCouchAdmin(userName: string): CouchClient {
+export function useCouchAdmin(userName: string, event?: H3Event): CouchClient {
   const config = useRuntimeConfig();
-  logger.info('Using couch admin for user ' + userName);
-  return useCouch({ name: userName, roles: [config.couchAdminRole] });
+  logger.info('Using couch admin for user ' + userName, event);
+  return useCouch({ name: userName, roles: [config.couchAdminRole] }, event);
 }

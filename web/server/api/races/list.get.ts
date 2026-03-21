@@ -5,7 +5,7 @@ import { useCouch } from '../../utils/couch.ts';
 import { AllDocsResponse } from '../../../types/iditem.ts';
 
 export default defineEventHandler(async (event): Promise<Race[]> => {
-  const user = verifyJWT(event);
+  const user = await verifyJWT(event);
   const couch = useCouch(user, event);
 
   // /_all_dbs ritorna direttamente un array di stringhe
