@@ -9,17 +9,14 @@ import { logger } from './logger.ts';
  * @param {name, password} The user credentials
  * @returns true if login successful
  */
-export const checkLogin = async (
-  { name, password }: { name: string; password: string },
-  event: H3Event,
-): Promise<boolean> => {
+export const checkLogin = async (event: any, name: string, password: string): Promise<boolean> => {
   try {
     // Creiamo il token di base auth (disponibile nativamente in Node 18+ e ambienti Edge)
     const credentials = btoa(`${name}:${password}`);
 
     // Determiniamo il fetch (VPC su Cloudflare oppure globale in dev)
     let internalFetch = globalThis.fetch;
-    const env = (event?.context as any)?.cloudflare?.env;
+    const env = event?.runtime?.cloudflare?.env;
 
     logger.info(`[DEBUG] auth/login.post.ts - env?.VPC_SERVICE defined? ${!!env?.VPC_SERVICE}`);
     if (env?.VPC_SERVICE) {

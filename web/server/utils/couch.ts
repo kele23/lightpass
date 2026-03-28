@@ -7,7 +7,7 @@ export interface CouchClient {
   request: <T = any>(endpoint: string, options?: RequestInit) => Promise<T>;
 }
 
-export function useCouch(user: { name: string; roles: string[] }, event?: H3Event): CouchClient {
+export function useCouch(user: { name: string; roles: string[] }, event: H3Event): CouchClient {
   const config = useRuntimeConfig();
 
   // create hashed token for user
@@ -30,7 +30,7 @@ export function useCouch(user: { name: string; roles: string[] }, event?: H3Even
       const url = new URL(endpoint, baseUrl);
 
       // Check for VPC_SERVICE in Nitro's Cloudflare context bindings
-      const env = (event?.context as any)?.cloudflare?.env;
+      const env = (event as any)?.runtime?.cloudflare?.env;
       let internalFetch = globalThis.fetch;
 
       if (env?.VPC_SERVICE) {
@@ -65,7 +65,7 @@ export function useCouch(user: { name: string; roles: string[] }, event?: H3Even
  * @param userName The username that need administrative privilege
  * @returns The couch client with administrative privilege for the user
  */
-export function useCouchAdmin(userName: string, event?: H3Event): CouchClient {
+export function useCouchAdmin(userName: string, event: H3Event): CouchClient {
   const config = useRuntimeConfig();
   logger.info('Using couch admin for user ' + userName, event);
   return useCouch({ name: userName, roles: [config.couchAdminRole] }, event);

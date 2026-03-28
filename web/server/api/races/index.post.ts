@@ -11,7 +11,7 @@ export type RaceCreateBodyType = {
 export default defineEventHandler(async (event): Promise<Race> => {
   const user = await verifyAdministrator(event);
   const config = useRuntimeConfig();
-  const couch = useCouchAdmin(user.name);
+  const couch = useCouchAdmin(user.name, event);
 
   // 2. Leggi il body
   const body = await readBody<RaceCreateBodyType>(event);
@@ -47,7 +47,7 @@ export default defineEventHandler(async (event): Promise<Race> => {
   // Crea il documento lightpass-dbs/dbName per renderlo visibile all'app
   await couch.request(`/lightpass-dbs/${dbName}`, {
     method: 'PUT',
-    body: JSON.stringify({ name: dbName }),
+    body: JSON.stringify({ name: body.name }),
   });
 
   // 7. Ritorna il risultato
