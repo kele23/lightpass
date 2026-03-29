@@ -44,7 +44,7 @@ export default defineEventHandler(async (event) => {
     refresh: true,
   })
     .setProtectedHeader({ alg: 'HS256' })
-    .setExpirationTime('1d')
+    .setExpirationTime('30d')
     .sign(secret);
 
   // Set cookie
