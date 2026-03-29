@@ -24,8 +24,14 @@ watchEffect((onCleanup) => {
         if (changes.deleted) {
           takes.value = takes.value.filter((item) => item._id != changes.id);
         } else if (changes.doc) {
-          takes.value = [...takes.value, changes.doc];
-          console.log('>>>>>>> New Take ', changes.doc.name);
+          const index = takes.value.findIndex((item) => item._id == changes.id);
+          if (index !== -1) {
+            takes.value[index] = changes.doc;
+            takes.value = [...takes.value];
+          } else {
+            takes.value = [...takes.value, changes.doc];
+          }
+          console.log('>>>>>>> Take updated/added ', changes.id);
         }
       });
   }
@@ -83,6 +89,15 @@ export function useTakes() {
     } as Take;
   };
 
+  const updateTake = async (take: Take): Promise<Take> => {
+    if (!raceDB.value) throw new Error('Cannot update take without a race selected');
+    const resp = await raceDB.value.put(take);
+    return {
+      ...take,
+      _rev: resp.rev,
+    };
+  };
+
   const removeTake = async (_id: string) => {
     if (!raceDB.value) throw new Error('Cannot remove take without a race selected');
 
@@ -111,6 +126,7 @@ export function useTakes() {
   return {
     takes,
     addTake,
+    updateTake,
     removeTake,
     cleanTakes,
   };

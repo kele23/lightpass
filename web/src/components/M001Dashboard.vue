@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { BackspaceIcon } from '@heroicons/vue/24/solid';
+import { useConfirmDialog } from '@vueuse/core';
 import { ref, watch } from 'vue';
+import { useRoute } from 'vue-router';
+import { useDashboard } from '../composable/useDashboard.ts';
 import { usePS } from '../composable/usePS.ts';
 import { useRace } from '../composable/useRace.ts';
 import { useRunners } from '../composable/useRunners.ts';
-import { useDashboard } from '../composable/useDashboard.ts';
 import { useTimes } from '../composable/useTimes.ts';
-import { PS, TakeType } from '../interfaces/db.ts';
+import { FriendlyTake, PS, TakeType } from '../interfaces/db.ts';
 import { _t } from '../services/dictionary.ts';
 import useToasterStore from '../stores/toaster.ts';
 import { jsonToForm } from '../utils/form-to-json.ts';
@@ -15,8 +17,6 @@ import L002MainInternal from './L002MainInternal.vue';
 import X001Table from './X001Table.vue';
 import X200Widget from './X200Widget.vue';
 import X300ModalConfirm from './X300ModalConfirm.vue';
-import { useConfirmDialog } from '@vueuse/core';
-import { useRoute } from 'vue-router';
 
 const toasterStore = useToasterStore();
 const { currentRace } = useRace();
@@ -25,14 +25,19 @@ const { pss } = usePS();
 const { runners } = useRunners();
 const selectedPs = ref<PS>();
 const type = ref<TakeType>();
-const { times, score, takes, addTake, removeTake } = useDashboard(selectedPs, type);
+const { times, score, takes, addTake, updateTake, removeTake } = useDashboard(selectedPs, type);
 const numberInput = ref<HTMLElement>();
 const route = useRoute();
 
 const { isRevealed: isTakeDelRevealed, reveal: revealTakeDel, confirm: confirmTakeDel } = useConfirmDialog();
 const { isRevealed: isTimeDelRevealed, reveal: revealTimeDel, confirm: confirmTimeDel } = useConfirmDialog();
+const { isRevealed: isPenRevealed, reveal: revealPen, confirm: confirmPen } = useConfirmDialog();
+
+const selectedTake = ref<FriendlyTake>();
+const penInput = ref<number>(0);
 
 const assignTime = ref<HTMLFormElement>();
+
 function changePs(event: Event) {
   selectedPs.value = pss.value.find((item) => item._id == (event.target as HTMLInputElement)?.value);
 }
@@ -46,7 +51,22 @@ watch(
 );
 
 watch([type, selectedPs], () => {
-  assignTime.value?.reset();
+  if (assignTime.value) {
+    assignTime.value.reset();
+    onReset();
+  }
+});
+
+watch(times, (newTimes, oldTimes) => {
+  if (newTimes && oldTimes && newTimes.length > oldTimes.length) {
+    const newTime = newTimes.find((nt) => !oldTimes.some((ot) => ot._id === nt._id));
+    if (newTime && assignTime.value) {
+      const formData = new FormData(assignTime.value);
+      if (!formData.get('timeId') && !formData.get('runnerNumber')) {
+        populateAssign(newTime._id);
+      }
+    }
+  }
 });
 
 async function populateAssign(_id: string) {
@@ -103,9 +123,19 @@ async function submitTake(event: SubmitEvent) {
       },
       formData.get('timeId')!.toString(),
     );
-    assignTime.value?.reset();
+    if (assignTime.value) {
+      assignTime.value.reset();
+      onReset();
+    }
   } catch (e) {
     toasterStore.error({ text: _t('Take already exists') });
+  }
+}
+
+function onReset() {
+  if (assignTime.value) {
+    const hiddenInputs = assignTime.value.querySelectorAll('input[type="hidden"]');
+    hiddenInputs.forEach((input) => ((input as HTMLInputElement).value = ''));
   }
 }
 
@@ -120,6 +150,23 @@ const delTime = async (id: string) => {
   const { data, isCanceled } = await revealTimeDel();
   if (!isCanceled && data) {
     await removeTime(id);
+  }
+};
+
+const editTake = async (id: string) => {
+  const take = takes.value.find((t) => t._id == id);
+  if (!take) return;
+
+  selectedTake.value = JSON.parse(JSON.stringify(take));
+  penInput.value = (selectedTake.value?.pen || 0) / 1000;
+
+  const { data, isCanceled } = await revealPen();
+  if (!isCanceled && data) {
+    if (selectedTake.value) {
+      selectedTake.value.pen = Math.round(penInput.value * 1000);
+      await updateTake(selectedTake.value);
+      toasterStore.success({ text: _t('Penalty updated') });
+    }
   }
 };
 </script>
@@ -156,15 +203,18 @@ const delTime = async (id: string) => {
       <X001Table
         :title="_t('Takes')"
         :data="takes"
-        :labels="['Runner', 'Time', 'PS', 'Type']"
-        :keys="['runnerNumber', 'time', 'psName', 'type']"
+        :labels="['Runner', 'Time', 'Penalty', 'PS', 'Type']"
+        :keys="['runnerNumber', 'time', 'pen', 'psName', 'type']"
+        :editEnabled="true"
         :format="[
           'pIntBolder',
           'onlyTimeMs',
+          'msToSec',
           'uppercase',
           (data: TakeType) => (data == TakeType.start ? 'START' : 'END'),
         ]"
         @removeClick="(_id) => delTake(_id)"
+        @editClick="(_id) => editTake(_id)"
       />
     </template>
     <template #sidebar>
@@ -182,7 +232,7 @@ const delTime = async (id: string) => {
         </div>
       </X200Widget>
       <X200Widget>
-        <form ref="assignTime" @submit.prevent="submitTake($event as SubmitEvent)">
+        <form ref="assignTime" @submit.prevent="submitTake($event as SubmitEvent)" @reset="onReset">
           <div class="flex items-center justify-between">
             <span class="font-bold"> {{ _t('Assign') }} </span>
             <button class="btn" title="Clear" type="reset">
@@ -249,6 +299,44 @@ const delTime = async (id: string) => {
           :isRevealed="isTimeDelRevealed"
           @close="(cont) => confirmTimeDel(cont)"
         />
+        <X300ModalConfirm :title="_t('Edit Penalty')" :isRevealed="isPenRevealed" @close="(cont) => confirmPen(cont)">
+          <div class="space-y-4 pt-4">
+            <div
+              v-if="selectedTake"
+              class="border-base-content/10 bg-base-200 flex items-center gap-4 rounded-xl border p-4"
+            >
+              <div class="avatar placeholder">
+                <div class="bg-neutral text-neutral-content flex w-12 items-center justify-center rounded-full">
+                  <span class="text-xl font-bold">{{ selectedTake.runnerNumber }}</span>
+                </div>
+              </div>
+              <div>
+                <div class="text-xs font-semibold uppercase opacity-50">{{ _t('Runner') }}</div>
+                <div class="text-lg leading-tight font-bold">{{ selectedTake.runnerName }}</div>
+                <div class="text-primary inline-flex items-center gap-1 text-xs font-bold">
+                  <span class="badge badge-primary badge-xs"></span>
+                  {{ selectedTake.psName }}
+                </div>
+              </div>
+            </div>
+
+            <div class="form-control w-full">
+              <label class="label">
+                <span class="label-text font-semibold uppercase opacity-60">{{ _t('Penalty (seconds)') }}</span>
+              </label>
+              <div class="join w-full">
+                <input
+                  v-model="penInput"
+                  type="number"
+                  step="0.1"
+                  class="input join-item input-lg input-bordered w-full font-mono text-2xl"
+                  placeholder="0.0"
+                />
+                <div class="join-item bg-base-300 flex items-center px-6 font-bold uppercase transition-colors">s</div>
+              </div>
+            </div>
+          </div>
+        </X300ModalConfirm>
       </Teleport>
     </template>
   </L002MainInternal>

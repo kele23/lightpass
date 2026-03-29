@@ -44,7 +44,7 @@ export function calculateScore(ps: PS, allTakes: Take[], runners: Runner[]): Sco
       _id: `${start.time}-${runner._id}`,
       start: start.time,
       end: end?.time,
-      diff: end ? end.time - start.time : undefined,
+      diff: end ? end.time - start.time + (start.pen || 0) + (end.pen || 0) : undefined,
       number: runner.number,
       name: runner.name,
       category: runner.category,

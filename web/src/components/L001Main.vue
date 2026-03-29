@@ -25,16 +25,20 @@ onUnmounted(() => {
     <input id="main-drawer" type="checkbox" class="drawer-toggle" />
     <div class="drawer-content flex flex-col">
       <header
-        class="bg-base-200 sticky top-0 z-10 flex h-16 w-full items-center justify-between px-4 shadow xl:justify-end"
+        class="bg-base-200 sticky top-0 z-30 flex h-16 w-full items-center justify-between px-4 shadow xl:static xl:z-0 xl:justify-end"
       >
         <label for="main-drawer" class="btn-empty btn btn-square drawer-button xl:hidden">
           <Bars3Icon class="h-6 w-6"
         /></label>
 
         <div class="flex items-center gap-2">
-          <span>{{ currentTime }}</span>
-          <button class="btn" v-bind:class="isConnected ? 'btn-primary' : 'btn-ghost'" @click="requestDevice()">
-            <SignalIcon class="h-6 w-6" />
+          <span class="font-mono text-sm font-bold md:text-base">{{ currentTime }}</span>
+          <button
+            class="btn btn-sm btn-square md:btn-md md:w-auto md:px-4"
+            v-bind:class="isConnected ? 'btn-primary' : 'btn-ghost'"
+            @click="requestDevice()"
+          >
+            <SignalIcon class="h-5 w-5 md:h-6 md:w-6" />
           </button>
         </div>
       </header>
@@ -55,7 +59,7 @@ onUnmounted(() => {
         </div>
       </div>
     </div>
-    <div class="drawer-side z-20">
+    <div class="drawer-side z-40">
       <label for="main-drawer" class="drawer-overlay"></label>
       <X002Nav class="" />
     </div>

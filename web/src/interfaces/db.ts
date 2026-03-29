@@ -46,6 +46,7 @@ export type Take = IDItem & PartialTake;
 
 export type FriendlyTake = Take & {
   runnerNumber: number;
+  runnerName: string;
   psName: string;
 };
 

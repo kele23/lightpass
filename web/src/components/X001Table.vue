@@ -84,6 +84,9 @@ function format(data: any, formatIndex: number) {
           ? `<span class="font-bold inline-block rounded-md min-w-[42px] px-2 print:px-1 bg-base-100 text-error border text-center text-red-700 text-base print:text-sm">${data}</b>`
           : undefined;
       }
+      case 'msToSec': {
+        return data ? `${(data / 1000).toFixed(1)}s` : '-';
+      }
       default:
         return data;
     }
@@ -96,79 +99,167 @@ function filter(event: SubmitEvent) {
   const formData = new FormData(event.target as HTMLFormElement);
   filterValue.value = formData.get('filter') as string;
 }
+
+const expandedRows = ref<Set<string>>(new Set());
+function toggleExpand(id: string) {
+  if (expandedRows.value.has(id)) {
+    expandedRows.value.delete(id);
+  } else {
+    expandedRows.value.add(id);
+  }
+}
 </script>
 
 <template>
   <div class="">
+    <!-- Header (Title & Filter) -->
     <div class="flex flex-col justify-between md:flex-row md:items-center">
       <div class="flex flex-row items-center">
-        <h2 v-if="title" class="mr-4 text-lg font-semibold">{{ title }}</h2>
-        <div v-if="!hideCount" class="btn btn-circle pointer-events-none">
+        <h2 v-if="title" class="text-primary mr-4 text-lg font-black tracking-tighter uppercase italic transition-all">
+          {{ title }}
+        </h2>
+        <div v-if="!hideCount" class="badge badge-neutral badge-lg font-mono font-bold">
           {{ filteredData.length }}
         </div>
       </div>
-      <form v-if="filterKey" class="join mt-4 mb-0" @submit.prevent="filter($event as SubmitEvent)">
+      <form v-if="filterKey" class="join mt-4 mb-0 w-full md:w-auto" @submit.prevent="filter($event as SubmitEvent)">
         <input
           type="text"
-          class="input join-item input-bordered w-full max-w-xs"
+          class="input join-item input-bordered input-sm md:input-md w-full max-w-xs"
           name="filter"
           placeholder="Filtra..."
         />
-        <button class="btn join-item" type="submit">Filtra</button>
+        <button class="btn join-item btn-sm md:btn-md" type="submit">Filtra</button>
       </form>
     </div>
-    <div class="overflow-x-auto py-4">
-      <div class="inline-block min-w-full overflow-hidden rounded-lg shadow">
-        <table class="min-w-full table-auto leading-normal" ref="tableEl">
-          <thead>
-            <tr class="bg-accent text-accent-content">
-              <th
-                v-for="label in labels"
-                :key="label"
-                scope="col"
-                class="px-2 py-3 text-left text-sm font-semibold uppercase print:px-1 print:text-xs"
-              >
-                {{ label }}
-              </th>
 
-              <th
-                v-if="!actionDisabled"
-                scope="col"
-                class="px-2 py-3 text-right text-sm font-semibold uppercase print:px-1 print:text-xs"
-              >
-                {{ _t('Actions') }}
-              </th>
-            </tr>
-          </thead>
-          <tbody ref="tbody">
-            <tr v-for="item in filteredData" :key="item._id" class="group odd:bg-base-300 even:bg-base-200 h-12">
-              <td v-for="(key, index) in keys" :key="key" class="px-2 py-1 text-sm print:px-1 print:py-0">
-                <p class="whitespace-no-wrap break-all print:text-xs" v-html="format(item[key], index)"></p>
-              </td>
+    <div class="py-4">
+      <!-- Desktop View (Horizontal scroll if needed but styled better) -->
+      <div class="border-base-content/10 hidden overflow-hidden rounded-xl border shadow-xl md:block">
+        <div class="overflow-x-auto">
+          <table class="bg-base-100 min-w-full table-auto leading-normal" ref="tableEl">
+            <thead>
+              <tr class="bg-secondary text-secondary-content">
+                <th
+                  v-for="label in labels"
+                  :key="label"
+                  scope="col"
+                  class="px-4 py-4 text-left text-xs font-black tracking-widest uppercase print:px-1 print:text-[8px]"
+                >
+                  {{ label }}
+                </th>
 
-              <td v-if="!actionDisabled" class="px-2 py-1 text-sm print:px-1 print:py-0">
-                <div class="flew-row flex justify-end gap-2">
-                  <button
-                    v-if="editEnabled"
-                    class="btn btn-primary btn-sm"
-                    title="Modifica"
-                    @click="$emit('editClick', item._id!)"
-                  >
-                    <PencilSquareIcon class="h-4 w-4 text-left" />
-                  </button>
-                  <button class="btn btn-warning btn-sm" title="Cancella" @click="$emit('removeClick', item._id!)">
-                    <XCircleIcon class="h-4 w-4 text-left" />
-                  </button>
+                <th
+                  v-if="!actionDisabled"
+                  scope="col"
+                  class="px-4 py-4 text-right text-xs font-black tracking-widest uppercase print:px-1 print:text-[8px]"
+                >
+                  {{ _t('Actions') }}
+                </th>
+              </tr>
+            </thead>
+            <tbody ref="tbody">
+              <tr
+                v-for="item in filteredData"
+                :key="item._id"
+                class="group border-base-content/5 hover:bg-base-200/50 border-b transition-colors"
+              >
+                <td v-for="(key, index) in keys" :key="key" class="px-4 py-3 text-sm print:px-1 print:py-0">
+                  <span class="font-medium print:text-[10px]" v-html="format(item[key], index)"></span>
+                </td>
+
+                <td v-if="!actionDisabled" class="px-4 py-3 text-sm print:px-1 print:py-0">
+                  <div class="flex justify-end gap-2">
+                    <button
+                      v-if="editEnabled"
+                      class="btn btn-primary btn-sm btn-square"
+                      title="Modifica"
+                      @click="$emit('editClick', item._id!)"
+                    >
+                      <PencilSquareIcon class="h-4 w-4" />
+                    </button>
+                    <button
+                      class="btn btn-warning btn-sm btn-square"
+                      title="Cancella"
+                      @click="$emit('removeClick', item._id!)"
+                    >
+                      <XCircleIcon class="h-4 w-4" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr v-if="data.length == 0" class="bg-base-100">
+                <td :colspan="keys.length + (actionDisabled ? 0 : 1)">
+                  <div class="py-12 text-center text-xl font-medium italic opacity-40">{{ _t('No items') }}</div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Mobile View (Cards) -->
+      <div class="space-y-3 md:hidden">
+        <div
+          v-if="filteredData.length == 0"
+          class="card bg-base-200 p-8 text-center text-lg font-medium italic opacity-40"
+        >
+          {{ _t('No items') }}
+        </div>
+
+        <div
+          v-for="item in filteredData"
+          :key="item._id"
+          class="card border-base-content/10 bg-base-100 cursor-pointer overflow-hidden border shadow-md transition-all active:scale-[0.98]"
+          @click.stop="toggleExpand(item._id!)"
+        >
+          <div class="card-body relative gap-2 p-3">
+            <div
+              v-if="keys.length > 3"
+              class="pointer-events-none absolute right-3 bottom-2 text-xs font-bold uppercase opacity-20"
+            >
+              {{ expandedRows.has(item._id!) ? 'LESS' : 'MORE' }}
+            </div>
+            <div class="flex items-start justify-between">
+              <div class="flex flex-col">
+                <span
+                  class="text-primary mb-1 text-[9px] leading-none font-black tracking-tighter uppercase opacity-60"
+                >
+                  {{ labels[0] }}
+                </span>
+                <div class="text-lg font-black tracking-tight" v-html="format(item[keys[0]], 0)"></div>
+              </div>
+
+              <div class="flex shrink-0 gap-2">
+                <button
+                  v-if="editEnabled"
+                  class="btn btn-primary btn-sm btn-square"
+                  @click.stop="$emit('editClick', item._id!)"
+                >
+                  <PencilSquareIcon class="h-4 w-4" />
+                </button>
+                <button
+                  v-if="!actionDisabled"
+                  class="btn btn-warning btn-sm btn-square"
+                  @click.stop="$emit('removeClick', item._id!)"
+                >
+                  <XCircleIcon class="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+
+            <div class="border-base-content/5 grid grid-cols-2 gap-x-2 gap-y-3 border-t pt-2" v-if="keys.length > 1">
+              <template v-for="(key, index) in keys.slice(1)" :key="key">
+                <div v-if="expandedRows.has(item._id!) || index < 2" class="flex flex-col">
+                  <span class="mb-1 text-[9px] leading-none font-black tracking-tighter uppercase opacity-40">
+                    {{ labels[index + 1] }}
+                  </span>
+                  <div class="truncate text-sm leading-tight font-bold" v-html="format(item[key], index + 1)"></div>
                 </div>
-              </td>
-            </tr>
-            <tr v-if="data.length == 0" class="bg-base-300">
-              <td :colspan="keys.length + (actionDisabled ? 0 : 1)">
-                <div class="py-4 text-center text-xl">{{ _t('No items') }}</div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+              </template>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

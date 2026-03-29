@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { useTimes } from './composable/useTimes';
+import { useTimes } from './composable/useTimes.ts';
 import { useEventListener } from '@vueuse/core';
 import X401Toaster from './components/X401Toaster.vue';
-import { getMachineId } from './services/utils';
+import { getMachineId } from './services/utils.ts';
 // import { useRegisterSW } from 'virtual:pwa-register/vue';
 
-// const { addTime } = useTimes();
+const { addTime } = useTimes();
 
 // const intervalMS = 60 * 60 * 1000;
 // const updateServiceWorker = useRegisterSW({

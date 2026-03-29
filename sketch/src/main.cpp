@@ -65,7 +65,7 @@ void setup()
     bleManager.setup("Lightpass ESP32 (" + chipIdStr + ")");
 
     // web - wifi
-    webManager.setup("Lightpass ESP32 (" + chipIdStr + ")", String("anatra12"));
+    webManager.setup("Lightpass ESP32 (" + chipIdStr + ")", String("Anatra12"));
 
     Serial.println("PG - Started");
 }
