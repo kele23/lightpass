@@ -4,27 +4,29 @@ import { GlobalScore, Score } from '../interfaces/score.ts';
 
 export function calculateScore(ps: PS, allTakes: Take[], runners: Runner[]): Score[] {
   const takes = allTakes.filter((item) => item.ps == ps!._id);
-  const takesMap = new Map();
-  let start = undefined as Take | undefined;
+  const startTakesMap = new Map();
+  const endTakesMap = new Map();
   for (const take of takes) {
     if (take.type == TakeType.start) {
-      start = take;
-      continue;
+      startTakesMap.set(take.runner, take);
+    } else {
+      endTakesMap.set(take.runner, take);
     }
+  }
 
-    const end = take;
-    if (start?.runner != end.runner) {
-      start = undefined;
-    }
-
-    takesMap.set(end.runner, { start, end });
+  const takesMap = new Map();
+  for (const runnerId of runners.map((r) => r._id)) {
+    takesMap.set(runnerId, { start: startTakesMap.get(runnerId), end: endTakesMap.get(runnerId) });
   }
 
   let tmp = [] as Score[];
 
+  // order runners
+  const orderedRunners = runners.toSorted((a, b) => a.number - b.number);
+
   // iterate runners in ps order
   const reverse = ps.order == Order.desc;
-  const itRunners = reverse ? runners.slice().reverse() : runners;
+  const itRunners = reverse ? orderedRunners.reverse() : orderedRunners;
 
   let currentStart = ps.start;
   let lastRunner: Runner | undefined = undefined;
@@ -50,18 +52,19 @@ export function calculateScore(ps: PS, allTakes: Take[], runners: Runner[]): Sco
       category: runner.category,
       team: runner.team,
       ps: ps.name,
+      pos: undefined,
     });
 
     lastRunner = runner;
   }
 
   // sort and write pos
-  const tmpSorted = [...tmp].sort(scoreSorter);
+  const tmpSorted = tmp.toSorted(scoreSorter);
   for (let i = 0; i < tmpSorted.length; i++) {
     tmpSorted[i].pos = tmpSorted[i].diff ? i + 1 : undefined;
   }
 
-  return tmp;
+  return tmpSorted;
 }
 
 export function calculateGlobalScore(pss: PS[], allTakes: Take[], runners: Runner[]): GlobalScore[] {

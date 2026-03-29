@@ -44,6 +44,27 @@ export default defineEventHandler(async (event): Promise<Race> => {
     }),
   });
 
+  // 6.5. Crea il Design Document per bloccare la scrittura ai lettori
+  // Usiamo un template literal per iniettare i nomi dei ruoli dinamicamente nella stringa JS
+  const validateDocUpdateFn = `
+    function(newDoc, oldDoc, userCtx, secObj) {
+      var isStandardUser = userCtx.roles.indexOf('${config.lgStandardRole}') !== -1;
+      var isAdmin = userCtx.roles.indexOf('${config.lgAdminRole}') !== -1 || userCtx.roles.indexOf('_admin') !== -1;
+
+      // Se l'utente ha il ruolo standard e NON è un admin, blocca l'aggiornamento
+      if (isStandardUser && !isAdmin) {
+        throw({ forbidden: 'Utente in sola lettura. Non hai i permessi per scrivere o modificare documenti.' });
+      }
+    }
+  `;
+
+  await couch.request(`/${dbName}/_design/controlli_accesso`, {
+    method: 'PUT',
+    body: JSON.stringify({
+      validate_doc_update: validateDocUpdateFn.trim(),
+    }),
+  });
+
   // Crea il documento lightpass-dbs/dbName per renderlo visibile all'app
   await couch.request(`/lightpass-dbs/${dbName}`, {
     method: 'PUT',

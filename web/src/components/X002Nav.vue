@@ -196,7 +196,7 @@ function closeDrawer() {
           :title="isOnline ? _t('Online') : _t('Offline')"
         ></div>
         <UserCircleIcon class="h-6 w-6" />
-        <b class="text-lg">{{ user?.name }}</b>
+        <b class="text-base">{{ user?.name }}</b>
       </div>
     </div>
   </div>

@@ -6,6 +6,7 @@ import L002MainInternal from './L002MainInternal.vue';
 import X001Table from './X001Table.vue';
 import X201WidgetDownloadCsv from './X201WidgetDownloadCsv.vue';
 import X202WidgetPrint from './X202WidgetPrint.vue';
+import X203WidgetLive from './X203WidgetLive.vue';
 
 const { score } = useGlobalScore();
 const table = ref();
@@ -29,6 +30,7 @@ const table = ref();
       />
     </template>
     <template #sidebar>
+      <X203WidgetLive />
       <X202WidgetPrint :table="table?.tableEl" />
       <X201WidgetDownloadCsv :data="score" />
     </template>

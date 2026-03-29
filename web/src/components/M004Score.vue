@@ -11,6 +11,7 @@ import L002MainInternal from './L002MainInternal.vue';
 import X001Table from './X001Table.vue';
 import X201WidgetDownloadCsv from './X201WidgetDownloadCsv.vue';
 import X202WidgetPrint from './X202WidgetPrint.vue';
+import X203WidgetLive from './X203WidgetLive.vue';
 
 const selectedPS = ref<PS>();
 const psParam = useRouteParams('ps');
@@ -45,6 +46,7 @@ watch(
       />
     </template>
     <template #sidebar>
+      <X203WidgetLive :ps="selectedPS?._id" />
       <X202WidgetPrint :table="table?.tableEl" />
       <X201WidgetDownloadCsv :data="score" />
     </template>
