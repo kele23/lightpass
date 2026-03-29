@@ -10,8 +10,15 @@ const props = defineProps<{
 
 async function downloadCsv() {
   const csv = Papa.unparse(props.data);
-  const csvContent = 'data:text/csv;charset=utf-8,' + csv;
-  window.open(encodeURI(csvContent));
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', 'export.csv');
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 }
 </script>
 <template>

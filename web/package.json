@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "vite --host",
     "dev:cf": "cp .env .dev.vars && npx wrangler dev --config .output/server/wrangler.json .output/server/index.mjs",
-    "build": "vite build",
+    "build": "vite build && node scripts/generate-precache.js",
+    "postbuild": "node scripts/generate-precache.js",
     "preview": "vite preview",
     "generate": "openapi-ts --client xhr --input ./api-swagger.json --output ./src/api --base ''",
     "generate-pwa-assets": "pwa-assets-generator"

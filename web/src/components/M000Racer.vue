@@ -4,7 +4,8 @@ import { useRace } from '../composable/useRace.ts';
 import { _t } from '../services/dictionary.ts';
 import { useLogin } from '../composable/useLogin.ts';
 import { useRaces } from '../composable/useRaces.ts';
-import { UserCircleIcon, RocketLaunchIcon } from '@heroicons/vue/24/outline';
+import { UserCircleIcon, RocketLaunchIcon, LifebuoyIcon } from '@heroicons/vue/24/outline';
+import { hardResetApp } from '../utils/apiFetch.ts';
 
 /////////////////////////////////////////////////////
 const { races, addRace } = useRaces();
@@ -109,6 +110,12 @@ async function selectRace(event: Event) {
               <span class="w-full"> {{ _t('Create') }} </span>
             </button>
           </form>
+        </div>
+        <div class="mt-12 flex w-full justify-center opacity-30 transition-opacity hover:opacity-100">
+          <button @click="hardResetApp" class="btn btn-ghost btn-xs text-error gap-2">
+            <LifebuoyIcon class="h-4 w-4" />
+            {{ _t('Emergency Reset') }}
+          </button>
         </div>
       </div>
       <div class="w-1/2 shadow-2xl">

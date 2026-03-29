@@ -11,9 +11,28 @@ const CACHE_NAME = 'lightpass-v1';
 sw.addEventListener('install', (event) => {
   console.log('[Service Worker] Install event');
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      console.log('[Service Worker] Caching app shell');
-      return cache.addAll(['/', '/index.html', '/favicon.ico', '/manifest.webmanifest', '/rocket.svg']);
+    caches.open(CACHE_NAME).then(async (cache) => {
+      console.log('[Service Worker] Pre-caching assets');
+
+      // File core minimi (sempre presenti)
+      const coreAssets = ['/', '/index.html', '/favicon.ico', '/manifest.webmanifest', '/rocket.svg'];
+
+      try {
+        // Proviamo a recuperare il manifest generato dal post-build
+        const response = await fetch('/precache-manifest.json');
+        if (response.ok) {
+          const dynamicAssets = await response.json();
+          // Uniamo i file fissi con quelli dinamici di Vite (con hash)
+          const allAssets = [...new Set([...coreAssets, ...dynamicAssets])];
+          console.log(`[Service Worker] Pre-caching ${allAssets.length} total assets`);
+          return cache.addAll(allAssets);
+        }
+      } catch (err) {
+        console.warn('[Service Worker] Precache manifest not available', err);
+      }
+
+      // Fallback sui soli file core se il manifest non c'è (es: in dev)
+      return cache.addAll(coreAssets);
     }),
   );
   sw.skipWaiting();
