@@ -11,7 +11,7 @@ const loadRaces = async () => {
   try {
     const resp = await fetch('/api/races/list');
     const racesX = (await resp.json()) as Race[];
-    localStorage.setItem('lightpassRaces', JSON.stringify(resp));
+    localStorage.setItem('lightpassRaces', JSON.stringify(racesX));
     races.value = racesX;
   } catch (e) {
     console.warn(e);

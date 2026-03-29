@@ -8,13 +8,28 @@ const loggedIn = ref<boolean>(false);
 const user = ref<LoginUser>();
 
 const isLoggedIn = async (): Promise<boolean> => {
-  const resp = await fetch('/api/auth/check');
-  if (resp.ok) {
-    const userS = await resp.json();
-    user.value = userS;
-    loggedIn.value = true;
-    return true;
-  } else {
+  try {
+    const resp = await fetch('/api/auth/check');
+    if (resp.ok) {
+      const userS = await resp.json();
+      user.value = userS;
+      loggedIn.value = true;
+      localStorage.setItem('lightpassUser', JSON.stringify(userS));
+      return true;
+    } else {
+      loggedIn.value = false;
+      user.value = undefined;
+      localStorage.removeItem('lightpassUser');
+    }
+  } catch (error) {
+    // Se c'è un errore di rete (offline), proviamo a ripristinare la sessione salvata in precedenza
+    const cachedUser = localStorage.getItem('lightpassUser');
+    if (cachedUser) {
+      user.value = JSON.parse(cachedUser);
+      loggedIn.value = true;
+      return true;
+    }
+
     loggedIn.value = false;
     user.value = undefined;
   }
