@@ -1,13 +1,14 @@
 /// <reference lib="webworker" />
 
-// Per TypeScript serve questo casting per far capire che "self"
-// si riferisce a un Service Worker e non alla pagina normale.
-const sw = self as unknown as ServiceWorkerGlobalScope;
+/**
+ * @type {ServiceWorkerGlobalScope}
+ */
+const sw = self;
 
 const CACHE_NAME = 'lightpass-v1';
 
 // 1. Installazione
-sw.addEventListener('install', (event: ExtendableEvent) => {
+sw.addEventListener('install', (event) => {
   console.log('[Service Worker] Install event');
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -19,7 +20,7 @@ sw.addEventListener('install', (event: ExtendableEvent) => {
 });
 
 // 2. Attivazione
-sw.addEventListener('activate', (event: ExtendableEvent) => {
+sw.addEventListener('activate', (event) => {
   console.log('[Service Worker] Activate event');
   event.waitUntil(
     caches.keys().then((keyList) => {
@@ -37,26 +38,22 @@ sw.addEventListener('activate', (event: ExtendableEvent) => {
 });
 
 // 3. Fetch
-sw.addEventListener('fetch', (event: FetchEvent) => {
+sw.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // Ignoriamo le richieste verso le API esterne, CouchDB e qualsiasi chiamata che non sia una GET
+  // Ignoriamo le chiamate verso le API esterne, CouchDB e quelle che non sono GET
   if (event.request.method !== 'GET' || url.pathname.startsWith('/api/') || url.pathname.startsWith('/couch/')) {
-    return; // Non fa nulla, lascia che il browser gestisca la richiesta normalmente
+    return; // Non fa nulla, lascia che il browser gestisca la richiesta
   }
 
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {
-        // Se c'è il file in cache, passiamo quello!
         return cachedResponse;
       }
 
-      // Altrimenti lo scarica da internet
       return fetch(event.request)
         .then((networkResponse) => {
-          // Salviamo dinamicamente in cache tutto ciò che scarichiamo con successo (Vite modules, immagini, ecc)
-          // tranne se è un errore o una risposta opaca non valida
           if (networkResponse && networkResponse.status === 200) {
             const responseToCache = networkResponse.clone();
             caches.open(CACHE_NAME).then((cache) => {
@@ -66,9 +63,6 @@ sw.addEventListener('fetch', (event: FetchEvent) => {
           return networkResponse;
         })
         .catch(async (error) => {
-          // Se fetch() va in eccezione (siamo offline e la risorsa non è in cache!)
-          // Se l'utente sta navigando verso una rotta SPA (es: /login, /race/1),
-          // il browser chiederà il file HTML. Ritorniamo '/index.html' precaricato!
           if (event.request.mode === 'navigate') {
             const indexHtml = await caches.match('/index.html');
             if (indexHtml) return indexHtml;

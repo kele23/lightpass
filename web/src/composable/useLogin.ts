@@ -1,46 +1,30 @@
 import { ref } from 'vue';
-
-export type LoginUser = {
-  name: string;
-};
+import { apiLogout, apiCheck, apiLogin, LoginUser } from '../utils/apiFetch.ts';
 
 const loggedIn = ref<boolean>(false);
 const user = ref<LoginUser>();
 
-const isLoggedIn = async (): Promise<boolean> => {
-  try {
-    const resp = await fetch('/api/auth/check');
-    if (resp.ok) {
-      const userS = await resp.json();
-      user.value = userS;
-      loggedIn.value = true;
-      localStorage.setItem('lightpassUser', JSON.stringify(userS));
-      return true;
-    } else {
-      loggedIn.value = false;
-      user.value = undefined;
-      localStorage.removeItem('lightpassUser');
-    }
-  } catch (error) {
-    // Se c'è un errore di rete (offline), proviamo a ripristinare la sessione salvata in precedenza
-    const cachedUser = localStorage.getItem('lightpassUser');
-    if (cachedUser) {
-      user.value = JSON.parse(cachedUser);
-      loggedIn.value = true;
-      return true;
-    }
+// Event listener per logout forzato da apiFetch (es: token definitivamente scaduto)
+window.addEventListener('auth:logout', () => {
+  loggedIn.value = false;
+  user.value = undefined;
+});
 
-    loggedIn.value = false;
-    user.value = undefined;
+const isLoggedIn = async (): Promise<boolean> => {
+  const result = await apiCheck();
+  if (result.success) {
+    loggedIn.value = true;
+    user.value = result.user;
+    return true;
   }
 
+  loggedIn.value = false;
+  user.value = undefined;
   return false;
 };
 
 // laungh isLoggedIn first time
 isLoggedIn();
-
-let refreshPromise: Promise<boolean> | null = null;
 
 export function useLogin() {
   const isLoggingIn = ref<boolean>(false);
@@ -48,17 +32,8 @@ export function useLogin() {
   const login = async (data: { name: string; password: string }) => {
     isLoggingIn.value = true;
     try {
-      const resp = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (resp.ok) {
-        const loginResp = await resp.json();
-        localStorage.setItem('refreshToken', loginResp.refreshToken);
+      const success = await apiLogin(data);
+      if (success) {
         return await isLoggedIn();
       }
       return false;
@@ -67,52 +42,10 @@ export function useLogin() {
     }
   };
 
-  const refreshToken = async () => {
-    if (refreshPromise) {
-      return refreshPromise;
-    }
-    refreshPromise = (async () => {
-      try {
-        const resp = await fetch('/api/auth/refresh', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ refreshToken: localStorage.getItem('refreshToken') }),
-        });
-
-        if (resp.ok) {
-          const loginResp = await resp.json();
-          localStorage.setItem('refreshToken', loginResp.refreshToken);
-          return await isLoggedIn();
-        }
-
-        return false;
-      } catch (error) {
-        console.error('Errore durante il refresh:', error);
-        return false;
-      } finally {
-        refreshPromise = null;
-      }
-    })();
-
-    return refreshPromise;
-  };
-
   const logout = async () => {
-    const resp = await fetch('/api/auth/logout', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (resp.ok) {
-      isLoggedIn();
-      return true;
-    }
-    return false;
+    await apiLogout();
+    return true;
   };
 
-  return { login, logout, refreshToken, loggedIn, user, isLoggingIn };
+  return { login, logout, loggedIn, user, isLoggingIn, isLoggedIn };
 }

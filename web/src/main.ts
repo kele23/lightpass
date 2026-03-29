@@ -16,18 +16,14 @@ app.mount('#app');
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    // Puntiamo al file sw.ts nella root del progetto (fuori da src/)
-    // così lo scope di default diventa '/', senza bisogno di hack con gli header!
-    const swUrl = new URL('../sw.ts', import.meta.url).href;
-
-    // Specifichiamo type: module per i Service Worker moderni e scope /
+    // Carichiamo il nostro Service Worker Javascript (che Vite/Nitro servono dalla cartella public/)
     navigator.serviceWorker
-      .register(swUrl, { type: 'module', scope: '/' })
+      .register('/sw.js', { scope: '/' })
       .then((registration) => {
-        console.log('TS ServiceWorker registration successful with scope: ', registration.scope);
+        console.log('ServiceWorker registration successful with scope: ', registration.scope);
       })
       .catch((err) => {
-        console.log('TS ServiceWorker registration failed: ', err);
+        console.log('ServiceWorker registration failed: ', err);
       });
   });
 }

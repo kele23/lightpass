@@ -1,4 +1,5 @@
 import { effect, ref } from 'vue';
+import { apiFetch } from '../utils/apiFetch.ts';
 import { useLogin } from './useLogin.ts';
 import { Race } from '../../types/races.ts';
 
@@ -7,30 +8,30 @@ const { loggedIn } = useLogin();
 const races = ref<Race[]>([]);
 
 const loadRaces = async () => {
-  // logged -> than try to load from couch
   try {
-    const resp = await fetch('/api/races/list');
-    const racesX = (await resp.json()) as Race[];
-    localStorage.setItem('lightpassRaces', JSON.stringify(racesX));
-    races.value = racesX;
-  } catch (e) {
-    console.warn(e);
+    const resp = await apiFetch('/api/races/list', { cacheKey: 'lightpassRaces' });
 
-    // fallback to local storage
-    const tmpRaces = localStorage.getItem('lightpassRaces');
-    if (tmpRaces) {
-      races.value = JSON.parse(tmpRaces) as Race[];
+    // Se il server (o apiFetch post-refresh) risponde con 401 Unauthorized, ci fermiamo
+    if (resp.status === 401) {
+      races.value = [];
+      return;
     }
+
+    if (!resp.ok) {
+      throw new Error(`Server err: ${resp.status}`);
+    }
+
+    races.value = (await resp.json()) as Race[];
+  } catch (e) {
+    console.warn('Errore fatale: impossibile caricare gare, cache vuota o offline completo', e);
   }
 };
 
 effect(async () => {
-  // not logged? then load from local storage
+  // Se non si è loggati (né online né con il fallback offline), svuotiamo la lista visualizzata
+  // ed evitiamo di ripescarla forzatamente dalla cache (l'utente la vedrà solo DOPO o DURANTE il login).
   if (!loggedIn.value) {
-    const tmpRaces = localStorage.getItem('lightpassRaces');
-    if (tmpRaces) {
-      races.value = JSON.parse(tmpRaces) as Race[];
-    }
+    races.value = [];
     return;
   }
 
