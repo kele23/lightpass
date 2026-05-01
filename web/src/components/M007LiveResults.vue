@@ -29,8 +29,15 @@ const { score: globalScore } = useGlobalScore();
 
 const currentScore = computed(() => (isGlobal.value ? globalScore.value : psScore.value));
 
-function formatResult(runner?: { diff?: number; end?: number } | null) {
-  if (runner?.diff) return diff(runner.diff);
+function formatResult(runner?: { diff?: number; end?: number; pen?: number } | null) {
+  if (runner?.diff) {
+    const diffStr = diff(runner.diff);
+    if (!diffStr) return '---';
+    if (runner.pen) {
+      return `${diffStr} <span class="text-error ml-2 text-[0.65em] font-black tracking-widest whitespace-nowrap">(PEN +${(runner.pen / 1000).toFixed(1)}s)</span>`;
+    }
+    return diffStr;
+  }
   if (runner?.end) return onlyTimeMs(runner.end);
   return '---';
 }
@@ -47,11 +54,14 @@ const latestArrivals = computed(() => {
     .reverse()
     .map((t) => {
       const runner = runners.value.find((r) => r._id === t.runner);
+      const scoreObj = currentScore.value.find((s) => s.number === runner?.number);
       return {
         ...t,
         runnerName: runner?.name || _t('Unknown'),
         runnerNumber: runner?.number || '??',
         psName: pss.value.find((p) => p._id === t.ps)?.name || '---',
+        diff: scoreObj?.diff,
+        pen: scoreObj?.pen,
       };
     });
 });
@@ -84,7 +94,7 @@ const slides = computed<Slide[]>(() => {
   // 2. PS Slides (Only show in Global mode)
   if (isGlobal.value) {
     pss.value.forEach((ps) => {
-      const score = calculateScore(ps, takes.value, runners.value);
+      const score = calculateScore(ps, pss.value, takes.value, runners.value);
       const completedScore = score.filter((s) => s.diff);
       if (completedScore.length > 0) {
         result.push({
@@ -132,7 +142,7 @@ function playBeep() {
 // Arrival highlighting
 const lastArrivalCount = ref(0);
 const showArrivalAlert = ref(false);
-const lastArrival = ref<{ name: string; diff?: number } | null>(null);
+const lastArrival = ref<{ name: string; diff?: number; pen?: number } | null>(null);
 
 watch(
   () => takes.value.filter((t) => t.type === TakeType.end).length,
@@ -145,9 +155,11 @@ watch(
 
       const runner = runners.value.find((r) => r._id === latest.runner);
       if (runner) {
+        const scoreObj = currentScore.value.find((s) => s.number === runner.number);
         lastArrival.value = {
           name: runner.name,
-          diff: currentScore.value.find((s) => s.number === runner.number)?.diff,
+          diff: scoreObj?.diff,
+          pen: scoreObj?.pen,
         };
         playBeep();
         showArrivalAlert.value = true;
@@ -218,14 +230,14 @@ onUnmounted(() => {
       </div>
       <div class="flex items-center gap-4">
         <div class="mr-4 flex flex-col items-end">
-          <div class="text-xs font-bold tracking-widest uppercase opacity-50">Status</div>
+          <div class="text-xs font-bold tracking-widest uppercase opacity-50">{{ _t('Status') }}</div>
           <div class="flex items-center gap-2">
             <span class="relative flex h-3 w-3">
               <span class="bg-error absolute inline-flex h-full w-full animate-ping rounded-full opacity-75"></span>
               <span class="bg-error relative inline-flex h-3 w-3 rounded-full"></span>
             </span>
             <span class="text-error animate-pulse text-lg font-black tracking-tighter uppercase italic"
-              >Live Engine</span
+              >{{ _t('Live Engine') }}</span
             >
           </div>
         </div>
@@ -241,7 +253,7 @@ onUnmounted(() => {
       <div class="flex w-[40%] flex-col gap-4">
         <div class="flex items-center justify-between px-4">
           <h2 class="text-primary text-2xl font-black tracking-tight uppercase italic">{{ _t('Latest Arrivals') }}</h2>
-          <span class="badge badge-primary badge-sm font-bold uppercase">{{ latestArrivals.length }} feed</span>
+          <span class="badge badge-primary badge-sm font-bold uppercase">{{ latestArrivals.length }} {{ _t('feed') }}</span>
         </div>
         <div
           class="flex-grow overflow-hidden rounded-3xl border border-white/10 bg-black/40 shadow-2xl backdrop-blur-xl"
@@ -265,9 +277,9 @@ onUnmounted(() => {
                   }}</span>
                 </div>
                 <div class="text-right">
-                  <div class="text-primary font-mono text-xl font-bold">{{ onlyTimeMs(arrival.time) }}</div>
+                  <div class="text-primary font-mono text-xl font-bold" v-html="formatResult({ diff: arrival.diff, end: arrival.time, pen: arrival.pen })"></div>
                   <div class="text-[10px] font-bold uppercase opacity-30">
-                    {{ new Date(arrival.time).toLocaleTimeString() }}
+                    {{ arrival.time ? new Date(arrival.time).toLocaleTimeString() : '--' }}
                   </div>
                 </div>
               </div>
@@ -296,10 +308,10 @@ onUnmounted(() => {
             <div
               class="bg-warning/10 grid grid-cols-6 border-b border-white/10 px-6 py-3 text-[10px] font-black tracking-[0.2em] uppercase italic opacity-80"
             >
-              <div class="col-span-1">RANK</div>
-              <div class="col-span-1">NUM</div>
-              <div class="col-span-3">RUNNER</div>
-              <div class="col-span-1 text-right">TIME</div>
+              <div class="col-span-1">{{ _t('RANK') }}</div>
+              <div class="col-span-1">{{ _t('NUM') }}</div>
+              <div class="col-span-3">{{ _t('RUNNER') }}</div>
+              <div class="col-span-1 text-right">{{ _t('TIME') }}</div>
             </div>
             <div class="h-full overflow-x-hidden overflow-y-hidden">
               <div class="divide-y divide-white/5">
@@ -321,9 +333,7 @@ onUnmounted(() => {
                       runner.category
                     }}</span>
                   </div>
-                  <div class="text-warning col-span-1 text-right font-mono text-xl font-black">
-                    {{ formatResult(runner) }}
-                  </div>
+                  <div class="text-warning col-span-1 text-right font-mono text-xl font-black" v-html="formatResult(runner)"></div>
                 </div>
               </div>
               <div
@@ -365,7 +375,7 @@ onUnmounted(() => {
                     <div class="text-primary/60 col-span-1 text-xl font-black italic">#{{ index + 1 }}</div>
                     <div class="col-span-5 flex items-center justify-between">
                       <span class="mr-4 truncate text-lg font-black uppercase">{{ runner.name }}</span>
-                      <span class="font-mono text-lg font-bold">{{ formatResult(runner) }}</span>
+                      <span class="font-mono text-lg font-bold" v-html="formatResult(runner)"></span>
                     </div>
                   </div>
                 </div>
@@ -398,15 +408,15 @@ onUnmounted(() => {
           >
             <div class="flex items-center gap-6">
               <div class="bg-primary rotate-3 rounded-2xl p-4 text-white shadow-lg">
-                <span class="text-4xl font-black italic">NEW</span>
+                <span class="text-4xl font-black italic">{{ _t('NEW') }}</span>
               </div>
               <div class="flex flex-col">
-                <div class="text-primary text-[10px] font-bold tracking-[0.3em] uppercase">Nuovo Arrivo</div>
+                <div class="text-primary text-[10px] font-bold tracking-[0.3em] uppercase">{{ _t('New Arrival') }}</div>
                 <div class="text-4xl font-black tracking-tighter uppercase italic">{{ lastArrival?.name }}</div>
               </div>
             </div>
             <div class="text-right">
-              <div class="font-mono text-5xl font-black italic">{{ formatResult(lastArrival) }}</div>
+              <div class="font-mono text-5xl font-black italic" v-html="formatResult(lastArrival)"></div>
             </div>
           </div>
         </div>

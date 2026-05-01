@@ -11,7 +11,7 @@ void BleManager::setup(String name)
     pService = pServer->createService(LIGHTPASS_SERVICE);
     notifyCharacteristic = pService->createCharacteristic(NOTIFY_TAKE_CHARACTERISTIC, NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::NOTIFY);
     timesCharacteristic = pService->createCharacteristic(TIMES_CHARACTERISTIC, NIMBLE_PROPERTY::READ);
-    timesCharacteristic->setValue((uint8_t *)times, 4 * 100);
+    timesCharacteristic->setValue((uint8_t *)times, 4 * 20);
     pService->start();
 
     BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
@@ -35,18 +35,22 @@ void BleManager::addTime(unsigned long time)
         delay(3);                       // minimum bluetooth wait
     }
 
-    // add time to times array
     if (timesSize > 0)
     {
-        // shift right
-        for (int i = timesSize - 1; i >= 0; i--)
-            if (i < 99)
-                times[i + 1] = times[i];
+        int elementiDaSpostare = (timesSize < 20) ? timesSize : 19;
+        memmove(&times[1], &times[0], elementiDaSpostare * sizeof(times[0]));
     }
 
+    // Inserisce il nuovo valore in cima
     times[0] = time;
-    if (timesSize < 100)
+
+    // Aggiorna la dimensione se non abbiamo ancora raggiunto il limite
+    if (timesSize < 20)
+    {
         timesSize++;
+    }
+
+    timesCharacteristic->setValue((uint8_t *)times, 4 * 20);
 }
 
 void BleManager::onConnect(BLEServer *pServer)

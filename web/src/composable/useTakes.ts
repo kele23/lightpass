@@ -62,7 +62,7 @@ effect(async () => {
 export function useTakes() {
   const { addTime, removeTime } = useTimes();
 
-  const addTake = async (pTake: PartialTake, timeId: string): Promise<Take> => {
+  const addTake = async (pTake: PartialTake, timeId?: string): Promise<Take> => {
     if (!raceDB.value) throw new Error('Cannot add take without a race selected');
 
     const _id = createKey(RACES_TYPES.TAKE, pTake.ps + '-' + pTake.runner + '-' + pTake.type);
@@ -80,7 +80,9 @@ export function useTakes() {
       ...pTake,
     };
 
-    await removeTime(timeId);
+    if (timeId) {
+      await removeTime(timeId);
+    }
 
     const resp = await raceDB.value.put(take);
     return {
@@ -104,7 +106,9 @@ export function useTakes() {
     const take = await raceDB.value.get<Take>(_id);
     if (take) {
       await raceDB.value.remove(take);
-      await addTime({ time: take.time, deviceId: getMachineId() });
+      if (take.time != null) {
+        await addTime({ time: take.time, deviceId: getMachineId() });
+      }
     }
   };
 

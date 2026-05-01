@@ -116,7 +116,6 @@ async function uploadCsv(event: SubmitEvent) {
             <select class="select select-bordered w-full max-w-xs" name="order" required>
               <option value="asc">{{ _t('Asc') }}</option>
               <option value="desc">{{ _t('Desc') }}</option>
-              <option value="time">{{ _t('Time') }}</option>
             </select>
           </div>
 

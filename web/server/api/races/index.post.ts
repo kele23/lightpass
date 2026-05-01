@@ -23,8 +23,9 @@ export default defineEventHandler(async (event): Promise<Race> => {
   let slug = body.name.replace(/\s+/g, '-').toLowerCase();
   slug = slug.replace(/[^a-z0-9-]/g, '');
 
-  // 4. Aggiungi il prefisso
-  const dbName = `${config.racePrefix}_${slug}`;
+  // 4. Aggiungi il prefisso e un id univoco
+  const uniqueId = crypto.randomUUID().split('-')[0];
+  const dbName = `${config.racePrefix}_${slug}_${uniqueId}`;
 
   // 5. Crea il DB effettuando una PUT sull'endpoint col nome del DB
   await couch.request(`/${dbName}`, { method: 'PUT' });

@@ -20,6 +20,6 @@ private:
     BLECharacteristic *notifyCharacteristic;
     BLECharacteristic *timesCharacteristic;
     bool deviceConnected = false;
-    unsigned long times[100];
+    unsigned long times[20];
     int timesSize = 0;
 };

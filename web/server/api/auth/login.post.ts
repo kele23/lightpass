@@ -45,8 +45,9 @@ export default defineEventHandler(async (event) => {
   // Set cookie
   setCookie(event, 'token', token, {
     path: '/',
-    secure: config.secureCookies,
+    secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
+    maxAge: 60 * 10, // 10 minutes
     sameSite: true,
   });
 

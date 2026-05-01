@@ -9,6 +9,7 @@ import M006Device from '../components/M006Device.vue';
 import M901NotFound from '../components/M901NotFound.vue';
 import M902Login from '../components/M902Login.vue';
 import M007LiveResults from '../components/M007LiveResults.vue';
+import M008Retired from '../components/M008Retired.vue';
 import L001Main from '../components/L001Main.vue';
 import { _t } from './dictionary.ts';
 import { useRace } from '../composable/useRace.ts';
@@ -22,6 +23,7 @@ const routes = [
     children: [
       { path: 'start', component: M001Dashboard, meta: { title: _t('Start'), type: TakeType.start } },
       { path: 'finish', component: M001Dashboard, meta: { title: _t('Finish'), type: TakeType.end } },
+      { path: 'retired', component: M008Retired, meta: { title: _t('Runner Retired'), type: TakeType.retired } },
       { path: 'race', component: M002Race, meta: { title: _t('Race') } },
       { path: 'runners', component: M003Runners, meta: { title: _t('Runners') } },
       { path: 'results', component: M005GlobalScore, meta: { title: _t('Global Results') } },

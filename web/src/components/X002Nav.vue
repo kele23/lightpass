@@ -13,6 +13,7 @@ import {
   UsersIcon,
   SwatchIcon,
   ChevronDownIcon,
+  UserMinusIcon,
 } from '@heroicons/vue/24/outline';
 import { usePS } from '../composable/usePS.ts';
 import { _t } from '../services/dictionary.ts';
@@ -116,6 +117,13 @@ function closeDrawer() {
             <router-link to="/finish" @click="closeDrawer"
               ><FlagIcon class="h-6 w-6 text-left" /><span class="mx-2 text-sm font-normal">
                 {{ _t('Finish') }}
+              </span></router-link
+            >
+          </li>
+          <li>
+            <router-link to="/retired" @click="closeDrawer"
+              ><UserMinusIcon class="h-6 w-6 text-left" /><span class="mx-2 text-sm font-normal">
+                {{ _t('Retired') }}
               </span></router-link
             >
           </li>

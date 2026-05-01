@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { BackspaceIcon } from '@heroicons/vue/24/solid';
+import { BackspaceIcon, FlagIcon, PlayIcon } from '@heroicons/vue/24/solid';
 import { useConfirmDialog } from '@vueuse/core';
 import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
@@ -25,7 +25,8 @@ const { pss } = usePS();
 const { runners } = useRunners();
 const selectedPs = ref<PS>();
 const type = ref<TakeType>();
-const { times, score, takes, addTake, updateTake, removeTake } = useDashboard(selectedPs, type);
+const startOffset = ref(-5);
+const { times, score, takes, addTake, updateTake, removeTake, hasMorePrevious } = useDashboard(selectedPs, type, startOffset);
 const numberInput = ref<HTMLElement>();
 const route = useRoute();
 
@@ -132,6 +133,37 @@ async function submitTake(event: SubmitEvent) {
   }
 }
 
+async function submitRetired(event: SubmitEvent) {
+  const form = event.currentTarget as HTMLFormElement;
+  const formData = new FormData(form);
+  const runnerNumberStr = formData.get('runnerNumber')?.toString();
+  if (!runnerNumberStr) {
+    toasterStore.error({ text: _t('Runner not found') });
+    return;
+  }
+  const runner = runners.value.find((item) => item.number == parseInt(runnerNumberStr));
+  if (!runner) {
+    toasterStore.error({ text: _t('Runner not found') });
+    return;
+  }
+  const psId = selectedPs.value?._id;
+  if (!psId) {
+    toasterStore.error({ text: _t('PS not selected') });
+    return;
+  }
+
+  try {
+    await addTake({
+      ps: psId,
+      runner: runner._id!,
+      type: TakeType.retired,
+    });
+    form.reset();
+  } catch (e) {
+    toasterStore.error({ text: _t('Error') });
+  }
+}
+
 function onReset() {
   if (assignTime.value) {
     const hiddenInputs = assignTime.value.querySelectorAll('input[type="hidden"]');
@@ -169,19 +201,37 @@ const editTake = async (id: string) => {
     }
   }
 };
+
+function formatNumberWithStatus(val: any, item?: any) {
+  let color = 'bg-gray-400';
+  let extraClass = '';
+  if (item?.status === 'assigned') color = 'bg-success';
+  else if (item?.status === 'missing') color = 'bg-warning';
+  else if (item?.status === 'waiting') color = 'bg-info';
+  else if (item?.status === 'retired') {
+    color = 'bg-error';
+    extraClass = 'line-through opacity-50';
+  }
+
+  return `<div class="flex items-center gap-2"><div class="w-3 h-3 shrink-0 rounded-full ${color}"></div><b class="${extraClass}">${val}</b></div>`;
+}
 </script>
 
 <template>
   <L002MainInternal>
     <template #content>
-      <h1 class="mb-6">
-        <b class="text-3xl">{{ type == TakeType.start ? 'START' : 'FINISH' }}</b>
-      </h1>
+      <div class="mb-4 flex items-center gap-3 rounded-xl border-l-4 p-3 bg-base-200 shadow-sm"
+           :class="type == TakeType.start ? 'border-info text-info' : 'border-success text-success'">
+        <component :is="type == TakeType.start ? PlayIcon : FlagIcon" class="h-8 w-8" />
+        <h1 class="text-2xl font-bold uppercase tracking-wider">
+          {{ type == TakeType.start ? _t('Start') : _t('Finish') }}
+        </h1>
+      </div>
 
       <X001Table
         :data="times"
-        title="Times"
-        :labels="['Time']"
+        :title="_t('Passages')"
+        :labels="['Passages']"
         :keys="['time']"
         :editEnabled="true"
         :format="['datems']"
@@ -192,26 +242,40 @@ const editTake = async (id: string) => {
       <X001Table
         v-if="selectedPs"
         :data="score"
-        title="Partial score"
+        :title="_t('Partial score')"
         :actionDisabled="true"
         :hideCount="true"
-        :labels="['Number', 'Name', 'Start', 'End', 'Diff', 'Pos']"
+        :labels="['Number', 'Name', 'Start', 'End', 'Time', 'Pos']"
         :keys="['number', 'name', 'start', 'end', 'diff', 'pos']"
-        :format="['bolder', 'string', 'onlyTimeMs', 'onlyTimeMs', 'diff', 'pos']"
+        :format="[
+          (val, item) => formatNumberWithStatus(val, item),
+          'string',
+          'onlyTimeMs',
+          'onlyTimeMs',
+          'diff',
+          'pos',
+        ]"
       />
+
+      <div v-if="selectedPs && (hasMorePrevious || startOffset < -5)" class="flex justify-center mb-6 mt-2">
+        <button class="btn btn-sm btn-outline" @click="startOffset = startOffset === -5 ? -1000 : -5">
+          {{ startOffset === -5 ? _t('Show previous') : _t('Hide previous') }}
+        </button>
+      </div>
 
       <X001Table
         :title="_t('Takes')"
         :data="takes"
-        :labels="['Runner', 'Time', 'Penalty', 'PS', 'Type']"
-        :keys="['runnerNumber', 'time', 'pen', 'psName', 'type']"
+        :labels="['Runner', 'Name', 'Time', 'Penalty', 'PS', 'Type']"
+        :keys="['runnerNumber', 'runnerName', 'time', 'pen', 'psName', 'type']"
         :editEnabled="true"
         :format="[
           'pIntBolder',
+          'string',
           'onlyTimeMs',
           'msToSec',
           'uppercase',
-          (data: TakeType) => (data == TakeType.start ? 'START' : 'END'),
+          (data: TakeType) => (data == TakeType.start ? 'START' : data == TakeType.end ? 'END' : 'RETIRED'),
         ]"
         @removeClick="(_id) => delTake(_id)"
         @editClick="(_id) => editTake(_id)"
@@ -276,7 +340,29 @@ const editTake = async (id: string) => {
           </div>
 
           <div class="mt-6 w-full">
-            <button class="btn btn-primary" type="submit">Assegna</button>
+            <button class="btn btn-primary w-full" type="submit">Assegna</button>
+          </div>
+        </form>
+      </X200Widget>
+
+      <X200Widget v-if="selectedPs">
+        <form @submit.prevent="submitRetired($event as SubmitEvent)">
+          <div class="flex items-center justify-between">
+            <span class="font-bold"> {{ _t('Runner Retired') }} </span>
+          </div>
+
+          <div class="mt-6">
+            <input
+              type="number"
+              class="input input-bordered w-full max-w-xs"
+              required
+              placeholder="Runner"
+              name="runnerNumber"
+            />
+          </div>
+
+          <div class="mt-6 w-full">
+            <button class="btn btn-error w-full" type="submit">Ritirato</button>
           </div>
         </form>
       </X200Widget>

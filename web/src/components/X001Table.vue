@@ -23,9 +23,10 @@ const props = defineProps<{
   data: IDItem[];
   labels: string[];
   keys: string[];
-  format?: (string | ((data: any) => string))[];
+  format?: (string | ((data: any, item?: any) => string))[];
   actionDisabled?: boolean;
   editEnabled?: boolean;
+  compact?: boolean;
 }>();
 
 const filterValue = ref<string>('');
@@ -46,7 +47,7 @@ const filteredData = computed(() => {
   return tmp;
 });
 
-function format(data: any, formatIndex: number) {
+function format(data: any, formatIndex: number, item?: any) {
   if (!props.format) return data;
 
   const ff = props.format[formatIndex];
@@ -81,7 +82,7 @@ function format(data: any, formatIndex: number) {
       }
       case 'pos': {
         return data
-          ? `<span class="font-bold inline-block rounded-md min-w-[42px] px-2 print:px-1 bg-base-100 text-error border text-center text-red-700 text-base print:text-sm">${data}</b>`
+          ? `<span class="font-bold inline-block rounded-md min-w-[42px] px-2  bg-base-100 text-error border text-center text-red-700 text-base leading-5 ">${data}</b>`
           : undefined;
       }
       case 'msToSec': {
@@ -91,7 +92,7 @@ function format(data: any, formatIndex: number) {
         return data;
     }
   } else {
-    return ff(data);
+    return ff(data, item);
   }
 }
 
@@ -144,15 +145,23 @@ function toggleExpand(id: string) {
                   v-for="label in labels"
                   :key="label"
                   scope="col"
-                  class="px-4 py-4 text-left text-xs font-black tracking-widest uppercase print:px-1 print:text-[8px]"
+                  :class="
+                    compact
+                      ? 'px-2 py-2 text-left text-[10px] font-black tracking-widest uppercase print:px-1 print:text-[8px]'
+                      : 'px-4 py-4 text-left text-xs font-black tracking-widest uppercase print:px-1 print:text-[8px]'
+                  "
                 >
-                  {{ label }}
+                  {{ _t(label) }}
                 </th>
 
                 <th
                   v-if="!actionDisabled"
                   scope="col"
-                  class="px-4 py-4 text-right text-xs font-black tracking-widest uppercase print:px-1 print:text-[8px]"
+                  :class="
+                    compact
+                      ? 'px-2 py-2 text-right text-[10px] font-black tracking-widest uppercase print:px-1 print:text-[8px]'
+                      : 'px-4 py-4 text-right text-xs font-black tracking-widest uppercase print:px-1 print:text-[8px]'
+                  "
                 >
                   {{ _t('Actions') }}
                 </th>
@@ -162,13 +171,28 @@ function toggleExpand(id: string) {
               <tr
                 v-for="item in filteredData"
                 :key="item._id"
-                class="group border-base-content/5 hover:bg-base-200/50 border-b transition-colors"
+                class="group border-base-content/5 hover:bg-base-200/80 even:bg-base-200/40 border-b transition-colors"
               >
-                <td v-for="(key, index) in keys" :key="key" class="px-4 py-3 text-sm print:px-1 print:py-0">
-                  <span class="font-medium print:text-[10px]" v-html="format(item[key], index)"></span>
+                <td
+                  v-for="(key, index) in keys"
+                  :key="key"
+                  :data-key="key"
+                  :class="
+                    compact ? 'px-2 py-1 text-xs print:px-1 print:py-0' : 'px-4 py-3 text-sm print:px-1 print:py-0'
+                  "
+                >
+                  <span
+                    :class="compact ? 'text-[11px] font-medium print:text-[8px]' : 'font-medium print:text-[10px]'"
+                    v-html="format(item[key], index, item)"
+                  ></span>
                 </td>
 
-                <td v-if="!actionDisabled" class="px-4 py-3 text-sm print:px-1 print:py-0">
+                <td
+                  v-if="!actionDisabled"
+                  :class="
+                    compact ? 'px-2 py-1 text-xs print:px-1 print:py-0' : 'px-4 py-3 text-sm print:px-1 print:py-0'
+                  "
+                >
                   <div class="flex justify-end gap-2">
                     <button
                       v-if="editEnabled"
@@ -225,9 +249,9 @@ function toggleExpand(id: string) {
                 <span
                   class="text-primary mb-1 text-[9px] leading-none font-black tracking-tighter uppercase opacity-60"
                 >
-                  {{ labels[0] }}
+                  {{ _t(labels[0]) }}
                 </span>
-                <div class="text-lg font-black tracking-tight" v-html="format(item[keys[0]], 0)"></div>
+                <div class="text-lg font-black tracking-tight" v-html="format(item[keys[0]], 0, item)"></div>
               </div>
 
               <div class="flex shrink-0 gap-2">
@@ -252,9 +276,12 @@ function toggleExpand(id: string) {
               <template v-for="(key, index) in keys.slice(1)" :key="key">
                 <div v-if="expandedRows.has(item._id!) || index < 2" class="flex flex-col">
                   <span class="mb-1 text-[9px] leading-none font-black tracking-tighter uppercase opacity-40">
-                    {{ labels[index + 1] }}
+                    {{ _t(labels[index + 1]) }}
                   </span>
-                  <div class="truncate text-sm leading-tight font-bold" v-html="format(item[key], index + 1)"></div>
+                  <div
+                    class="truncate text-sm leading-tight font-bold"
+                    v-html="format(item[key], index + 1, item)"
+                  ></div>
                 </div>
               </template>
             </div>

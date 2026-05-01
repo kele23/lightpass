@@ -2,14 +2,14 @@ import { Order, PS, Runner, Take, TakeType } from '../interfaces/db.ts';
 import { GlobalScore, Score } from '../interfaces/score.ts';
 //import { getPsLevel, getRunnersLevel, getTakesLevel } from '../services/utils.ts';
 
-export function calculateScore(ps: PS, allTakes: Take[], runners: Runner[]): Score[] {
+export function calculateScore(ps: PS, pss: PS[], allTakes: Take[], runners: Runner[]): Score[] {
   const takes = allTakes.filter((item) => item.ps == ps!._id);
   const startTakesMap = new Map();
   const endTakesMap = new Map();
   for (const take of takes) {
     if (take.type == TakeType.start) {
       startTakesMap.set(take.runner, take);
-    } else {
+    } else if (take.type == TakeType.end) {
       endTakesMap.set(take.runner, take);
     }
   }
@@ -17,6 +17,17 @@ export function calculateScore(ps: PS, allTakes: Take[], runners: Runner[]): Sco
   const takesMap = new Map();
   for (const runnerId of runners.map((r) => r._id)) {
     takesMap.set(runnerId, { start: startTakesMap.get(runnerId), end: endTakesMap.get(runnerId) });
+  }
+
+  const sortedPSs = [...pss].toSorted((a, b) => a.start - b.start);
+  const psIndex = sortedPSs.findIndex((p) => p._id === ps._id);
+  const relevantPSIds = sortedPSs.slice(0, psIndex + 1).map((p) => p._id);
+
+  const retiredRunners = new Set<string>();
+  for (const take of allTakes) {
+    if (take.type == TakeType.retired && relevantPSIds.includes(take.ps)) {
+      retiredRunners.add(take.runner);
+    }
   }
 
   let tmp = [] as Score[];
@@ -47,12 +58,18 @@ export function calculateScore(ps: PS, allTakes: Take[], runners: Runner[]): Sco
       start: start.time,
       end: end?.time,
       diff: end ? end.time - start.time + (start.pen || 0) + (end.pen || 0) : undefined,
+      pen: (start.pen || 0) + (end?.pen || 0),
       number: runner.number,
       name: runner.name,
       category: runner.category,
       team: runner.team,
+      fci: runner.fci,
+      uci: runner.uci,
+      naz: runner.naz,
       ps: ps.name,
       pos: undefined,
+      hasStart: !!take?.start,
+      retired: retiredRunners.has(runner._id),
     });
 
     lastRunner = runner;
@@ -60,33 +77,43 @@ export function calculateScore(ps: PS, allTakes: Take[], runners: Runner[]): Sco
 
   // sort and write pos
   const tmpSorted = tmp.toSorted(scoreSorter);
+  let pos = 1;
   for (let i = 0; i < tmpSorted.length; i++) {
-    tmpSorted[i].pos = tmpSorted[i].diff ? i + 1 : undefined;
+    if (tmpSorted[i].retired) {
+      tmpSorted[i].diff = undefined;
+      tmpSorted[i].pos = undefined;
+    } else {
+      tmpSorted[i].pos = tmpSorted[i].diff != null ? pos++ : undefined;
+    }
   }
 
   return tmpSorted;
 }
 
 export function calculateGlobalScore(pss: PS[], allTakes: Take[], runners: Runner[]): GlobalScore[] {
-  const result = [] as GlobalScore[];
+  const resultMap = new Map<number, GlobalScore>();
+
   for (const ps of pss) {
-    const score = calculateScore(ps, allTakes, runners);
+    const score = calculateScore(ps, pss, allTakes, runners);
 
-    for (let i = 0; i < score.length; i++) {
-      const item = score[i];
-
-      if (i + 1 > result.length) {
-        result.push({
+    for (const item of score) {
+      if (!resultMap.has(item.number)) {
+        resultMap.set(item.number, {
           _id: `${item.number}`,
           number: item.number,
           name: item.name,
           category: item.category,
           team: item.team,
+          fci: item.fci,
+          uci: item.uci,
+          naz: item.naz,
           diff: item.diff,
+          pen: item.pen,
         });
       } else {
-        const currentResult = result[i];
-        if (!item.diff || !currentResult.diff) {
+        const currentResult = resultMap.get(item.number)!;
+        currentResult.pen = (currentResult.pen || 0) + (item.pen || 0);
+        if (item.diff == null || currentResult.diff == null) {
           currentResult.diff = undefined;
         } else {
           currentResult.diff = item.diff + currentResult.diff;
@@ -96,12 +123,12 @@ export function calculateGlobalScore(pss: PS[], allTakes: Take[], runners: Runne
   }
 
   // sort and write pos
-  const tmpSorted = [...result].sort(scoreSorter);
+  const tmpSorted = Array.from(resultMap.values()).sort(scoreSorter);
   for (let i = 0; i < tmpSorted.length; i++) {
-    tmpSorted[i].pos = tmpSorted[i].diff ? i + 1 : undefined;
+    tmpSorted[i].pos = tmpSorted[i].diff != null ? i + 1 : undefined;
   }
 
-  return result;
+  return tmpSorted;
 }
 
 export function scoreSorter(a: Score | GlobalScore, b: Score | GlobalScore) {

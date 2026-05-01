@@ -18,6 +18,9 @@ async function print(event: SubmitEvent) {
     const printWindow = window.open('', '', 'height=1000,width=800');
     if (printWindow == null) return;
 
+    // clone the table
+    const clonedTable = props.table.cloneNode(true) as HTMLElement;
+
     // write page
     printWindow.document.write(`
         <html>
@@ -35,7 +38,7 @@ async function print(event: SubmitEvent) {
             <body>
                 ${title}
                 ${subtitle}
-                <table class="w-full table-auto">${props.table.innerHTML}</table>
+                <table class="w-full table-auto">${clonedTable.innerHTML}</table>
             </body>
         </html>`);
 

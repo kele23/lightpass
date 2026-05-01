@@ -32,10 +32,11 @@ export type Time = IDItem & PartialTime;
 export enum TakeType {
   start = 0,
   end = 1,
+  retired = 2,
 }
 
 export type PartialTake = {
-  time: number;
+  time?: number;
   runner: string;
   ps: string;
   type: TakeType;

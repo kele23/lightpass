@@ -55,7 +55,8 @@ export const useLightpassSensor = () => {
       const characteristic = await service.getCharacteristic(TIMES_CHARACTERISTIC);
 
       const data = await characteristic.readValue();
-      console.log(data);
+      const d = new Uint8Array(data);
+      console.log(d);
       const tmp = [] as number[];
       for (let i = 0; i < data.byteLength; i++) {
         // every 4 bytes
