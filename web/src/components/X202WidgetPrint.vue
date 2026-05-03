@@ -57,10 +57,10 @@ async function print(event: SubmitEvent) {
 </script>
 <template>
     <X200Widget>
-        <form @submit.prevent="print($event as SubmitEvent)">
+        <form @submit.prevent="print($event as SubmitEvent)" data-testid="print-form">
             <div class="flex items-center justify-between">
                 <span class="font-bold"> {{ _t('Print') }} </span>
-                <button class="btn" title="Clear" type="reset">
+                <button class="btn" title="Clear" type="reset" data-testid="print-reset">
                     <BackspaceIcon class="h-6 w-6" />
                 </button>
             </div>
@@ -72,6 +72,7 @@ async function print(event: SubmitEvent) {
                     required
                     :placeholder="_t('Title')"
                     name="title"
+                    data-testid="print-title"
                 />
             </div>
 
@@ -81,11 +82,12 @@ async function print(event: SubmitEvent) {
                     class="input-bordered input w-full max-w-xs"
                     :placeholder="_t('Subtitle')"
                     name="subtitle"
+                    data-testid="print-subtitle"
                 />
             </div>
 
             <div class="mt-6 w-full">
-                <button class="btn-primary btn" type="submit">{{ _t('Print') }}</button>
+                <button class="btn-primary btn" type="submit" data-testid="print-submit">{{ _t('Print') }}</button>
             </div>
         </form>
     </X200Widget>

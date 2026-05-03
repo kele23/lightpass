@@ -57,5 +57,20 @@ export function useRaces() {
     return undefined;
   };
 
-  return { races, addRace };
+  const removeRace = async (id: string) => {
+    try {
+      const resp = await fetch(`/api/races/${id}`, {
+        method: 'DELETE',
+      });
+      if (resp.ok) {
+        await loadRaces();
+        return true;
+      }
+    } catch (e) {
+      console.warn(e);
+    }
+    return false;
+  };
+
+  return { races, addRace, removeRace };
 }

@@ -65,7 +65,7 @@ async function uploadCsv(event: SubmitEvent) {
 <template>
   <L002MainInternal>
     <template #content>
-      <h1 class="mb-6">
+      <h1 class="mb-6" data-testid="runners-title">
         <b class="text-3xl">{{ _t('Runners') }}</b>
       </h1>
       <X001Table
@@ -73,20 +73,21 @@ async function uploadCsv(event: SubmitEvent) {
         :labels="['Num', 'Nome', 'Cat', 'Team', 'Fci', 'Uci', 'Soc', 'Naz']"
         :keys="['number', 'name', 'category', 'team', 'fci', 'uci', 'soc', 'naz']"
         @removeClick="removeRunnerDialog"
+        data-testid="runners-table"
       />
     </template>
     <template #sidebar>
       <X200Widget>
-        <form @submit.prevent="createRunner($event as SubmitEvent)">
+        <form @submit.prevent="createRunner($event as SubmitEvent)" data-testid="new-runner-form">
           <div class="flex items-center justify-between">
             <span class="font-bold"> {{ _t('New Runner') }} </span>
-            <button class="btn" title="Clear" type="reset">
+            <button class="btn" title="Clear" type="reset" data-testid="new-runner-reset">
               <BackspaceIcon class="h-6 w-6" />
             </button>
           </div>
 
           <div class="mt-6">
-            <input type="text" class="input-bordered input w-full max-w-xs" required placeholder="Nome" name="name" />
+            <input type="text" class="input-bordered input w-full max-w-xs" required placeholder="Nome" name="name" data-testid="new-runner-name" />
           </div>
 
           <div class="mt-6">
@@ -97,6 +98,7 @@ async function uploadCsv(event: SubmitEvent) {
               required
               name="number"
               pattern="[0-9]+"
+              data-testid="new-runner-number"
             />
           </div>
           <div class="mt-6">
@@ -106,10 +108,11 @@ async function uploadCsv(event: SubmitEvent) {
               placeholder="Categoria"
               required
               name="category"
+              data-testid="new-runner-category"
             />
           </div>
           <div class="mt-6">
-            <input type="text" class="input-bordered input w-full max-w-xs" required placeholder="Team" name="team" />
+            <input type="text" class="input-bordered input w-full max-w-xs" required placeholder="Team" name="team" data-testid="new-runner-team" />
           </div>
           <div class="mt-6">
             <input
@@ -118,6 +121,7 @@ async function uploadCsv(event: SubmitEvent) {
               required
               placeholder="Codice FCI"
               name="fci"
+              data-testid="new-runner-fci"
             />
           </div>
           <div class="mt-6">
@@ -127,10 +131,11 @@ async function uploadCsv(event: SubmitEvent) {
               required
               placeholder="Codice UCI"
               name="uci"
+              data-testid="new-runner-uci"
             />
           </div>
           <div class="mt-6">
-            <input type="text" class="input-bordered input w-full max-w-xs" required placeholder="Società" name="soc" />
+            <input type="text" class="input-bordered input w-full max-w-xs" required placeholder="Società" name="soc" data-testid="new-runner-soc" />
           </div>
           <div class="mt-6">
             <input
@@ -139,19 +144,20 @@ async function uploadCsv(event: SubmitEvent) {
               required
               placeholder="Nazionalità"
               name="naz"
+              data-testid="new-runner-naz"
             />
           </div>
           <div class="mt-6 w-full">
-            <button class="btn-primary btn" type="submit">{{ _t('Create') }}</button>
+            <button class="btn-primary btn" type="submit" data-testid="new-runner-submit">{{ _t('Create') }}</button>
           </div>
         </form>
       </X200Widget>
 
       <X200Widget>
-        <form @submit.prevent="uploadCsv($event as SubmitEvent)">
+        <form @submit.prevent="uploadCsv($event as SubmitEvent)" data-testid="upload-runners-form">
           <div class="flex items-center justify-between">
             <span class="font-bold"> {{ _t('Upload Runners') }} </span>
-            <button class="btn" title="Clear" type="reset">
+            <button class="btn" title="Clear" type="reset" data-testid="upload-runners-reset">
               <BackspaceIcon class="h-6 w-6" />
             </button>
           </div>
@@ -163,11 +169,12 @@ async function uploadCsv(event: SubmitEvent) {
               placeholder="File"
               required
               name="file"
+              data-testid="upload-runners-file"
             />
           </div>
 
           <div class="mt-6 w-full">
-            <button class="btn-primary btn" type="submit">Carica</button>
+            <button class="btn-primary btn" type="submit" data-testid="upload-runners-submit">Carica</button>
           </div>
         </form>
       </X200Widget>

@@ -31,7 +31,7 @@ watch([show], () => {
 </script>
 
 <template>
-  <dialog class="modal" ref="modalRef">
+  <dialog class="modal" ref="modalRef" data-testid="modal-confirm">
     <div class="modal-box">
       <form method="dialog">
         <button class="btn-ghost btn-sm btn-circle btn absolute top-2 right-2">✕</button>
@@ -39,8 +39,8 @@ watch([show], () => {
         <p class="py-4" v-if="description">{{ description }}</p>
         <slot></slot>
         <div class="modal-action">
-          <button class="btn-ghost btn">{{ cancelLabel || _t('Cancel') }}</button>
-          <button class="btn-primary btn" value="continue">{{ okLabel || _t('Continue') }}</button>
+          <button class="btn-ghost btn" data-testid="modal-cancel-button">{{ cancelLabel || _t('Cancel') }}</button>
+          <button class="btn-primary btn" value="continue" data-testid="modal-ok-button">{{ okLabel || _t('Continue') }}</button>
         </div>
       </form>
     </div>

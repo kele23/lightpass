@@ -70,7 +70,7 @@ async function uploadCsv(event: SubmitEvent) {
 <template>
   <L002MainInternal>
     <template #content>
-      <h1 class="mb-6">
+      <h1 class="mb-6" data-testid="race-title">
         <b class="text-3xl">{{ _t('Race') }}</b>
       </h1>
       <X001Table
@@ -79,19 +79,20 @@ async function uploadCsv(event: SubmitEvent) {
         :keys="['name', 'gap', 'start', 'order']"
         :format="['string', 'string', 'date', (data: any) => data]"
         @removeClick="removePSDialog"
+        data-testid="pss-table"
       />
     </template>
     <template #sidebar>
       <X200Widget>
-        <form @submit.prevent="createPS($event as SubmitEvent)">
+        <form @submit.prevent="createPS($event as SubmitEvent)" data-testid="new-ps-form">
           <div class="flex items-center justify-between">
             <span class="font-bold"> {{ _t('New PS') }} </span>
-            <button class="btn" title="Clear" type="reset">
+            <button class="btn" title="Clear" type="reset" data-testid="new-ps-reset">
               <BackspaceIcon class="h-6 w-6" />
             </button>
           </div>
           <div class="mt-6">
-            <input type="text" class="input input-bordered w-full max-w-xs" required placeholder="Nome" name="name" />
+            <input type="text" class="input input-bordered w-full max-w-xs" required placeholder="Nome" name="name" data-testid="new-ps-name" />
           </div>
           <div class="mt-6">
             <input
@@ -100,6 +101,7 @@ async function uploadCsv(event: SubmitEvent) {
               required
               placeholder="Start"
               name="start"
+              data-testid="new-ps-start"
             />
           </div>
           <div class="mt-6">
@@ -110,26 +112,27 @@ async function uploadCsv(event: SubmitEvent) {
               required
               name="gap"
               pattern="[0-9]+"
+              data-testid="new-ps-gap"
             />
           </div>
           <div class="mt-6">
-            <select class="select select-bordered w-full max-w-xs" name="order" required>
+            <select class="select select-bordered w-full max-w-xs" name="order" required data-testid="new-ps-order">
               <option value="asc">{{ _t('Asc') }}</option>
               <option value="desc">{{ _t('Desc') }}</option>
             </select>
           </div>
 
           <div class="mt-6 w-full">
-            <button class="btn btn-primary" type="submit">{{ _t('Create') }}</button>
+            <button class="btn btn-primary" type="submit" data-testid="new-ps-submit">{{ _t('Create') }}</button>
           </div>
         </form>
       </X200Widget>
 
       <X200Widget>
-        <form @submit.prevent="uploadCsv($event as SubmitEvent)">
+        <form @submit.prevent="uploadCsv($event as SubmitEvent)" data-testid="upload-race-form">
           <div class="flex items-center justify-between">
             <span class="font-bold"> {{ _t('Upload Race') }} </span>
-            <button class="btn" title="Clear" type="reset">
+            <button class="btn" title="Clear" type="reset" data-testid="upload-race-reset">
               <BackspaceIcon class="h-6 w-6" />
             </button>
           </div>
@@ -140,10 +143,11 @@ async function uploadCsv(event: SubmitEvent) {
               placeholder="File"
               required
               name="file"
+              data-testid="upload-race-file"
             />
           </div>
           <div class="mt-6 w-full">
-            <button class="btn btn-primary" type="submit">Carica</button>
+            <button class="btn btn-primary" type="submit" data-testid="upload-race-submit">Carica</button>
           </div>
         </form>
       </X200Widget>

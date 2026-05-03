@@ -9,7 +9,9 @@
     "postbuild": "node scripts/generate-precache.js",
     "preview": "vite preview",
     "generate": "openapi-ts --client xhr --input ./api-swagger.json --output ./src/api --base ''",
-    "generate-pwa-assets": "pwa-assets-generator"
+    "generate-pwa-assets": "pwa-assets-generator",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
     "@heroicons/vue": "^2.2.0",
@@ -28,12 +30,15 @@
   },
   "devDependencies": {
     "@hey-api/openapi-ts": "^0.94.4",
+    "@playwright/test": "^1.59.1",
     "@tailwindcss/vite": "^4.2.2",
+    "@types/node": "^25.6.0",
     "@types/papaparse": "^5.5.2",
     "@types/pouchdb-browser": "^6.1.5",
     "@vite-pwa/assets-generator": "^1.0.2",
     "@vitejs/plugin-vue": "^6.0.5",
     "daisyui": "^5.5.19",
+    "dotenv": "^17.4.2",
     "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
     "tailwindcss": "^4.2.2",

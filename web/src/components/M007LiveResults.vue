@@ -216,13 +216,13 @@ onUnmounted(() => {
     <!-- Header -->
     <div class="relative z-10 flex w-full items-center justify-between p-6 pb-2">
       <div class="flex items-center gap-6">
-        <button class="btn btn-ghost btn-circle bg-white/10 backdrop-blur-md hover:bg-white/20" @click="router.back()">
+        <button class="btn btn-ghost btn-circle bg-white/10 backdrop-blur-md hover:bg-white/20" @click="router.back()" data-testid="back-button">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
         </button>
         <div class="flex flex-col">
-          <h1 class="text-5xl leading-none font-black tracking-tighter uppercase italic drop-shadow-2xl">
+          <h1 class="text-5xl leading-none font-black tracking-tighter uppercase italic drop-shadow-2xl" data-testid="live-results-title">
             {{ isGlobal ? _t('Global Dashboard') : `${_t('Dashboard')} - ${selectedPS?.name}` }}
           </h1>
           <div class="bg-primary mt-2 h-1 w-32 rounded-full"></div>
@@ -241,7 +241,7 @@ onUnmounted(() => {
             >
           </div>
         </div>
-        <button class="btn btn-primary btn-sm shadow-primary/40 rounded-full px-6 shadow-lg" @click="toggleFullscreen">
+        <button class="btn btn-primary btn-sm shadow-primary/40 rounded-full px-6 shadow-lg" @click="toggleFullscreen" data-testid="fullscreen-button">
           {{ isFullscreen ? _t('Exit') : _t('Fullscreen') }}
         </button>
       </div>
@@ -416,7 +416,7 @@ onUnmounted(() => {
               </div>
             </div>
             <div class="text-right">
-              <div class="font-mono text-5xl font-black italic" v-html="formatResult(lastArrival)"></div>
+              <div class="font-mono text-3xl font-black italic" v-html="formatResult(lastArrival)"></div>
             </div>
           </div>
         </div>

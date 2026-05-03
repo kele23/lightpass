@@ -30,13 +30,14 @@ const doLogin = async (e: Event) => {
       <div class="flex w-full flex-col items-center justify-center md:w-1/2">
         <div class="my-4 flex w-full max-w-sm flex-col justify-center px-8 pt-8 md:pt-0">
           <p class="text-center text-3xl">{{ _t('Lightpass V4') }}</p>
-          <form class="flex flex-col gap-4 pt-6" @submit.prevent="doLogin">
+          <form class="flex flex-col gap-4 pt-6" @submit.prevent="doLogin" data-testid="login-form">
             <input
               type="text"
               class="input input-bordered w-full max-w-sm"
               name="name"
               autocomplete="username"
               placeholder="mario"
+              data-testid="login-username"
             />
             <input
               type="password"
@@ -44,9 +45,10 @@ const doLogin = async (e: Event) => {
               name="password"
               autocomplete="password"
               placeholder="xxxxxxx"
+              data-testid="login-password"
             />
 
-            <button class="btn" type="submit" :disabled="isLoggingIn">
+            <button class="btn" type="submit" :disabled="isLoggingIn" data-testid="login-submit">
               <span class="w-full"> {{ _t('Login') }} </span>
             </button>
           </form>

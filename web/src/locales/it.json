@@ -24,6 +24,8 @@
   "Dashboard": "Dashboard",
   "Date": "Data",
   "Delete PS": "Elimina PS",
+  "Delete Race": "Elimina Gara",
+  "Are you sure you want to delete this race? This action cannot be undone.": "Sei sicuro di voler eliminare questa gara? L'azione non può essere annullata.",
   "Delete Runner": "Elimina Concorrente",
   "Desc": "Disc",
   "Device": "Dispositivo",

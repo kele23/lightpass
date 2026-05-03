@@ -221,7 +221,8 @@ function formatNumberWithStatus(val: any, item?: any) {
   <L002MainInternal>
     <template #content>
       <div class="mb-4 flex items-center gap-3 rounded-xl border-l-4 p-3 bg-base-200 shadow-sm"
-           :class="type == TakeType.start ? 'border-info text-info' : 'border-success text-success'">
+           :class="type == TakeType.start ? 'border-info text-info' : 'border-success text-success'"
+           data-testid="dashboard-title">
         <component :is="type == TakeType.start ? PlayIcon : FlagIcon" class="h-8 w-8" />
         <h1 class="text-2xl font-bold uppercase tracking-wider">
           {{ type == TakeType.start ? _t('Start') : _t('Finish') }}
@@ -237,6 +238,7 @@ function formatNumberWithStatus(val: any, item?: any) {
         :format="['datems']"
         @removeClick="(_id) => delTime(_id)"
         @editClick="(_id) => populateAssign(_id)"
+        data-testid="passages-table"
       />
 
       <X001Table
@@ -255,10 +257,11 @@ function formatNumberWithStatus(val: any, item?: any) {
           'diff',
           'pos',
         ]"
+        data-testid="partial-score-table"
       />
 
       <div v-if="selectedPs && (hasMorePrevious || startOffset < -5)" class="flex justify-center mb-6 mt-2">
-        <button class="btn btn-sm btn-outline" @click="startOffset = startOffset === -5 ? -1000 : -5">
+        <button class="btn btn-sm btn-outline" @click="startOffset = startOffset === -5 ? -1000 : -5" data-testid="show-previous-button">
           {{ startOffset === -5 ? _t('Show previous') : _t('Hide previous') }}
         </button>
       </div>
@@ -279,6 +282,7 @@ function formatNumberWithStatus(val: any, item?: any) {
         ]"
         @removeClick="(_id) => delTake(_id)"
         @editClick="(_id) => editTake(_id)"
+        data-testid="takes-table"
       />
     </template>
     <template #sidebar>
@@ -287,7 +291,7 @@ function formatNumberWithStatus(val: any, item?: any) {
           <label class="label">
             <span class="label-text">{{ _t('Select PS') }}</span>
           </label>
-          <select class="select select-bordered w-full max-w-xs" @change="changePs">
+          <select class="select select-bordered w-full max-w-xs" @change="changePs" data-testid="select-ps-input">
             <option value="">{{ _t('All PS') }}</option>
             <option v-for="ps in pss" :key="ps._id" :value="ps._id" :selected="ps._id == selectedPs?._id">
               {{ ps.name }}
@@ -296,10 +300,10 @@ function formatNumberWithStatus(val: any, item?: any) {
         </div>
       </X200Widget>
       <X200Widget>
-        <form ref="assignTime" @submit.prevent="submitTake($event as SubmitEvent)" @reset="onReset">
+        <form ref="assignTime" @submit.prevent="submitTake($event as SubmitEvent)" @reset="onReset" data-testid="assign-time-form">
           <div class="flex items-center justify-between">
             <span class="font-bold"> {{ _t('Assign') }} </span>
-            <button class="btn" title="Clear" type="reset">
+            <button class="btn" title="Clear" type="reset" data-testid="assign-time-reset">
               <BackspaceIcon class="h-6 w-6" />
             </button>
           </div>
@@ -317,10 +321,11 @@ function formatNumberWithStatus(val: any, item?: any) {
               placeholder="Time"
               name="timeStr"
               readonly
+              data-testid="assign-time-display"
             />
           </div>
           <div class="mt-6">
-            <select class="select select-bordered w-full max-w-xs" required name="psId">
+            <select class="select select-bordered w-full max-w-xs" required name="psId" data-testid="assign-ps-select">
               <option value=""></option>
               <option v-for="ps in pss" :key="ps._id" :value="ps._id">
                 {{ ps.name }}
@@ -336,17 +341,18 @@ function formatNumberWithStatus(val: any, item?: any) {
               placeholder="Runner"
               name="runnerNumber"
               ref="numberInput"
+              data-testid="assign-runner-input"
             />
           </div>
 
           <div class="mt-6 w-full">
-            <button class="btn btn-primary w-full" type="submit">Assegna</button>
+            <button class="btn btn-primary w-full" type="submit" data-testid="assign-submit">Assegna</button>
           </div>
         </form>
       </X200Widget>
 
       <X200Widget v-if="selectedPs">
-        <form @submit.prevent="submitRetired($event as SubmitEvent)">
+        <form @submit.prevent="submitRetired($event as SubmitEvent)" data-testid="retired-runner-form">
           <div class="flex items-center justify-between">
             <span class="font-bold"> {{ _t('Runner Retired') }} </span>
           </div>
@@ -358,11 +364,12 @@ function formatNumberWithStatus(val: any, item?: any) {
               required
               placeholder="Runner"
               name="runnerNumber"
+              data-testid="retired-runner-input"
             />
           </div>
 
           <div class="mt-6 w-full">
-            <button class="btn btn-error w-full" type="submit">Ritirato</button>
+            <button class="btn btn-error w-full" type="submit" data-testid="retired-runner-submit">Ritirato</button>
           </div>
         </form>
       </X200Widget>
@@ -417,6 +424,7 @@ function formatNumberWithStatus(val: any, item?: any) {
                   step="0.1"
                   class="input join-item input-lg input-bordered w-full font-mono text-2xl"
                   placeholder="0.0"
+                  data-testid="penalty-input"
                 />
                 <div class="join-item bg-base-300 flex items-center px-6 font-bold uppercase transition-colors">s</div>
               </div>

@@ -88,7 +88,7 @@ function formatDiff(data: any, item?: any): string {
 <template>
   <L002MainInternal>
     <template #content>
-      <h1 class="mb-6">
+      <h1 class="mb-6" data-testid="score-title">
         <b class="text-3xl">{{ _t('Score') }} {{ selectedPS?.name }}</b>
       </h1>
       <X001Table
@@ -101,6 +101,7 @@ function formatDiff(data: any, item?: any): string {
         :labels="labels"
         :keys="keys"
         :format="format"
+        data-testid="score-table"
       />
     </template>
     <template #sidebar>

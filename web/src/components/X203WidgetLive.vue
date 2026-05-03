@@ -19,7 +19,7 @@ function goToLive() {
 </script>
 <template>
   <X200Widget>
-    <button class="btn-secondary btn w-full" type="button" @click="goToLive">
+    <button class="btn-secondary btn w-full" type="button" @click="goToLive" data-testid="live-view-button">
       <span class="relative mr-2 flex h-3 w-3">
         <span class="bg-error absolute inline-flex h-full w-full animate-ping rounded-full opacity-75"></span>
         <span class="bg-error relative inline-flex h-3 w-3 rounded-full"></span>

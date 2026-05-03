@@ -24,6 +24,8 @@
   "Dashboard": "Dashboard",
   "Date": "Date",
   "Delete PS": "Delete PS",
+  "Delete Race": "Delete Race",
+  "Are you sure you want to delete this race? This action cannot be undone.": "Are you sure you want to delete this race? This action cannot be undone.",
   "Delete Runner": "Delete Runner",
   "Desc": "Desc",
   "Device": "Device",

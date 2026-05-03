@@ -27,6 +27,7 @@ const props = defineProps<{
   actionDisabled?: boolean;
   editEnabled?: boolean;
   compact?: boolean;
+  dataTestid?: string;
 }>();
 
 const filterValue = ref<string>('');
@@ -82,7 +83,7 @@ function format(data: any, formatIndex: number, item?: any) {
       }
       case 'pos': {
         return data
-          ? `<span class="font-bold inline-block rounded-md min-w-[42px] px-2  bg-base-100 text-error border text-center text-red-700 text-base leading-5 ">${data}</b>`
+          ? `<span class="font-bold inline-block rounded-md min-w-[42px] px-2 bg-base-100 text-error border text-center text-red-700 text-base leading-5 print:bg-transparent print:border-none print:text-xs print:p-0 print:min-w-0">${data}</span>`
           : undefined;
       }
       case 'msToSec': {
@@ -138,7 +139,7 @@ function toggleExpand(id: string) {
       <!-- Desktop View (Horizontal scroll if needed but styled better) -->
       <div class="border-base-content/10 hidden overflow-hidden rounded-xl border shadow-xl md:block">
         <div class="overflow-x-auto">
-          <table class="bg-base-100 min-w-full table-auto leading-normal" ref="tableEl">
+          <table class="bg-base-100 min-w-full table-auto leading-normal" ref="tableEl" :data-testid="dataTestid">
             <thead>
               <tr class="bg-secondary text-secondary-content">
                 <th
@@ -172,6 +173,7 @@ function toggleExpand(id: string) {
                 v-for="item in filteredData"
                 :key="item._id"
                 class="group border-base-content/5 hover:bg-base-200/80 even:bg-base-200/40 border-b transition-colors"
+                data-testid="table-row"
               >
                 <td
                   v-for="(key, index) in keys"
@@ -198,6 +200,7 @@ function toggleExpand(id: string) {
                       v-if="editEnabled"
                       class="btn btn-primary btn-sm btn-square"
                       title="Modifica"
+                      data-testid="edit-button"
                       @click="$emit('editClick', item._id!)"
                     >
                       <PencilSquareIcon class="h-4 w-4" />
@@ -205,6 +208,7 @@ function toggleExpand(id: string) {
                     <button
                       class="btn btn-warning btn-sm btn-square"
                       title="Cancella"
+                      data-testid="remove-button"
                       @click="$emit('removeClick', item._id!)"
                     >
                       <XCircleIcon class="h-4 w-4" />

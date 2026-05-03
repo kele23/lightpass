@@ -31,7 +31,7 @@ function clearFilters() {
   <X200Widget v-if="categories.length > 0 || teams.length > 0">
     <div class="flex items-center justify-between">
       <span class="font-bold"> {{ _t('Filters') }} </span>
-      <button class="btn" title="Clear" @click="clearFilters">
+      <button class="btn" title="Clear" @click="clearFilters" data-testid="filter-clear">
         <BackspaceIcon class="h-6 w-6" />
       </button>
     </div>
@@ -40,7 +40,7 @@ function clearFilters() {
       <label class="label px-1 py-0 pb-1"
         ><span class="label-text font-semibold">{{ _t('Category') }}</span></label
       >
-      <details class="dropdown w-full">
+      <details class="dropdown w-full" data-testid="filter-category-dropdown">
         <summary class="btn w-full flex-nowrap justify-between font-normal">
           <span class="block w-full truncate text-left">
             {{ selectedCategories.length > 0 ? selectedCategories.join(', ') : _t('All Categories') }}
@@ -64,7 +64,7 @@ function clearFilters() {
       <label class="label px-1 py-0 pb-1"
         ><span class="label-text font-semibold">{{ _t('Team') }}</span></label
       >
-      <details class="dropdown w-full">
+      <details class="dropdown w-full" data-testid="filter-team-dropdown">
         <summary class="btn w-full flex-nowrap justify-between font-normal">
           <span class="block w-full truncate text-left">
             {{ selectedTeams.length > 0 ? selectedTeams.join(', ') : _t('All Teams') }}
@@ -86,7 +86,7 @@ function clearFilters() {
 
     <div class="mt-6 flex items-center justify-between px-1">
       <span class="label-text font-semibold">{{ _t('Extended View') }}</span>
-      <input type="checkbox" class="toggle toggle-primary toggle-sm" v-model="extended" />
+      <input type="checkbox" class="toggle toggle-primary toggle-sm" v-model="extended" data-testid="filter-extended-toggle" />
     </div>
   </X200Widget>
 </template>

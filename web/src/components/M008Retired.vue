@@ -39,7 +39,7 @@ function confirmTakeDelHandler(cont: boolean) {
 <template>
   <L002MainInternal>
     <template #content>
-      <h1 class="mb-6">
+      <h1 class="mb-6" data-testid="retired-title">
         <b class="text-3xl">{{ _t('Runner Retired') }}</b>
       </h1>
 
@@ -51,6 +51,7 @@ function confirmTakeDelHandler(cont: boolean) {
         :editEnabled="false"
         :format="['pIntBolder', 'string', 'uppercase']"
         @removeClick="(_id) => delTake(_id)"
+        data-testid="retired-takes-table"
       />
     </template>
     <template #sidebar>
@@ -59,7 +60,7 @@ function confirmTakeDelHandler(cont: boolean) {
           <label class="label">
             <span class="label-text">{{ _t('Select PS') }}</span>
           </label>
-          <select class="select select-bordered w-full max-w-xs" @change="changePs">
+          <select class="select select-bordered w-full max-w-xs" @change="changePs" data-testid="select-ps-input">
             <option value="">{{ _t('All PS') }}</option>
             <option v-for="ps in pss" :key="ps._id" :value="ps._id" :selected="ps._id == selectedPs?._id">
               {{ ps.name }}
