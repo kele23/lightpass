@@ -1,11 +1,38 @@
 import crypto from 'crypto';
-import { createError, defineEventHandler, getProxyRequestHeaders } from 'nitro/h3';
+import { defineEventHandler, getProxyRequestHeaders, HTTPError } from 'nitro/h3';
 import { useRuntimeConfig } from 'nitro/runtime-config';
 import { verifyJWT } from '../../utils/auth.ts';
 
 export default defineEventHandler(async (event) => {
   const user = await verifyJWT(event);
   const config = useRuntimeConfig();
+
+  // Check if user is a viewer and trying to perform a modification
+  const isViewer = user.roles.includes(config.lgViewerRole);
+  const isAdmin = user.roles.includes(config.lgAdminRole);
+  const isUser = user.roles.includes(config.lgStandardRole);
+
+  const method = event.req.method || 'GET';
+  const modificationMethods = ['PATCH', 'POST', 'PUT', 'DELETE'];
+
+  if (isViewer && !isAdmin && !isUser && modificationMethods.includes(method)) {
+    const pathname = event.url.pathname;
+    const isReadPost =
+      method === 'POST' &&
+      (pathname.endsWith('/_changes') ||
+        pathname.endsWith('/_all_docs') ||
+        pathname.endsWith('/_find') ||
+        pathname.endsWith('/_revs_diff') ||
+        pathname.endsWith('/_bulk_get') ||
+        pathname.includes('/_view/'));
+
+    if (!isReadPost) {
+      throw new HTTPError('Unauthorized', {
+        status: 403,
+        data: 'Forbidden: Viewer role cannot perform modifications',
+      });
+    }
+  }
 
   // generate couch db credentials
   const hash = crypto.createHmac('sha256', config.couchSecret);
@@ -37,7 +64,6 @@ export default defineEventHandler(async (event) => {
     fetchHeaders.set(key, value);
   }
 
-  const method = event.req.method;
   const payloadMethods = new Set(['PATCH', 'POST', 'PUT', 'DELETE']);
   const requestBody = payloadMethods.has(method) ? event.req.body : undefined;
 
@@ -50,7 +76,10 @@ export default defineEventHandler(async (event) => {
       headers: fetchHeaders,
     } as RequestInit);
   } catch (error) {
-    throw createError({ statusCode: 502, cause: error });
+    throw new HTTPError('Cannot proxy to Backend', {
+      status: 520,
+      data: error,
+    });
   }
 
   // Filtriamo gli header response esattamente come fa H3 proxy

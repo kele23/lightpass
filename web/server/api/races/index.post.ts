@@ -41,7 +41,7 @@ export default defineEventHandler(async (event): Promise<Race> => {
     method: 'PUT',
     body: JSON.stringify({
       admins: { names: [], roles: [config.couchAdminRole, config.lgAdminRole] },
-      members: { names: [], roles: [config.lgStandardRole] },
+      members: { names: [], roles: [config.lgStandardRole, config.lgViewerRole] },
     }),
   });
 
@@ -50,10 +50,11 @@ export default defineEventHandler(async (event): Promise<Race> => {
   const validateDocUpdateFn = `
     function(newDoc, oldDoc, userCtx, secObj) {
       var isStandardUser = userCtx.roles.indexOf('${config.lgStandardRole}') !== -1;
+      var isViewer = userCtx.roles.indexOf('${config.lgViewerRole}') !== -1;
       var isAdmin = userCtx.roles.indexOf('${config.lgAdminRole}') !== -1 || userCtx.roles.indexOf('_admin') !== -1;
 
-      // Se l'utente ha il ruolo standard e NON è un admin, blocca l'aggiornamento
-      if (isStandardUser && !isAdmin) {
+      // Se l'utente ha il ruolo standard o viewer e NON è un admin, blocca l'aggiornamento
+      if (isViewer && !isStandardUser && !isAdmin) {
         throw({ forbidden: 'Utente in sola lettura. Non hai i permessi per scrivere o modificare documenti.' });
       }
     }

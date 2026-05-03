@@ -4,7 +4,9 @@ import { _t } from '../services/dictionary.ts';
 import { date, datems, diff, onlyTimeMs, onlyTime } from '../utils/formats.ts';
 import { computed, ref } from 'vue';
 import { IDItem } from '../../types/iditem.ts';
+import { useLogin } from '../composable/useLogin.ts';
 
+const { isReadOnly } = useLogin();
 const tableEl = ref<HTMLElement>();
 
 defineEmits<{
@@ -156,7 +158,7 @@ function toggleExpand(id: string) {
                 </th>
 
                 <th
-                  v-if="!actionDisabled"
+                  v-if="!actionDisabled && !isReadOnly"
                   scope="col"
                   :class="
                     compact
@@ -190,7 +192,7 @@ function toggleExpand(id: string) {
                 </td>
 
                 <td
-                  v-if="!actionDisabled"
+                  v-if="!actionDisabled && !isReadOnly"
                   :class="
                     compact ? 'px-2 py-1 text-xs print:px-1 print:py-0' : 'px-4 py-3 text-sm print:px-1 print:py-0'
                   "
@@ -258,7 +260,7 @@ function toggleExpand(id: string) {
                 <div class="text-lg font-black tracking-tight" v-html="format(item[keys[0]], 0, item)"></div>
               </div>
 
-              <div class="flex shrink-0 gap-2">
+              <div class="flex shrink-0 gap-2" v-if="!isReadOnly">
                 <button
                   v-if="editEnabled"
                   class="btn btn-primary btn-sm btn-square"

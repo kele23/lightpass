@@ -13,6 +13,7 @@ import M008Retired from '../components/M008Retired.vue';
 import L001Main from '../components/L001Main.vue';
 import { _t } from './dictionary.ts';
 import { useRace } from '../composable/useRace.ts';
+import { useLogin } from '../composable/useLogin.ts';
 import { TakeType } from '../interfaces/db.ts';
 
 const routes = [
@@ -57,6 +58,12 @@ const router = createRouter({
 });
 
 router.beforeEach((to) => {
+  const { isReadOnly } = useLogin();
+  const restrictedRoutes = ['/start', '/finish', '/retired', '/device'];
+  if (isReadOnly.value && restrictedRoutes.includes(to.path)) {
+    return { path: '/results' };
+  }
+
   if (to.meta.race) {
     const { currentRace } = useRace();
     if (!currentRace.value) return { path: '/entry' };

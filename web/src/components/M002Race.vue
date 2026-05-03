@@ -12,6 +12,9 @@ import X001Table from './X001Table.vue';
 import X200Widget from './X200Widget.vue';
 import X201WidgetDownloadCsv from './X201WidgetDownloadCsv.vue';
 import X300ModalConfirm from './X300ModalConfirm.vue';
+import { useLogin } from '../composable/useLogin.ts';
+
+const { isReadOnly } = useLogin();
 
 /////////////////////////////////////////////////////
 const { pss, addPS, removePS, cleanPSs } = usePS();
@@ -83,7 +86,7 @@ async function uploadCsv(event: SubmitEvent) {
       />
     </template>
     <template #sidebar>
-      <X200Widget>
+      <X200Widget v-if="!isReadOnly">
         <form @submit.prevent="createPS($event as SubmitEvent)" data-testid="new-ps-form">
           <div class="flex items-center justify-between">
             <span class="font-bold"> {{ _t('New PS') }} </span>
@@ -128,7 +131,7 @@ async function uploadCsv(event: SubmitEvent) {
         </form>
       </X200Widget>
 
-      <X200Widget>
+      <X200Widget v-if="!isReadOnly">
         <form @submit.prevent="uploadCsv($event as SubmitEvent)" data-testid="upload-race-form">
           <div class="flex items-center justify-between">
             <span class="font-bold"> {{ _t('Upload Race') }} </span>

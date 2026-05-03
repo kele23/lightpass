@@ -4,6 +4,7 @@ export interface ApiFetchOptions extends RequestInit {
 
 export type LoginUser = {
   name: string;
+  roles: string[];
 };
 
 const STORAGE_PREFIX = 'lp_';

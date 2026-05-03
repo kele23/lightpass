@@ -33,7 +33,7 @@ const { pss } = usePS();
 const { isConnected } = useLightpassSensor();
 const { currentRace } = useRace();
 const { removeRace } = useRaces();
-const { user } = useLogin();
+const { user, isReadOnly } = useLogin();
 const router = useRouter();
 
 const isConfirmOpen = ref(false);
@@ -114,11 +114,9 @@ function closeDrawer() {
     </div>
     <div class="divider"></div>
     <div class="flex items-center justify-between px-4 font-semibold">
-      <div class="flex items-center gap-2">
-        <AtSymbolIcon class="h-6 w-6" /> {{ currentRace?.name }}
-      </div>
+      <div class="flex items-center gap-2"><AtSymbolIcon class="h-6 w-6" /> {{ currentRace?.name }}</div>
       <button
-        v-if="currentRace"
+        v-if="currentRace && !isReadOnly"
         class="btn btn-ghost btn-sm btn-circle text-error hover:bg-error/10"
         @click="isConfirmOpen = true"
         :title="_t('Delete Race')"
@@ -129,7 +127,7 @@ function closeDrawer() {
     </div>
     <div class="divider"></div>
     <ul class="menu mt-6 grow p-0 [&_li>*]:rounded-none">
-      <li>
+      <li v-if="!isReadOnly">
         <span>
           <CogIcon class="h-6 w-6 text-left" />
           <span class="mx-2 text-sm font-normal"> {{ _t('Dashboard') }} </span>
@@ -182,7 +180,7 @@ function closeDrawer() {
           <span class="mx-2 text-sm font-normal"> {{ _t('Race') }} </span>
         </router-link>
       </li>
-      <li v-if="isConnected">
+      <li v-if="isConnected && !isReadOnly">
         <router-link to="/device" @click="closeDrawer" data-testid="nav-device">
           <SignalIcon class="h-6 w-6 text-left" />
           <span class="mx-2 text-sm font-normal"> {{ _t('Device') }} </span>
@@ -227,13 +225,13 @@ function closeDrawer() {
         <ArrowLeftStartOnRectangleIcon class="h-6 w-6 text-left" />
         <span class="mx-2 text-sm font-semibold"> {{ _t('Back') }} </span>
       </router-link>
-      <div class="flex items-center gap-2" v-if="user">
+      <div class="flex items-center gap-1" v-if="user">
         <div
           :class="['h-3 w-3 rounded-full', isOnline ? 'bg-success' : 'bg-error']"
           :title="isOnline ? _t('Online') : _t('Offline')"
         ></div>
-        <UserCircleIcon class="h-6 w-6" />
-        <b class="text-base">{{ user?.name }}</b>
+        <UserCircleIcon class="h-5 w-5" />
+        <b class="text-sm">{{ user?.name }}</b>
       </div>
     </div>
     <X300ModalConfirm

@@ -3,9 +3,11 @@ import { Bars3Icon, SignalIcon } from '@heroicons/vue/24/outline';
 import { format } from 'date-fns';
 import { onMounted, onUnmounted, ref } from 'vue';
 import { useLightpassSensor } from '../composable/useLightpassSensor.ts';
+import { useLogin } from '../composable/useLogin.ts';
 import X002Nav from './X002Nav.vue';
 
 const { isConnected, requestDevice } = useLightpassSensor();
+const { isReadOnly } = useLogin();
 const currentTime = ref<string>(format(new Date(), 'HH:mm:ss'));
 
 let interval: any = undefined;
@@ -34,6 +36,7 @@ onUnmounted(() => {
         <div class="flex items-center gap-2">
           <span class="font-mono text-sm font-bold md:text-base">{{ currentTime }}</span>
           <button
+            v-if="!isReadOnly"
             class="btn btn-sm btn-square md:btn-md md:w-auto md:px-4"
             v-bind:class="isConnected ? 'btn-primary' : 'btn-ghost'"
             @click="requestDevice()"

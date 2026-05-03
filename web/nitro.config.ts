@@ -16,5 +16,6 @@ export default defineConfig({
     couchAdminRole: '_admin',
     lgAdminRole: 'lightpass_admin',
     lgStandardRole: 'lightpass_user',
+    lgViewerRole: 'lightpass_viewer',
   },
 });

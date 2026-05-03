@@ -6,12 +6,12 @@ import { doRefreshToken, apiLogout } from '../utils/apiFetch.ts';
 import { Race } from '../../types/races.ts';
 import { IDItem } from '../../types/iditem.ts';
 
-const { loggedIn } = useLogin();
+const { loggedIn, isReadOnly } = useLogin();
 
 const currentRace = ref<Race>();
 const raceDB = shallowRef<PouchDB.Database<IDItem | PS | Runner | Take | Time>>();
 const remoteDB = shallowRef<PouchDB.Database<IDItem | PS | Runner | Take | Time>>();
-let syncHandler: PouchDB.Replication.Sync<IDItem | PS | Runner | Take | Time> | null = null;
+let syncHandler: PouchDB.Replication.Sync<IDItem | PS | Runner | Take | Time> | PouchDB.Replication.Replication<IDItem | PS | Runner | Take | Time> | null = null;
 
 const isOnline = ref(navigator.onLine);
 window.addEventListener('online', () => (isOnline.value = true));
@@ -47,10 +47,19 @@ watch([loggedIn, currentRace, raceDB, isOnline], ([isLogged, race, localDb, onli
       },
     });
 
-    syncHandler = localDb.sync(remoteDB.value, {
-      live: true,
-      retry: true,
-    });
+    if (isReadOnly.value) {
+      // Per il ruolo viewer, facciamo solo REPLICA da remoto (PULL ONLY)
+      syncHandler = localDb.replicate.from(remoteDB.value, {
+        live: true,
+        retry: true,
+      });
+    } else {
+      // Per ruoli normali/admin, facciamo SYNC bidirezionale
+      syncHandler = localDb.sync(remoteDB.value, {
+        live: true,
+        retry: true,
+      });
+    }
   }
 });
 

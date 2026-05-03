@@ -18,6 +18,9 @@ import X001Table from './X001Table.vue';
 import X200Widget from './X200Widget.vue';
 import X300ModalConfirm from './X300ModalConfirm.vue';
 
+import { useLogin } from '../composable/useLogin.ts';
+
+const { isReadOnly } = useLogin();
 const toasterStore = useToasterStore();
 const { currentRace } = useRace();
 const { removeTime } = useTimes();
@@ -299,7 +302,7 @@ function formatNumberWithStatus(val: any, item?: any) {
           </select>
         </div>
       </X200Widget>
-      <X200Widget>
+      <X200Widget v-if="!isReadOnly">
         <form ref="assignTime" @submit.prevent="submitTake($event as SubmitEvent)" @reset="onReset" data-testid="assign-time-form">
           <div class="flex items-center justify-between">
             <span class="font-bold"> {{ _t('Assign') }} </span>
@@ -351,7 +354,7 @@ function formatNumberWithStatus(val: any, item?: any) {
         </form>
       </X200Widget>
 
-      <X200Widget v-if="selectedPs">
+      <X200Widget v-if="selectedPs && !isReadOnly">
         <form @submit.prevent="submitRetired($event as SubmitEvent)" data-testid="retired-runner-form">
           <div class="flex items-center justify-between">
             <span class="font-bold"> {{ _t('Runner Retired') }} </span>

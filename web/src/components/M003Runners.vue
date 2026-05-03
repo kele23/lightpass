@@ -12,6 +12,9 @@ import X001Table from './X001Table.vue';
 import X200Widget from './X200Widget.vue';
 import X201WidgetDownloadCsv from './X201WidgetDownloadCsv.vue';
 import X300ModalConfirm from './X300ModalConfirm.vue';
+import { useLogin } from '../composable/useLogin.ts';
+
+const { isReadOnly } = useLogin();
 
 /////////////////////////////////////////////////////
 const { runners, addRunner, removeRunner, cleanRunners: cleanRunner } = useRunners();
@@ -77,7 +80,7 @@ async function uploadCsv(event: SubmitEvent) {
       />
     </template>
     <template #sidebar>
-      <X200Widget>
+      <X200Widget v-if="!isReadOnly">
         <form @submit.prevent="createRunner($event as SubmitEvent)" data-testid="new-runner-form">
           <div class="flex items-center justify-between">
             <span class="font-bold"> {{ _t('New Runner') }} </span>
@@ -153,7 +156,7 @@ async function uploadCsv(event: SubmitEvent) {
         </form>
       </X200Widget>
 
-      <X200Widget>
+      <X200Widget v-if="!isReadOnly">
         <form @submit.prevent="uploadCsv($event as SubmitEvent)" data-testid="upload-runners-form">
           <div class="flex items-center justify-between">
             <span class="font-bold"> {{ _t('Upload Runners') }} </span>

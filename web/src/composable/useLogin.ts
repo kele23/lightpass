@@ -1,8 +1,17 @@
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { apiLogout, apiCheck, apiLogin, LoginUser } from '../utils/apiFetch.ts';
 
 const loggedIn = ref<boolean>(false);
 const user = ref<LoginUser>();
+
+const isReadOnly = computed(() => {
+  if (!user.value) return true;
+  const roles = user.value.roles || [];
+  const isViewer = roles.includes('lightpass_viewer');
+  const isAdmin = roles.includes('lightpass_admin');
+  const isUser = roles.includes('lightpass_user');
+  return isViewer && !isAdmin && !isUser;
+});
 
 // Event listener per logout forzato da apiFetch (es: token definitivamente scaduto)
 window.addEventListener('auth:logout', () => {
@@ -47,5 +56,5 @@ export function useLogin() {
     return true;
   };
 
-  return { login, logout, loggedIn, user, isLoggingIn, isLoggedIn };
+  return { login, logout, loggedIn, user, isLoggingIn, isLoggedIn, isReadOnly };
 }
