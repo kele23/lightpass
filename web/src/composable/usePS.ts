@@ -25,8 +25,16 @@ watchEffect((onCleanup) => {
         if (changes.deleted) {
           pss.value = pss.value.filter((item) => item._id != changes.id);
         } else if (changes.doc) {
-          pss.value = [...pss.value, changes.doc];
-          console.log('>>>>>>> New PS ', changes.doc.name);
+          const existingIndex = pss.value.findIndex(p => p._id === changes.id);
+          if (existingIndex >= 0) {
+            const newPss = [...pss.value];
+            newPss[existingIndex] = changes.doc;
+            pss.value = newPss;
+            console.log('>>>>>>> Updated PS ', changes.doc.name);
+          } else {
+            pss.value = [...pss.value, changes.doc];
+            console.log('>>>>>>> New PS ', changes.doc.name);
+          }
         }
       });
   }
@@ -90,6 +98,15 @@ export function usePS() {
     }
   };
 
+  const updatePS = async (ps: PS): Promise<PS> => {
+    if (!raceDB.value) throw new Error('Cannot update ps without a race selected');
+    const resp = await raceDB.value.put(ps);
+    return {
+      ...ps,
+      _rev: resp.rev,
+    } as PS;
+  };
+
   const cleanPSs = async () => {
     if (!raceDB.value) throw new Error('Cannot clean PSs without a race selected');
 
@@ -119,6 +136,7 @@ export function usePS() {
   return {
     pss,
     addPS,
+    updatePS,
     removePS,
     cleanPSs,
   };

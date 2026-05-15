@@ -1,15 +1,31 @@
 import PouchDB from 'pouchdb-browser';
 import { ref, shallowRef, watch } from 'vue';
+import { useLocalStorage } from '@vueuse/core';
 import { PS, Runner, Take, Time } from '../interfaces/db.ts';
 import { useLogin } from './useLogin.ts';
+import { useRaces } from './useRaces.ts';
 import { doRefreshToken, apiLogout } from '../utils/apiFetch.ts';
 import { Race } from '../../types/races.ts';
 import { IDItem } from '../../types/iditem.ts';
 
 const { loggedIn, isReadOnly } = useLogin();
+const { races, isRacesLoaded } = useRaces();
 
-const currentRace = ref<Race>();
-const raceDB = shallowRef<PouchDB.Database<IDItem | PS | Runner | Take | Time>>();
+const currentRace = useLocalStorage<Race | undefined>('lightpass-current-race', undefined, {
+  serializer: {
+    read: (v: string) => {
+      try {
+        return v && v !== '[object Object]' ? JSON.parse(v) : undefined;
+      } catch (e) {
+        return undefined;
+      }
+    },
+    write: (v: any) => JSON.stringify(v),
+  },
+});
+const raceDB = shallowRef<PouchDB.Database<IDItem | PS | Runner | Take | Time> | undefined>(
+  currentRace.value?._id ? new PouchDB(currentRace.value._id) : undefined
+);
 const remoteDB = shallowRef<PouchDB.Database<IDItem | PS | Runner | Take | Time>>();
 let syncHandler: PouchDB.Replication.Sync<IDItem | PS | Runner | Take | Time> | PouchDB.Replication.Replication<IDItem | PS | Runner | Take | Time> | null = null;
 
@@ -59,6 +75,20 @@ watch([loggedIn, currentRace, raceDB, isOnline], ([isLogged, race, localDb, onli
         live: true,
         retry: true,
       });
+    }
+  }
+});
+
+watch([isRacesLoaded, races, currentRace], ([loaded, racesList, current]) => {
+  if (loaded && current && racesList) {
+    const exists = racesList.some((r) => r._id === current._id);
+    if (!exists) {
+      console.warn('Current race not found in the valid races list. Clearing it.');
+      currentRace.value = undefined;
+      if (raceDB.value) {
+        raceDB.value.close();
+        raceDB.value = undefined;
+      }
     }
   }
 });

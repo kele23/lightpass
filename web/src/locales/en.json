@@ -120,5 +120,12 @@
   "You can't remember username or password?": "You can't remember username or password?",
   "close": "close",
   "feed": "feed",
-  "or": "or"
+  "or": "or",
+  "Custom Starts / Pauses": "Custom Starts / Pauses",
+  "No custom starts defined": "No custom starts defined",
+  "Start Time": "Start Time",
+  "Add / Edit Custom Start": "Add / Edit Custom Start",
+  "Runner Number": "Runner Number",
+  "New Start Time": "New Start Time",
+  "Save": "Save"
 }

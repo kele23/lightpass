@@ -42,7 +42,11 @@ export function calculateScore(ps: PS, pss: PS[], allTakes: Take[], runners: Run
   let currentStart = ps.start;
   let lastRunner: Runner | undefined = undefined;
   for (const runner of itRunners) {
-    if (lastRunner) {
+    const customStart = ps.customStarts?.find((p) => p.runner == runner.number);
+
+    if (customStart) {
+      currentStart = customStart.time;
+    } else if (lastRunner) {
       currentStart = currentStart + ps.gap * 1000 * Math.abs(runner.number - lastRunner.number);
     }
 

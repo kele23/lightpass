@@ -23,8 +23,16 @@ watchEffect((onCleanup) => {
           times.value = times.value.filter((item) => item._id != changes.id);
         } else if (changes.doc) {
           if (changes.doc.deviceId === getMachineId()) {
-            times.value = [...times.value, changes.doc];
-            console.log(`>>>>>>> New Time ${changes.doc.time} (${changes.doc.deviceId})`);
+            const existingIndex = times.value.findIndex(t => t._id === changes.id);
+            if (existingIndex >= 0) {
+              const newTimes = [...times.value];
+              newTimes[existingIndex] = changes.doc;
+              times.value = newTimes;
+              console.log(`>>>>>>> Updated Time ${changes.doc.time} (${changes.doc.deviceId})`);
+            } else {
+              times.value = [...times.value, changes.doc];
+              console.log(`>>>>>>> New Time ${changes.doc.time} (${changes.doc.deviceId})`);
+            }
           }
         }
       });

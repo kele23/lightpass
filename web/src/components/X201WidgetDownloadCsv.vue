@@ -3,9 +3,13 @@
 import Papa from 'papaparse';
 import { IDItem } from '../../types/iditem.ts';
 import X200Widget from './X200Widget.vue';
+import { useRace } from '../composable/useRace.ts';
+
+const { currentRace } = useRace();
 
 const props = defineProps<{
   data: IDItem[];
+  filename?: string;
 }>();
 
 async function downloadCsv() {
@@ -14,7 +18,11 @@ async function downloadCsv() {
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  link.setAttribute('download', 'export.csv');
+  
+  const raceName = currentRace.value?.name ? currentRace.value.name.replace(/\s+/g, '_').toLowerCase() : 'gara';
+  const specificName = props.filename ? props.filename.replace(/\s+/g, '_').toLowerCase() : 'export';
+  link.setAttribute('download', `lightpass_${raceName}_${specificName}.csv`);
+  
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);

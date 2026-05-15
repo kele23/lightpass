@@ -25,8 +25,16 @@ watchEffect((onCleanup) => {
         if (changes.deleted) {
           runners.value = runners.value.filter((item) => item._id != changes.id);
         } else if (changes.doc) {
-          runners.value = [...runners.value, changes.doc];
-          console.log('>>>>>>> New Runner ', changes.doc.name);
+          const existingIndex = runners.value.findIndex(r => r._id === changes.id);
+          if (existingIndex >= 0) {
+            const newRunners = [...runners.value];
+            newRunners[existingIndex] = changes.doc;
+            runners.value = newRunners.toSorted((a, b) => a.number - b.number);
+            console.log('>>>>>>> Updated Runner ', changes.doc.name);
+          } else {
+            runners.value = [...runners.value, changes.doc].toSorted((a, b) => a.number - b.number);
+            console.log('>>>>>>> New Runner ', changes.doc.name);
+          }
         }
       });
   }
@@ -51,7 +59,7 @@ effect(async () => {
   }
 
   // finish
-  runners.value = tmp;
+  runners.value = tmp.toSorted((a, b) => a.number - b.number);
 });
 
 export function useRunners() {

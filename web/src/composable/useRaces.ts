@@ -6,6 +6,7 @@ import { Race } from '../../types/races.ts';
 const { loggedIn } = useLogin();
 
 const races = ref<Race[]>([]);
+const isRacesLoaded = ref<boolean>(false);
 
 const loadRaces = async () => {
   try {
@@ -24,6 +25,8 @@ const loadRaces = async () => {
     races.value = (await resp.json()) as Race[];
   } catch (e) {
     console.warn('Errore fatale: impossibile caricare gare, cache vuota o offline completo', e);
+  } finally {
+    isRacesLoaded.value = true;
   }
 };
 
@@ -72,5 +75,5 @@ export function useRaces() {
     return false;
   };
 
-  return { races, addRace, removeRace };
+  return { races, isRacesLoaded, addRace, removeRace };
 }

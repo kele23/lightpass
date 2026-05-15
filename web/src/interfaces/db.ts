@@ -18,6 +18,7 @@ export type PartialPS = {
   start: number;
   gap: number;
   order: Order;
+  customStarts?: { runner: number; time: number }[];
 };
 
 export type PS = IDItem & PartialPS;

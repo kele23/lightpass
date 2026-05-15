@@ -122,5 +122,12 @@
   "You can't remember username or password?": "Non ricordi username o password?",
   "close": "chiudi",
   "feed": "feed",
-  "or": "oppure"
+  "or": "oppure",
+  "Custom Starts / Pauses": "Partenze Personalizzate / Pause",
+  "No custom starts defined": "Nessuna partenza personalizzata definita",
+  "Start Time": "Orario Partenza",
+  "Add / Edit Custom Start": "Aggiungi / Modifica Partenza",
+  "Runner Number": "Numero Concorrente",
+  "New Start Time": "Nuovo Orario Partenza",
+  "Save": "Salva"
 }

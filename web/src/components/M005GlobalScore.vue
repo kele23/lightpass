@@ -79,7 +79,7 @@ function formatDiff(data: any, item?: any): string {
       <X203WidgetLive />
       <X204WidgetFilter :data="score" v-model:categories="selectedCategories" v-model:teams="selectedTeams" v-model:extended="isExtended" />
       <X202WidgetPrint :table="table?.tableEl" />
-      <X201WidgetDownloadCsv :data="filteredScore" />
+      <X201WidgetDownloadCsv :data="filteredScore" filename="global_score" />
     </template>
   </L002MainInternal>
 </template>

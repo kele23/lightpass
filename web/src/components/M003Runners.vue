@@ -182,7 +182,7 @@ async function uploadCsv(event: SubmitEvent) {
         </form>
       </X200Widget>
 
-      <X201WidgetDownloadCsv :data="runners" />
+      <X201WidgetDownloadCsv :data="runners" filename="runners" />
     </template>
 
     <!-- MODALS OR THINGS -->
