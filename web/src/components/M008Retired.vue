@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useConfirmDialog } from '@vueuse/core';
-import { ref } from 'vue';
+import { useConfirmDialog, useLocalStorage } from '@vueuse/core';
+import { ref, watch } from 'vue';
 import { useDashboard } from '../composable/useDashboard.ts';
 import { usePS } from '../composable/usePS.ts';
 import { PS, TakeType } from '../interfaces/db.ts';
@@ -11,6 +11,7 @@ import X200Widget from './X200Widget.vue';
 import X300ModalConfirm from './X300ModalConfirm.vue';
 
 const { pss } = usePS();
+const selectedPsId = useLocalStorage<string | undefined>('lightpass-dashboard-selected-ps', undefined);
 const selectedPs = ref<PS>();
 const type = ref<TakeType>(TakeType.retired);
 const { takes, removeTake } = useDashboard(selectedPs, type);
@@ -18,8 +19,22 @@ const { takes, removeTake } = useDashboard(selectedPs, type);
 const { isRevealed: isTakeDelRevealed, reveal: revealTakeDel, confirm: confirmTakeDel } = useConfirmDialog();
 const delTakeId = ref<string>('');
 
+watch([pss, selectedPsId], ([newPss, newId]) => {
+  if (newId && newPss.length > 0) {
+    const found = newPss.find(p => p._id === newId);
+    if (found) {
+      selectedPs.value = found;
+    } else {
+      selectedPsId.value = undefined;
+      selectedPs.value = undefined;
+    }
+  } else if (!newId) {
+    selectedPs.value = undefined;
+  }
+}, { immediate: true });
+
 function changePs(event: Event) {
-  selectedPs.value = pss.value.find((item) => item._id == (event.target as HTMLInputElement)?.value);
+  selectedPsId.value = (event.target as HTMLInputElement)?.value || undefined;
 }
 
 const delTake = async (id: string) => {

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { BackspaceIcon, FlagIcon, PlayIcon } from '@heroicons/vue/24/solid';
-import { useConfirmDialog } from '@vueuse/core';
+import { useConfirmDialog, useLocalStorage } from '@vueuse/core';
 import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useDashboard } from '../composable/useDashboard.ts';
@@ -26,6 +26,7 @@ const { currentRace } = useRace();
 const { removeTime } = useTimes();
 const { pss } = usePS();
 const { runners } = useRunners();
+const selectedPsId = useLocalStorage<string | undefined>('lightpass-dashboard-selected-ps', undefined);
 const selectedPs = ref<PS>();
 const type = ref<TakeType>();
 const startOffset = ref(-5);
@@ -42,8 +43,22 @@ const penInput = ref<number>(0);
 
 const assignTime = ref<HTMLFormElement>();
 
+watch([pss, selectedPsId], ([newPss, newId]) => {
+  if (newId && newPss.length > 0) {
+    const found = newPss.find(p => p._id === newId);
+    if (found) {
+      selectedPs.value = found;
+    } else {
+      selectedPsId.value = undefined;
+      selectedPs.value = undefined;
+    }
+  } else if (!newId) {
+    selectedPs.value = undefined;
+  }
+}, { immediate: true });
+
 function changePs(event: Event) {
-  selectedPs.value = pss.value.find((item) => item._id == (event.target as HTMLInputElement)?.value);
+  selectedPsId.value = (event.target as HTMLInputElement)?.value || undefined;
 }
 
 watch(
